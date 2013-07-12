@@ -127,7 +127,7 @@ define([
 		this.body = options.body;
 		this.target = options.from == "me" ? options.to : options.from;
 		this.readed = ko.observable(false);
-		var d = new Date(this.timestamp);
+		var d = new Date(this.timestamp * 1000);
 		this.time = (d.getHours()<10?"0":"") + d.getHours() + ":" + (d.getMinutes()<10?"0":"") + d.getMinutes();
 	}
 
@@ -378,6 +378,8 @@ define([
 		self.mapOptions(self.options.mapOptions);
 		self.isOnline(self.options.isOnline);
 
+		if (self.isOnline()) self.server.setOption("isOnline",true);
+
 		// Сначала проставляем mode из настроек виджета
 		self.mode(self.options.mode);
 		// Для данного mode создаем все окна и виджеты
@@ -477,6 +479,7 @@ define([
 				dt: self.currentKey(),
 				timeMultiplier: self.playerSpeed(),
 				dtStart: self.startKey(),
+				isOnline: self.isOnline(),
 				callback: function(data) {
 					// в data ожидается массив с ключами - id-шниками пилотов и данными - {lat и lng} - текущее положение
 					self.loading(false);

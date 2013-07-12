@@ -25,7 +25,12 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		this.dragging = ko.observable(false);
 
 		if (this.isOnline) {
-			this.hideOnlineNotification = ko.observable(false);
+      //по умолчанию скрывать сообщение
+			this.hideOnlineNotification = ko.observable(true);
+      this.isCurrentlyOnline.subscribe(function(val){
+        self.hideOnlineNotification(val);
+      });
+
 			this.showOnlineNotification = ko.computed(function() {
 				return (self.isOnline() && !self.isCurrentlyOnline() && !self.hideOnlineNotification());
 			});
