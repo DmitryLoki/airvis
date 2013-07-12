@@ -22,9 +22,10 @@ define(["jquery","knockout"], function($,ko) {
 		});
 
 		this.rangePercent = ko.computed(function() {
+			if (!self.range()) return 0;
 			var delta = self.max() - self.min();
-			var percent = delta > 0 ? Math.floor(100*(self.range()-self.min())/delta) : self.min();
-			if (percent > 0) percent = 100;
+			var percent = delta > 0 ? Math.floor(100*(self.range()-self.min())/delta) : 0;
+			if (percent > 100) percent = 100;
 			if (percent < 0) percent = 0;
 			return percent;
 		});
@@ -74,8 +75,9 @@ define(["jquery","knockout"], function($,ko) {
 			if (p < 0) p = 0;
 //			self.drag(self.min()+(self.max()-self.min())*p);
 			var drag = self.min()+(self.max()-self.min())*p;
-			if (drag > self.range())
+			if (self.range() && drag > self.range())
 				drag = self.range();
+			drag = Math.floor(drag);
 			self.drag(drag);
 		}
 		$("body").addClass("airvis-document-overwrite-cursor-pointer");

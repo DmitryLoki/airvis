@@ -13,11 +13,13 @@ require.config({
 		"jquery.color": "lib/jquery.color",
 		"async": "lib/async",
 		"text": "lib/require.text",
-    	"ie-fix": "wild-libs/ie-fix"
+    	"ie-fix": "wild-libs/ie-fix",
+    	"facebook": "//connect.facebook.net/en_US/all"
 	},
 	shim: {
     	"jquery": { exports: function(){ return jQuery.noConflict(true); } },
-    	"setImmediate": { exports: "window.setImmediate" }
+    	"setImmediate": { exports: "window.setImmediate" },
+    	"facebook": { exports: "FB" }
 	},
     config: {
         text: {

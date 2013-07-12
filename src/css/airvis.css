@@ -37,12 +37,13 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 .airvis-window-header { background-color: rgba(0,47,64,.93); padding: 0 11px; height: 40px;}
 .airvis-window-title { color: #ffffff; display: block; float: left; font-size: 18px; font-weight: bold; line-height: 40px; padding: 0; text-rendering: optimizelegibility;}
 
-.airvis-window-close { float: right; outline: 0 none; display: block; width: 24px; height: 24px; background: url(../img/widget_control.png) -48px 0 no-repeat; margin-top: 8px; margin-right: -2px; opacity: 0.3; transition: opacity 0.2s; -webkit-transition: opacity 0.2s; }
-.airvis-window-close-absolute { position: absolute; outline: 0 none; display: block; top: 8px; right: 8px; width: 24px; height: 24px; background: url(../img/widget_control.png) -48px 0 no-repeat; opacity: 0.3; transition: opacity 0.2s; -webkit-transition: opacity 0.2s; }
+.airvis-window-close { float: right; outline: 0 none; display: block; width: 24px; height: 24px; background: url(../img/widget_control2.png) -48px 0 no-repeat; margin-top: 8px; margin-right: -2px; opacity: 0.3; transition: opacity 0.2s; -webkit-transition: opacity 0.2s; }
+.airvis-window-close-absolute { position: absolute; outline: 0 none; display: block; top: 8px; right: 8px; width: 24px; height: 24px; background: url(../img/widget_control2.png) -48px 0 no-repeat; opacity: 0.3; transition: opacity 0.2s; -webkit-transition: opacity 0.2s; }
+.airvis-window-close-cross { background-position: -72px 0; }
 .airvis-window-close:hover,
 .airvis-window-close-absolute:hover { opacity: 1; }
 
-.airvis-window-ec-absolute { position: absolute; outline: 0 none; display: block; top: -32px; right: 38px; width: 24px; height: 24px; background: url(../img/widget_control.png) 0 0 no-repeat; opacity: 0.3; transition: opacity 0.2s; -webkit-transition: opacity 0.2s; }
+.airvis-window-ec-absolute { position: absolute; outline: 0 none; display: block; top: -32px; right: 38px; width: 24px; height: 24px; background: url(../img/widget_control2.png) 0 0 no-repeat; opacity: 0.3; transition: opacity 0.2s; -webkit-transition: opacity 0.2s; }
 .airvis-window-ec-absolute-status { position: absolute; display: block; top: -30px; right: 70px; color: #ffffff; }
 .airvis-window-ec-absolute:hover { opacity: 1; }
 .airvis-collapse { background-position: -24px 0; }
@@ -190,13 +191,20 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 
 .airvis-player-controls-wrapper { background: rgba(0, 47, 64, 0.5); height: 40px; position: relative;}
 .airvis-player-controls-wrapper .airvis-player-controls { float: left;}
-.airvis-player-controls a { text-decoration: none; display: inline-block; min-width: 14px; padding: 0px 5px 0px 25px; font: bold 12px/24px Arial, Helvetica, sans-serif; height: 24px; background: rgba(255,255,255,0.25) url(../img/player_but.png) 0 -48px no-repeat; text-align: center; color: #002a3a; cursor: pointer; overflow: hidden; vertical-align: top;
+.airvis-player-controls a { text-decoration: none; display: inline-block; min-width: 14px; padding: 0px 5px; font: bold 12px/24px Arial, Helvetica, sans-serif; height: 24px; text-align: center; color: #002a3a; cursor: pointer; overflow: hidden; vertical-align: top;
+  background-color: rgba(255,255,255,0.25);
   -webkit-border-radius: 3px; 
   -moz-border-radius: 3px; 
   border-radius: 3px;
   transition: background-color 0.5s ease;
   -webkit-transition: background-color 0.5s ease;
 }
+
+.airvis-player-controls a.airvis-online {
+  padding-left: 25px;
+  background: rgba(255,255,255,0.25) url(../img/player_but.png) 0 -48px no-repeat; 
+}
+
 .airvis-player-controls a:hover { background-color: #ffffff;}
 .airvis-player-controls a.player-button-on { background-color: #ffffff; }
 /*
@@ -217,7 +225,6 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
   float: right;
   padding: 8px 10px 0 0;
 }
-
 
 
 

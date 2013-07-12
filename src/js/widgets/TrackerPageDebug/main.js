@@ -168,10 +168,14 @@ define([
 		this._serverKeyUpdatedAt = (new Date).getTime();
 		this.serverKey = ko.computed({
 			read: function() {
+				if (!self.isOnline()) return null;
 				var d = (new Date).getTime();
+				console.log("read serverKey");
+				return Math.floor((self.startKey()+self.endKey())/2);
 				return self._serverKey() + d - self._serverKeyUpdatedAt - config.serverDelay;
 			},
 			write: function(value) {
+				console.log("write server key:",value);
 				self._serverKey(value);
 				self._serverKeyUpdatedAt = (new Date).getTime();
 			}
@@ -559,11 +563,14 @@ define([
 		}
 
 		self.playerControl.on("change",function(v) {
+			console.log(v,self.currentKey());
 			self.currentKey(v);
-			if (Math.abs(v-self.serverKey()) < 60000)
-				self.isCurrentlyOnline(true);
-			else
-				self.isCurrentlyOnline(false);
+			if (self.isOnline()) {
+				if (Math.abs(v-self.serverKey()) < 60000)
+					self.isCurrentlyOnline(true);
+				else
+					self.isCurrentlyOnline(false);
+			}
 			resetUfosTracks();
 			run(runTableData);
 		});
