@@ -330,7 +330,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","config"],funct
 			template: self.templates.markerTitle,
 			data: {
 				title: u.name,
-				color: u.color
+				color: "#000000"
 			}
 		});
 		u._trackModel = new gmaps.Polyline({
