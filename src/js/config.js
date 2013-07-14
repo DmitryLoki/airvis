@@ -24,22 +24,34 @@ define({
 	canvas: {
 		ufos: {
 			basic: {
-				font: "13px sans",
+				font: "11px verdana",
 				textAlign: "left",
-				textBaseline: "top",
+				textBaseline: "bottom",
 				strokeStyle: "#000000",
-				fillStyle: "#000000",
+				fillStyle: "#1a1a1a",
 				lineWidth: 1
 			},
-			colors: {
-				default: "#fc0d1b",
-				landed: "#20bbfc",
-				finished: "#fc20e8"
+			icons: {
+				default: {
+					fillStyle: "#fc0d1b",
+					strokeStyle: "#800000"
+				},
+				landed: {
+					fillStyle: "#20bbfc",
+					strokeStyle: "#005e80"
+				},
+				finished: {
+					fillStyle: "#fc20e8",
+					strokeStyle: "#651b80"
+				}
 			},
 			titles: {
 				strokeStyle: "#ffffff",
-				lineWidth: 5,
+				lineWidth: 3,
 				fillStyle: "#000000"
+			},
+			titlesBg: {
+				fillStyle: "rgba(255,255,255,0.75)"
 			},
 			sizes: {
 				default: 30,
@@ -48,44 +60,56 @@ define({
 			},
 			shadow: {
 				fillStyle: "rgba(0,0,0,0.2)"
-			}
+			},
+			nameOffset: 4
 		},
 		waypoints: {
 			basic: {
-				font: "15px sans",
+				font: "bold 11px verdana",
 				textAlign: "left",
-				textBaseline: "top",
+				textBaseline: "middle",
 				fillStyle: "#000000",
 				lineWidth: 3,
-				strokeStyle: "#4B504A"				
+				strokeStyle: "#333333"				
 			},
 			colors: {
 				ss: {
-					closed: "rgba(255,0,0,0.5)",
-					opened: "rgba(70,220,70,0.5)"
+					closed: "rgba(217,12,12,0.7)",
+					opened: "rgba(142,217,12,0.7)",
+					closedText: "#4c0505",
+					openedText: "#324c05"
 				},
 				goal: {
-					closed: "rgba(120,40,120,0.6)",
-					opened: "rgba(120,40,120,0.6)"
+					closed: "rgba(186,7,212,0.7)",
+					opened: "rgba(186,7,212,0.7)",
+					closedText: "#ffffff",
+					openedText: "#ffffff"
 				},
-	//			es: {
-	//				closed: "#505050",
-	//				opened: "#505050"
-	//			},
 				default: {
-					closed: "rgba(140,140,140,0.6)",
-					opened: "rgba(140,140,140,0.6)",
+					closed: "rgba(142,142,142,0.7)",
+					opened: "rgba(142,142,142,0.7)",
+					closedText: "#1a1a1a",
+					openedText: "#1a1a1a"
 				}
-			}
+			},
+			titleSize: 17,
+			titleRadius: 10,
+			titleOffset: 1
 		},
 		shortWay: {
 			basic: {
 				lineWidth: 5,
-				strokeStyle: "rgba(0,34,68,0.6)",
-				fillStyle: "rgba(0,34,68,0.6)",
-				font: "13px sans"
+				strokeStyle: "rgba(51,51,51,0.7)",
+				fillStyle: "rgba(51,51,51,0.7)",
+				font: "bold 11px verdana",
+				textAlign: "center",
+				textBaseline: "middle"
 			},
-			arrowSize: 10
+			text: {
+				fillStyle: "#ffffff"
+			},
+			arrowSize: 50,
+			circleSize: 10
 		}
 	},
 	ufo: {

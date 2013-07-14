@@ -24,8 +24,9 @@ define(["google.maps"],function(gmaps) {
 	}
 
 	CanvasOverlay.prototype.clear = function() {
-		if (!this._context) return;
-		this._context.clearRect(0,0,this._width,this._height);
+		this._canvas.height = this._canvas.height;
+//		if (!this._context) return;
+//		this._context.clearRect(0,0,this._width,this._height);
 	}
 
 
@@ -72,6 +73,10 @@ define(["google.maps"],function(gmaps) {
 		if (center.x + radius < 0 || center.x - radius > this._width) return false;
 		if (center.y + radius < 0 || center.y - radius > this._height) return false;
 		return true;
+	}
+
+	CanvasOverlay.prototype.getCenter = function() {
+		return {x:Math.floor(this._width/2),y:Math.floor(this._height/2)};
 	}
 
 	return CanvasOverlay;

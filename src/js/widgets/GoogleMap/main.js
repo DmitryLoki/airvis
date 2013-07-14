@@ -151,6 +151,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","config"],funct
 	}
 
 	GoogleMap.prototype.update = function() { }
+	GoogleMap.prototype.updateIcons = function() { }
 
 	GoogleMap.prototype.createWaypoint = function(data) {
 		var self = this;

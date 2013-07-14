@@ -94,6 +94,10 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		}
 	}
 
+	GoogleMap.prototype.prepareCoords = function(lat,lng) {
+		return this.map.getProjection().fromLatLngToPoint(new gmaps.LatLng(lat,lng));
+	}
+
 	GoogleMap.prototype.createWaypoint = function(data) {
 		var self = this;
 		var w = {
@@ -112,23 +116,23 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			return self.map.getProjection().fromLatLngToPoint(rp);
 		});
 
+		// Здесь заводим еще переменную, иначе computed каждый тик вызывает свой subscribe
+		w.stateUpdate = ko.observable();
 		w.state = ko.computed(function() {
-			if (self.mode() == "simple") return "opened";
-			return w.openKey() < self.currentKey() ? "opened" : "closed";
+			var v = self.mode() == "simple" ? "opened" : (w.openKey() < self.currentKey() ? "opened" : "closed");
+			w.stateUpdate(v);
+			return v;
 		});
-
-		w.state.subscribe(function() {
+		w.stateUpdate.subscribe(function(state) {
 			self.update("static");
 		});
 
 		w.render = function(co) {
 			if (self.cylindersVisualMode() == "off") return;
-
 			var coords = self.prepareCoords(w.center().lat,w.center().lng);
 			var p = co.abs2rel(coords,self.zoom());
 			var sp = co.abs2rel(w.spherePoint(),self.zoom());
 			var r = Math.sqrt(Math.pow(p.x-sp.x,2)+Math.pow(p.y-sp.y,2));
-
 			if (co.inViewport(p,r)) {
 				var context = co.getContext();
 				var color = config.canvas.waypoints.colors[w.type()] ? config.canvas.waypoints.colors[w.type()][w.state()] : config.canvas.waypoints.colors["default"][w.state()];
@@ -139,154 +143,62 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				if (self.cylindersVisualMode() == "full")
 					context.fill();
 			}
-
-
 		}
-/*
-		w.title = ko.computed(function() {
-			if (self.profVisualMode() == "prof") return w.name();
-			if (w.type() == "ordinal") {
-				var n = 0;
-				for (var i = 0, l = self.waypoints().length; i<l && self.waypoints()[i].id()!=w.id(); i++)
-					if (self.waypoints()[i].type() == "ordinal")
-						n++;
-				return n+1;
+
+		w.renderLabels = function(co) {
+			if (self.cylindersVisualMode() == "off") return;
+			var coords = self.prepareCoords(w.center().lat,w.center().lng);
+			var p = co.abs2rel(coords,self.zoom());
+			var sp = co.abs2rel(w.spherePoint(),self.zoom());
+			var r = Math.sqrt(Math.pow(p.x-sp.x,2)+Math.pow(p.y-sp.y,2));
+			if (co.inViewport(p,r)) {
+				var context = co.getContext();
+				var color = config.canvas.waypoints.colors[w.type()] ? config.canvas.waypoints.colors[w.type()][w.state()] : config.canvas.waypoints.colors["default"][w.state()];
+				var textColor = config.canvas.waypoints.colors[w.type()] ? config.canvas.waypoints.colors[w.type()][w.state()+"Text"] : config.canvas.waypoints.colors["default"][w.state()+"Text"];
+				co.setProperties($.extend({},config.canvas.waypoints.basic,{fillStyle:color}));
+				var center = co.getCenter();
+				var angle = Math.atan2(p.y-center.y,p.x-center.x);
+				if (w.id()%2) angle += Math.PI;
+				var r1 = r;
+				var p1 = {x:p.x-r1*Math.cos(angle),y:p.y-r1*Math.sin(angle)};
+				if (!co.inViewport(p1,0)) {
+					angle -= Math.PI;
+					var p1 = {x:p.x-r1*Math.cos(angle),y:p.y-r1*Math.sin(angle)};
+				}
+				var r2 = r + config.canvas.waypoints.titleSize;
+				var p2 = {x:p.x-r2*Math.cos(angle),y:p.y-r2*Math.sin(angle)};
+				var r3 = r + config.canvas.waypoints.titleSize - config.canvas.waypoints.titleRadius;
+				var p3 = {x:p.x-r3*Math.cos(angle),y:p.y-r3*Math.sin(angle)};
+				var title = w.name();
+				if (self.profVisualMode() == "user")
+					title = config.waypointsNames[w.type()] ? config.waypointsNames[w.type()] : "";
+				if (title.length > 0) {
+					context.beginPath();
+					context.moveTo(p1.x,p1.y);
+					context.lineTo(p3.x,p3.y);
+					context.stroke();
+					var tl = context.measureText(title).width;
+					var tr = config.canvas.waypoints.titleRadius;
+					var p4 = {x:p2.x,y:p2.y};
+					if (p2.x < p1.x)
+						p4.x -= tl;
+					context.beginPath();
+					context.moveTo(p4.x,p4.y+tr);
+					context.arc(p4.x,p4.y,tr,Math.PI/2,Math.PI*3/2);
+					context.lineTo(p4.x+tl,p4.y-tr);
+					context.arc(p4.x+tl,p4.y,tr,-Math.PI/2,Math.PI/2);
+					context.lineTo(p4.x,p4.y+tr);
+					context.stroke();
+					context.fill();
+					co.setProperties($.extend({},config.canvas.waypoints.basic,{fillStyle:textColor}));
+					context.fillText(title,p4.x,p4.y+config.canvas.waypoints.titleOffset);
+				}
 			}
-			return config.waypointsNames[w.type()] ? config.waypointsNames[w.type()] : "";
-		});
-		w.state = ko.computed(function() {
-			if (self.mode() == "simple") return "opened";
-			return w.openKey() < self.currentKey() ? "opened" : "closed";
-		});
-		w.color = ko.computed(function() {
-			return  config.waypointsColors[w.type()] ? config.waypointsColors[w.type()][w.state()] : config.waypoint.color;
-		});
-		w.fillOpacity = ko.computed(function() {
-			return self.cylindersVisualMode() == "empty" ? 0 : config.waypoint.fillOpacity;
-		});
-		w.titleVisible = ko.computed(function() {
-			var b = w.modelVisible() && self.zoom() >= config.waypointsVisualAutoMinZoom;
-			return b;
-		});
-		w.titleXYPosition = ko.computed(function() {
-			var prev = null, next = null, curr = null;
-			for (var i = 0, l = self.waypoints().length; i<l && self.waypoints()[i].id()!=w.id(); i++);
-			if (l == 0 || i == l || !self.waypoints || !self.waypoints() || !self.waypoints()[i]) return {x:null,y:null};
-			curr = self.waypoints()[i].center();
-			if (i > 0) prev = self.waypoints()[i-1].center();
-			if (i+1 < l) next = self.waypoints()[i+1].center();
-			if (prev == null && next == null) 
-				return {x:null,y:null};
-			if (prev == null)
-				return {x:curr.lng>next.lng ?"left":"right",y:curr.lat>next.lat?"bottom":"top"};
-			if (next == null)
-				return {x:curr.lng>prev.lng ?"left":"right",y:curr.lat>prev.lat?"bottom":"top"};
-
-			var betw = function(prev,curr,next) {
-				return (prev <= curr && curr <= next) || (prev >= curr && curr >= next);
-			}
-			var r = {x:null,y:null};
-			if (curr.lng<next.lng && curr.lng<prev.lng)
-				r.x = "right";
-			else if (betw(prev.lng,curr.lng,next.lng))
-				r.x = "center";
-			else
-				r.x = "left";
-			if (curr.lat>next.lat && curr.lat>prev.lat)
-				r.y = "bottom";
-			else if (betw(prev.lat,curr.lat,next.lat))
-				r.y = "middle";
-			else
-				r.y = "top";
-
-			if (r.x == "center" && r.y == "middle") {
-				r.x = "left";
-				r.y = (prev.lng-curr.lng)*(prev.lat-curr.lat) > 0 ? "top" : "bottom";
-			}
-
-			return r;
-		});
-
-		w.titlePosition = ko.computed(function() {
-			if (!self.shortWay())
-				return w.center();
-			for (var i = 0, l = self.shortWay().length; i < l; i++) {
-				if (self.shortWay()[i].id == w.id())
-					return self.shortWay()[i];
-			}
-			return w.center();
-		});
-		w._model = new gmaps.Circle({
-			strokeColor: w.color(),
-			strokeOpacity: config.waypoint.strokeOpacity,
-			strokeWeight: config.waypoint.strokeWeight,
-			fillOpacity: w.fillOpacity(),
-			fillColor: w.color(),
-			map: self.map,
-			center: new gmaps.LatLng(w.center().lat,w.center().lng),
-			radius: w.radius(),
-		});
-		w._titleModel = new MapFloatElem({
-			template: self.templates.waypointTitle,
-			data: {
-				title: w.title,
-				color: w.color
-			},
-			xPosition: w.titleXYPosition().x,
-			yPosition: w.titleXYPosition().y
-		});
-		w._titleModel.setMap(self.map);
-		w._titleModel.setPosition(new gmaps.LatLng(w.titlePosition().lat,w.titlePosition().lng));
-
-		w.modelVisibleSubscribe = w.modelVisible.subscribe(function(v) {
-			w._model.setMap(v?self.map:null);
-		});
-		w.titleVisibleSubscribe = w.titleVisible.subscribe(function(v) {
-			w._titleModel.setMap(v?self.map:null);	
-		});
-		w.colorSubscribe = w.color.subscribe(function(v) {
-			w._model.set("strokeColor",v);
-			w._model.set("fillColor",v);
-		});
-		w.fillOpacitySubscribe = w.fillOpacity.subscribe(function(v) {
-			w._model.set("fillOpacity",v);
-		});
-		w.centerSubscribe = w.center.subscribe(function(v) {
-			w._model.setCenter(new gmaps.LatLng(v.lat,v.lng));
-		});
-		w.titlePositionSubscribe = w.titlePosition.subscribe(function(v) {
-			w._titleModel.setPosition(new gmaps.LatLng(v.lat,v.lng));
-		});
-		w.radiusSubscribe = w.radius.subscribe(function(v) {
-			w._model.set("radius",v);
-		});
-		w.titleXYPosition.subscribe(function(r) {
-			w._titleModel.setXYPosition(r);
-		});
-
-		w.center.valueHasMutated();
-		w.modelVisible.notifySubscribers(w.modelVisible());
-		w.titleVisible.notifySubscribers(w.titleVisible());
-*/
+		}
 		return w;
 	}
 
 	GoogleMap.prototype.destroyWaypoint = function(w) {
-		if (w._model)
-			w._model.setMap(null);
-		if (w._titleModel)
-			w._titleModel.setMap(null);
-		w.modelVisibleSubscribe.dispose();
-		w.titleVisibleSubscribe.dispose();
-		w.colorSubscribe.dispose();
-		w.fillOpacitySubscribe.dispose();
-		w.centerSubscribe.dispose();
-		w.titlePositionSubscribe.dispose();
-		w.radiusSubscribe.dispose();
-	}
-
-	GoogleMap.prototype.prepareCoords = function(lat,lng) {
-		return this.map.getProjection().fromLatLngToPoint(new gmaps.LatLng(lat,lng));
 	}
 
 	GoogleMap.prototype.createUfo = function(data) {
@@ -305,57 +217,85 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			trackData: []
 		}
 
+		var setProperties = function(context,properties) {
+			if (!context) return;
+			for (var i in properties)
+				if (properties.hasOwnProperty(i))
+					context[i] = properties[i];
+		}
+
+		u.prepareIcon = function(co) {
+			u.iconSize = config.canvas.ufos.sizes[self.modelsVisualMode()] || config.canvas.ufos.sizes["default"];
+			u.iconCenter = {x:u.iconSize,y:u.iconSize};
+			u.iconCanvas = document.createElement("canvas");
+			u.iconCanvas.width = 100;
+			u.iconCanvas.height = u.iconSize*2;
+			var ic = u.iconCanvas.getContext("2d");
+			// Тень от иконки
+			ic.beginPath();
+			setProperties(ic,$.extend({},config.canvas.ufos.basiс,config.canvas.ufos.shadow));
+			ic.moveTo(u.iconCenter.x-u.iconSize/4,u.iconCenter.y);
+			ic.lineTo(u.iconCenter.x,u.iconCenter.y-u.iconSize/10);
+			ic.lineTo(u.iconCenter.x+u.iconSize/4,u.iconCenter.y);
+			ic.lineTo(u.iconCenter.x,u.iconCenter.y+u.iconSize/10);
+			ic.lineTo(u.iconCenter.x-u.iconSize/4,u.iconCenter.y);
+			ic.fill();
+			// Иконка
+			ic.beginPath();
+			setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.icons[u.state()] || config.canvas.ufos.icons["default"]));
+			ic.moveTo(u.iconCenter.x,u.iconCenter.y);
+			if (u.state() == "landed") {
+				ic.lineTo(u.iconCenter.x-u.iconSize/2,u.iconCenter.y-u.iconSize*Math.sqrt(3)/2);
+				ic.lineTo(u.iconCenter.x+u.iconSize/2,u.iconCenter.y-u.iconSize*Math.sqrt(3)/2);
+			}
+			else {
+				ic.arc(u.iconCenter.x,u.iconCenter.y,u.iconSize-1,Math.PI*4/3,Math.PI*5/3);
+			}
+			ic.lineTo(u.iconCenter.x,u.iconCenter.y);
+			ic.fill();
+			ic.stroke();
+			// Имя пилота
+			if (self.namesVisualMode() == "on" || (self.namesVisualMode() == "auto" && self.zoom() >= config.namesVisualModeAutoMinZoom)) {
+				setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.titles));
+				ic.strokeText(u.name(),u.iconCenter.x,u.iconCenter.y-config.canvas.ufos.nameOffset);
+				ic.fillText(u.name(),u.iconCenter.x,u.iconCenter.y-config.canvas.ufos.nameOffset);
+			}
+		}
+
 		u.render = function(co) {
 			if (u.noData() || !u.visible()) return;
-
+			if (!u.iconCanvas || u.updateIconRequired) {
+				u.prepareIcon();
+				u.updateIconRequired = false;
+			}
 			var p = co.abs2rel(u.coords(),self.zoom());
-
-			var iconSize = config.canvas.ufos.sizes[self.modelsVisualMode()] || config.canvas.ufos.sizes["default"];
-			var iconColor = config.canvas.ufos.colors[u.state()] || config.canvas.ufos.colors["default"];
-
-			if (co.inViewport(p,iconSize)) {
+			if (co.inViewport(p,u.iconSize)) {
 				var context = co.getContext();
-				// Тень от иконки
-				co.setProperties($.extend({},config.canvas.ufos.basic,config.canvas.ufos.shadow));
+				context.drawImage(u.iconCanvas,p.x-u.iconCenter.x,p.y-u.iconCenter.y);
+			}
+		}
+
+		u.renderTrack = function(co) {
+			if (u.noData() || !u.visible()) return;
+			if (self.tracksVisualMode() == "off" || u.trackData.length <= 1) return;
+			var p = co.abs2rel(u.coords(),self.zoom());
+			if (co.inViewport(p,0)) {
+				var context = co.getContext();
+				co.setProperties($.extend({},config.canvas.ufos.basic,{strokeStyle:u.color()}));
 				context.beginPath();
-				context.moveTo(p.x-iconSize/4,p.y);
-				context.lineTo(p.x,p.y-iconSize/10);
-				context.lineTo(p.x+iconSize/4,p.y);
-				context.lineTo(p.x,p.y+iconSize/10);
-				context.lineTo(p.x-iconSize/4,p.y);
-				context.fill();
-				// Трек
-				if (self.tracksVisualMode() != "off" && u.trackData.length > 1) {
-					co.setProperties($.extend({},config.canvas.ufos.basic,{strokeStyle:u.color()}));
-					context.beginPath();
-					for (var i = 0; i < u.trackData.length; i++) {
-						if (u.trackData[i].dt == null) continue;
-						var pp = co.abs2rel(u.trackData[i],self.zoom());
-						if (i > 0) context.lineTo(pp.x,pp.y);
-						else context.moveTo(pp.x,pp.y);
-					}
-					context.lineTo(p.x,p.y);
-					context.stroke();
+				for (var i = 0; i < u.trackData.length; i++) {
+					if (u.trackData[i].dt == null) continue;
+					var pp = co.abs2rel(u.trackData[i],self.zoom());
+					if (i > 0) context.lineTo(pp.x,pp.y);
+					else context.moveTo(pp.x,pp.y);
 				}
-				// Имя пилота
-				if (self.namesVisualMode() == "on" || (self.namesVisualMode() == "auto" && self.zoom() >= config.namesVisualModeAutoMinZoom)) {
-					co.setProperties($.extend({},config.canvas.ufos.basic,config.canvas.ufos.titles));
-					context.strokeText(u.name(),p.x,p.y);
-					context.fillText(u.name(),p.x,p.y);
-				}
-				// Иконка
-				co.setProperties($.extend({},config.canvas.ufos.basic,{fillStyle:iconColor}));
-				context.beginPath();
-				context.moveTo(p.x,p.y);
-				context.arc(p.x,p.y,iconSize,Math.PI*4/3,Math.PI*5/3);
 				context.lineTo(p.x,p.y);
-				context.fill();
 				context.stroke();
 			}
 		}
 
 		u.coords = ko.computed(function() {
-			if (u.noData() || !u.visible() || !u.position()) return null;
+			if (u.noData() || !u.position()) return null;
 			return self.prepareCoords(u.position().lat,u.position().lng);
 		});
 
@@ -378,11 +318,26 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			}
 		});
 
+		u.visibleSubscribe = u.visible.subscribe(function() {
+			self.update();
+		});
+		u.stateSubscribe = u.state.subscribe(function() {
+			u.updateIconRequired = true;
+			self.update();
+		});
+		u.nameSubscribe = u.name.subscribe(function() {
+			u.updateIconRequired = true;
+			self.update();
+		});
+
 		return u;
 	}
 
 	GoogleMap.prototype.destroyUfo = function(u) {
 		u.trackSubscribe.dispose();
+		u.visibleSubscribe.dispose();
+		u.stateSubscribe.dispose();
+		u.nameSubscribe.dispose();
 	}
 
 	GoogleMap.prototype.createShortWay = function(data) {
@@ -409,8 +364,17 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				if (i > 0) {
 					context.lineTo(p.x,p.y);
 					var l = Math.sqrt(Math.pow(p.x-prevP.x,2)+Math.pow(p.y-prevP.y,2));
-					if (l > config.canvas.shortWay.arrowSize/2) {
-						
+					var s = config.canvas.shortWay.arrowSize/2
+					if (l > s) {
+						var mP = {x:Math.floor((p.x+prevP.x)/2),y:Math.floor((p.y+prevP.y)/2)};
+						var a = Math.atan2(prevP.y-p.y,prevP.x-p.x);
+						context.moveTo(mP.x,mP.y);
+						var lP = {x:mP.x+s*Math.cos(a+Math.PI/6),y:mP.y+s*Math.sin(a+Math.PI/6)};
+						context.lineTo(lP.x,lP.y);
+						context.moveTo(mP.x,mP.y);
+						var lP = {x:mP.x+s*Math.cos(a-Math.PI/6),y:mP.y+s*Math.sin(a-Math.PI/6)};
+						context.lineTo(lP.x,lP.y);
+						context.moveTo(p.x,p.y);
 					}
 				}
 				else
@@ -418,55 +382,25 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				prevP = p;
 			}
 			context.stroke();
-
-		}
-/*
-		w.style = ko.computed(function() {
-			return config.shortWay[self.shortWayVisualMode()];
-		});
-		w.visible = ko.computed(function() {
-			return self.shortWayVisualMode() == "off" ? 0 : 1;
-		});
-
-		w._models = [];
-		for (var i = 0; i < data.length-1; i++) {
-			var m = new gmaps.Polyline(w.style());
-			var p1 = new gmaps.LatLng(data[i].lat,data[i].lng);
-			var p2 = new gmaps.LatLng(data[i+1].lat,data[i+1].lng);
-			m.setPath([p1,p2]);
-			m.setMap(this.map);
-			w._models.push(m);
 		}
 
-		w.styleSubscribe = w.style.subscribe(function(v) {
-			for (var i = 0; i < w._models.length; i++)
-				w._models[i].setOptions(v);
-		});
-		w.visibleSubscribe = w.visible.subscribe(function(v) {
-			for (var i = 0; i < w._models.length; i++)
-				w._models[i].setMap(v?self.map:null);
-		});
-
-		this.mapShortWay = w;
-*/
-//		this.refreshShortWayArrows();
-		return w;
-	}
-
-	GoogleMap.prototype.refreshShortWayArrows = function() {
-		var self = this;
-		if (!this.mapShortWay || !this.map) return;
-		var style = [{icon:{path:gmaps.SymbolPath.FORWARD_OPEN_ARROW},offset:"50%"}];
-		for (var i = 0; i < this.mapShortWay._models.length; i++) {
-			var m = this.mapShortWay._models[i];
-			var path = m.getPath();
-			if (this.map && this.map.getProjection() && path && path.getAt(0) && path.getAt(1)) {
-				var p1 = self.map.getProjection().fromLatLngToPoint(m.getPath().getAt(0));
-				var p2 = self.map.getProjection().fromLatLngToPoint(m.getPath().getAt(1));
-				var dist = Math.sqrt(Math.pow(p1.x-p2.x,2)+Math.pow(p1.y-p2.y,2))*Math.pow(2,this.zoom());
-				m.set("icons",dist > config.shortWayMinSegmentLengthToShowArrow ? style : []);
+		w.renderLabels = function(co) {
+			co.setProperties(config.canvas.shortWay.basic);
+			var context = co.getContext();
+			for (var i = 0; i < w.data.length; i++) {
+				var t = w.data[i];
+				var p = co.abs2rel(t,self.zoom());
+				if (t.type == "ordinal") {
+					co.setProperties(config.canvas.shortWay.basic);
+					context.beginPath();
+					context.arc(p.x,p.y,config.canvas.shortWay.circleSize,0,2*Math.PI);
+					context.fill();
+					co.setProperties($.extend({},config.canvas.shortWay.basic,config.canvas.shortWay.text));
+					context.fillText(t.id-1,p.x,p.y);
+				}
 			}
 		}
+		return w;
 	}
 
 	GoogleMap.prototype.destroyShortWay = function() {
@@ -504,17 +438,33 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 	}
 
 	GoogleMap.prototype._updateDynamicCanvas = function(canvas) {
+		if (this.tracksVisualMode() != "off") {
+			this.mapUfos.forEach(function(ufo) {
+				ufo.renderTrack(canvas);
+			},this);
+		}
 		this.mapUfos.forEach(function(ufo) {
 			ufo.render(canvas);
 		},this);
 	}
 
 	GoogleMap.prototype._updateStaticCanvas = function(canvas) {
+		if (this.mapShortWay)
+			this.mapShortWay.render(canvas);
 		this.mapWaypoints.forEach(function(waypoint) {
 			waypoint.render(canvas);
 		},this);
+		this.mapWaypoints.forEach(function(waypoint) {
+			waypoint.renderLabels(canvas);
+		},this);
 		if (this.mapShortWay)
-			this.mapShortWay.render(canvas);
+			this.mapShortWay.renderLabels(canvas);
+	}
+
+	GoogleMap.prototype.updateIcons = function() {
+		this.mapUfos.forEach(function(ufo) {
+			ufo.updateIconRequired = true;
+		},this);
 	}
 
 	GoogleMap.prototype.update = function(type,force) {
@@ -528,16 +478,14 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		canvas._updating = true;
 		canvas._updateRequired = false;
 		clearTimeout(canvas._updatingTimeout);
-
 		canvas.clear();
 		if (type=="static") this._updateStaticCanvas(canvas);
 		else this._updateDynamicCanvas(canvas);
-
 		canvas._updatingTimeout = setTimeout(function() {
 			canvas._updating = false;
 			if (canvas._updateRequired)
 				self.update(type);
-		});
+		},100);
 	}
 
 	GoogleMap.prototype.domInit = function(elem,params) {
@@ -577,6 +525,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		});
 		gmaps.event.addListener(this.map,"zoom_changed",function() {
 			self.zoom(self.map.getZoom());
+			self.updateIcons();
 			self.update("static",true);
 			self.update("dynamic",true);
 		});

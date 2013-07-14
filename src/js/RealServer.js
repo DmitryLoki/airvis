@@ -189,7 +189,6 @@
 	}
 
 	RealServer.prototype.post = function(query) {
-		console.log("post",query);
 		if (query.type == "sms") {
 			var ajax = $.ajax({
 				url: "http://apidev.airtribune.com/chatroom/" + this.options.raceId,
