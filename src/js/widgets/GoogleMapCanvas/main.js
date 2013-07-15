@@ -173,6 +173,12 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				if (self.profVisualMode() == "user")
 					title = config.waypointsNames[w.type()] ? config.waypointsNames[w.type()] : "";
 				if (title.length > 0) {
+					if (self.profVisualMode() == "prof") {
+						var r = w.radius();
+						if (r > 1000) r = Math.floor(r/100)/10 + "km";
+						else r = r + "m";
+						title += ", R=" + r;
+					}
 					context.beginPath();
 					context.moveTo(p1.x,p1.y);
 					context.lineTo(p3.x,p3.y);
