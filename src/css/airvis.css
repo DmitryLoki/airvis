@@ -144,12 +144,13 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 .airvis-player-controls { padding: 8px 0 0 10px;}
 .airvis-player-controls button { margin: 2px;}
 .airvis-current-time { color: #00aeef; font-size: 12.8px; padding: 0 10px; padding-bottom: 5px;}
-.airvis-slider { background-color: rgba(0, 47, 64, 0.75); border: 1px solid rgba(0, 35, 48, 0.53); height: 8px; margin: 4px; position: relative;
+.airvis-slider { background-color: rgba(0, 47, 64, 0.75); border: 1px solid rgba(0, 35, 48, 0.53); height: 9px; margin-top:; position: relative;
   -webkit-border-radius: 3px; 
   -moz-border-radius: 3px; 
   border-radius: 3px;
 }
-.airvis-slider-container { padding: 5px; padding-top: 11px; overflow: hidden;}
+.airvis-slider-target { height: 40px; padding-top: 15px; }
+.airvis-slider-container { padding: 0 10px; overflow: hidden;}
 .airvis-slider-handle { width: 18px; height: 18px; background: #ffffff; border: 1px solid #000000; position: absolute; margin-left: -9px; top: -5px;
   -webkit-border-radius: 9px;
   -moz-border-radius: 9px;

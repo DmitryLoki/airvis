@@ -43,7 +43,7 @@ define(["jquery","knockout"], function($,ko) {
 		this.container = $(div).find(".slider");
 	}
 
-	Slider.prototype.dragStart = function(self,e) {
+	Slider.prototype.dragStart = function(self,e,isClick) {
 		e.stopPropagation();
 		e.preventDefault();
 		var eventType = e.type.match(/^touch/) ? "touch" : "mouse";
@@ -73,21 +73,28 @@ define(["jquery","knockout"], function($,ko) {
 			var p = (e.pageX-l)/w;
 			if (p > 1) p = 1;
 			if (p < 0) p = 0;
-//			self.drag(self.min()+(self.max()-self.min())*p);
 			var drag = self.min()+(self.max()-self.min())*p;
 			if (self.range() && drag > self.range())
 				drag = self.range();
 			drag = Math.floor(drag);
 			self.drag(drag);
 		}
-		$("body").addClass("airvis-document-overwrite-cursor-pointer");
-		$(document).on("mousemove touchmove",mouseMove).one("mouseup mouseleave touchend touchcancel",function(e) {
-			$("body").removeClass("airvis-document-overwrite-cursor-pointer");
-			$(document).off("mousemove touchmove",mouseMove);
-			self.emit("change",self.drag());
-			self.dragging(false);
-		});
+
+		if (!isClick) {
+			$("body").addClass("airvis-document-overwrite-cursor-pointer");
+			$(document).on("mousemove touchmove",mouseMove).one("mouseup mouseleave touchend touchcancel",function(e) {
+				$("body").removeClass("airvis-document-overwrite-cursor-pointer");
+				$(document).off("mousemove touchmove",mouseMove);
+				self.emit("change",self.drag());
+				self.dragging(false);
+			});
+		}
+
 		mouseMove(e);
+	}
+
+	Slider.prototype.clickStart = function(self,e) {
+		this.dragStart(self,e,true);
 	}
 
 	Slider.prototype.templates = ["main"];
