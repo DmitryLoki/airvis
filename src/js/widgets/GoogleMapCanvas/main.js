@@ -455,16 +455,16 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 	}
 
 	GoogleMap.prototype._updateStaticCanvas = function(canvas) {
-		if (this.mapShortWay)
-			this.mapShortWay.render(canvas);
 		this.mapWaypoints.forEach(function(waypoint) {
 			waypoint.render(canvas);
 		},this);
+		if (this.mapShortWay)
+			this.mapShortWay.render(canvas);
+		if (this.mapShortWay)
+			this.mapShortWay.renderLabels(canvas);
 		this.mapWaypoints.forEach(function(waypoint) {
 			waypoint.renderLabels(canvas);
 		},this);
-		if (this.mapShortWay)
-			this.mapShortWay.renderLabels(canvas);
 	}
 
 	GoogleMap.prototype.updateIcons = function() {

@@ -3,7 +3,7 @@
 		<span class="airvis-player-online-notification-text">This replay is based on Live tracking data! Tracking replay will be available soon.</span>
 		<a class="airvis-window-close airvis-window-close-cross" href="#" data-bind="click:turnOffOnlineNotification"></a>
 	</div>
-	<div class="airvis-clearfix">
+	<div class="airvis-clearfix" data-bind="event:{mousedown:proxyDrag,touchstart:proxyDrag}">
 		<div class="airvis-player-timeWindow" data-bind="css:raceTimeCss">
 			<div class="airvis-player-time-status" data-bind="text:isCurrentlyOnline()?'Live':'Replay'"></div>
 			<div class="airvis-player-time" data-bind="text:raceTime"></div>

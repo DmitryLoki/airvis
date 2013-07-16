@@ -7,11 +7,11 @@
 		<!-- ko widget: {data: topBar, type: 'TopBar'} --><!-- /ko -->
 
 		<!-- ko widget: { data: mainMenuWindow, type: 'Window', contentCss: 'airvis-transparent'} -->
-			<!-- ko widget: {data: mainMenu, type: 'MainMenu'} --><!-- /ko -->
+			<!-- ko widget: {data: mainMenu, type: 'MainMenu', modalWindow: mainMenuWindow } --><!-- /ko -->
 		<!-- /ko -->
 
 		<!-- ko widget: { data: playerControlWindow, type: 'Window'} -->
-			<!-- ko widget: { data: playerControl, type: 'PlayerControl' } --><!-- /ko -->
+			<!-- ko widget: { data: playerControl, type: 'PlayerControl', modalWindow: playerControlWindow } --><!-- /ko -->
 		<!-- /ko -->
 
 		<!-- ko widget: {data: ufosTableWindow, type: 'Window'} -->
@@ -26,7 +26,7 @@
 	<!-- ko if: mode() == "retrieve" -->
 		<!-- ko widget: {data: topBar, type: 'TopBar'} --><!-- /ko -->
 		<!-- ko widget: { data: mainMenuWindow, type: 'Window', contentCss: 'airvis-transparent'} -->
-			<!-- ko widget: {data: mainMenu, type: 'MainMenu'} --><!-- /ko -->
+			<!-- ko widget: {data: mainMenu, type: 'MainMenu', modalWindow: mainMenuWindow} --><!-- /ko -->
 		<!-- /ko -->
 		<!-- ko widget: {data: retrieveTableWindow, type: 'Window'} -->
 			<!-- ko widget: { data: retrieveTable, type: 'RetrieveTable', modalWindow: retrieveTableWindow } --><!-- /ko -->

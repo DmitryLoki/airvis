@@ -169,6 +169,7 @@ define([
 		this.serverKey = ko.computed({
 			read: function() {
 				if (!self.isOnline()) return null;
+//				return (self.startKey() + self.endKey()) / 2;
 				var d = (new Date).getTime();
 				return self._serverKey() + d - self._serverKeyUpdatedAt - config.serverDelay;
 			},

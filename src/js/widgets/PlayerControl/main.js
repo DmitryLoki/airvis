@@ -127,7 +127,9 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		this.playerSpeed(1);
 	}
 	
-	PlayerControl.prototype.switchState = function() {
+	PlayerControl.prototype.switchState = function(self,e) {
+		e.stopPropagation();
+		e.preventDefault();
 		this.playerState(this.playerState()=="play"?"pause":"play");
 		return this;
 	}
@@ -137,6 +139,15 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		return this;
 	}
 	
+	PlayerControl.prototype.domInit = function(elem,params) {
+		this.modalWindow = params.modalWindow;
+	}
+
+	PlayerControl.prototype.proxyDrag = function(self,e) {
+		if (this.modalWindow)
+			this.modalWindow.dragStart(this.modalWindow,e);
+	}
+
 	PlayerControl.prototype.templates = ["main"];
 
 	return PlayerControl;
