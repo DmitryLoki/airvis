@@ -169,36 +169,39 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				var p2 = {x:p.x-r2*Math.cos(angle),y:p.y-r2*Math.sin(angle)};
 				var r3 = r + config.canvas.waypoints.titleSize - config.canvas.waypoints.titleRadius;
 				var p3 = {x:p.x-r3*Math.cos(angle),y:p.y-r3*Math.sin(angle)};
-				var title = w.name();
-				if (self.profVisualMode() == "user")
-					title = config.waypointsNames[w.type()] ? config.waypointsNames[w.type()] : "";
-				if (title.length > 0) {
-					if (self.profVisualMode() == "prof") {
-						var r = w.radius();
-						if (r > 1000) r = Math.floor(r/100)/10 + "km";
-						else r = r + "m";
-						title += ", R=" + r;
-					}
-					context.beginPath();
-					context.moveTo(p1.x,p1.y);
-					context.lineTo(p3.x,p3.y);
-					context.stroke();
-					var tl = context.measureText(title).width;
-					var tr = config.canvas.waypoints.titleRadius;
-					var p4 = {x:p2.x,y:p2.y};
-					if (p2.x < p1.x)
-						p4.x -= tl;
-					context.beginPath();
-					context.moveTo(p4.x,p4.y+tr);
-					context.arc(p4.x,p4.y,tr,Math.PI/2,Math.PI*3/2);
-					context.lineTo(p4.x+tl,p4.y-tr);
-					context.arc(p4.x+tl,p4.y,tr,-Math.PI/2,Math.PI/2);
-					context.lineTo(p4.x,p4.y+tr);
-					context.stroke();
-					context.fill();
-					co.setProperties($.extend({},config.canvas.waypoints.basic,{fillStyle:textColor}));
-					context.fillText(title,p4.x,p4.y+config.canvas.waypoints.titleOffset);
+
+				var title = config.waypointsNames[w.type()] ? config.waypointsNames[w.type()] : "";
+
+				if (self.profVisualMode() == "user" && title.length == 0) return;
+
+				if (self.profVisualMode() == "prof") {
+					if (w.name().length > 0)
+						title += (title.length>0?" / ":"") + w.name();
+					var r = w.radius();
+					if (r >= 1000) r = Math.floor(r/100)/10 + "km";
+					else r = r + "m";
+					title += (title.length>0?" / ":"") + "R " + r;
 				}
+
+				context.beginPath();
+				context.moveTo(p1.x,p1.y);
+				context.lineTo(p3.x,p3.y);
+				context.stroke();
+				var tl = context.measureText(title).width;
+				var tr = config.canvas.waypoints.titleRadius;
+				var p4 = {x:p2.x,y:p2.y};
+				if (p2.x < p1.x)
+					p4.x -= tl;
+				context.beginPath();
+				context.moveTo(p4.x,p4.y+tr);
+				context.arc(p4.x,p4.y,tr,Math.PI/2,Math.PI*3/2);
+				context.lineTo(p4.x+tl,p4.y-tr);
+				context.arc(p4.x+tl,p4.y,tr,-Math.PI/2,Math.PI/2);
+				context.lineTo(p4.x,p4.y+tr);
+				context.stroke();
+				context.fill();
+				co.setProperties($.extend({},config.canvas.waypoints.basic,{fillStyle:textColor}));
+				context.fillText(title,p4.x,p4.y+config.canvas.waypoints.titleOffset);
 			}
 		}
 		return w;

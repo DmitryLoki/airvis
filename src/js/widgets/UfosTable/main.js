@@ -209,6 +209,11 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 		this.scrollbarContainer = this.container.find(".airvis-scrollbar").tinyscrollbar();
 	};
 
+	UfosTable.prototype.proxyDrag = function(self,e) {
+		if (this.modalWindow)
+			this.modalWindow.dragStart(this.modalWindow,e);
+	}
+
 	UfosTable.prototype.templates = ["main"];
 
 	return UfosTable;

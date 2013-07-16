@@ -67,11 +67,8 @@ define(["jquery","knockout"],function($,ko) {
 			var points = getPoints(w);
 			var mouseMove = function(e) {
 				e = getEventCoords(e,eventType);
-//				alert("e.type="+e.type+", startE.pageX="+startE.pageX+", startE.pageY="+startE.pageY+", e.pageX="+e.pageX+", e.pageY="+e.pageY);
 				var top = startPosition.top + e.pageY - startE.pageY;
 				var left = startPosition.left + e.pageX - startE.pageX;
-//				var width = w.width();
-//				var height = w.height();
 				var width = startPosition.width;
 				var height = startPosition.height;
 				var pois = [
@@ -129,16 +126,18 @@ define(["jquery","knockout"],function($,ko) {
 		}
 
 		var resizeStart = function(dir,w,e) {
-			var startE = e;
+			var eventType = e.type.match(/^touch/) ? "touch" : "mouse";
+			var startE = getEventCoords(e,eventType);
 			if (w.height() == "auto") w.height();
 			var startPosition = {height:w.height(),width:w.width()};
-//			e.target.setCapture();
 
-			var cursor = $(e.target).css("cursor");
+			if (e.target)
+				var cursor = $(e.target).css("cursor");
 
 			var segments = getSegments(w);
 			var points = getPoints(w);
 			var mouseMove = function(e) {
+				e = getEventCoords(e,eventType);
 				var top = w.top();
 				var left = w.left();
 				var width = Math.max(startPosition.width + e.pageX - startE.pageX,w.minWidth() || 0);
@@ -189,9 +188,9 @@ define(["jquery","knockout"],function($,ko) {
 				w.emit("resize");
 			}
 			$("body").addClass("airvis-document-overwrite-cursor-" + cursor);
-			$(document).on("mousemove",mouseMove).one("mouseup mouseleave",function(e) {
+			$(document).on("mousemove touchmove",mouseMove).one("mouseup mouseleave touchend touchcancel",function(e) {
 				$("body").removeClass("airvis-document-overwrite-cursor-" + cursor);
-				$(document).off("mousemove",mouseMove);
+				$(document).off("mousemove touchmove",mouseMove);
 			});
 		}
 

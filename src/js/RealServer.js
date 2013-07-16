@@ -52,6 +52,7 @@
 						}
 					}
 					// костыль: убираем названия у тех цилиндров, у которых есть другой цилиндр с тем же центром и бОльшим радиусом
+					/*
 					for (var i = 0; i < data.waypoints.length; i++) {
 						for (var j = i+1; j < data.waypoints.length; j++) {
 							if (Math.abs(data.waypoints[i].center.lat-data.waypoints[j].center.lat) + Math.abs(data.waypoints[i].center.lng-data.waypoints[j].center.lng) < 0.0001) {
@@ -62,6 +63,7 @@
 							}
 						}
 					}
+					*/
 
 					if (query.callback)
 						query.callback(data);

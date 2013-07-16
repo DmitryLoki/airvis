@@ -228,11 +228,11 @@ define([
 						mapOptions: self.mapOptions,
 						mode: self.mode
 				};
-				if (self.mapWidget() == "2d") {
+				if (self.mapWidget() == "2d-old") {
 					self.map = new GoogleMap(mapOptions);
 					self.mapType = "GoogleMap";
 				}
-				else if (self.mapWidget() == "2d-canvas") {
+				else if (self.mapWidget() == "2d") {
 					self.map = new GoogleMapCanvas(mapOptions);
 					self.mapType = "GoogleMapCanvas";
 				}

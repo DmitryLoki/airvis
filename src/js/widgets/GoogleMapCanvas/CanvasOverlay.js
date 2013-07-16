@@ -21,6 +21,12 @@ define(["google.maps"],function(gmaps) {
 		this._bounds = this._map.getBounds();
 		this._corner = new gmaps.LatLng(this._bounds.getNorthEast().lat(), this._bounds.getSouthWest().lng());
 		this._mapCorner = this._map.getProjection().fromLatLngToPoint(this._corner);
+		this._pxCorner = this.getProjection().fromLatLngToDivPixel(this._corner);
+
+		if (this._canvas) {
+			this._canvas.style.left = this._pxCorner.x + "px";
+			this._canvas.style.top = this._pxCorner.y + "px";
+		}
 	}
 
 	CanvasOverlay.prototype.clear = function() {
@@ -32,10 +38,13 @@ define(["google.maps"],function(gmaps) {
 
 	CanvasOverlay.prototype.onAdd = function() {
 		this._canvas = document.createElement("canvas");
+		this._canvas.style.position = "absolute";
 		this._canvas.style.pointerEvents = "none";
 		this._context = this._canvas.getContext("2d");
 		this._proj = this._map.getProjection();
-		this._map.controls[this._container].push(this._canvas);
+
+		this.getPanes().floatPane.appendChild(this._canvas);
+//		this._map.controls[this._container].push(this._canvas);
 		this.relayout();
 	}
 

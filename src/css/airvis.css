@@ -345,7 +345,7 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 .airvis-scrollbar .overview { position: absolute; left: 0; top: 0; }
 .airvis-scrollbar .thumb .end,.airvis-scrollbar .thumb { background-color: #003D5D; }
 .airvis-scrollbar .scrollbar { position:absolute; right:11px; z-index: 100;
-
+  
   -webkit-opacity: 0;
    -moz-opacity: 0;
    -ms-opacity: 0;
@@ -354,7 +354,6 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 
   transition: opacity 0.2s; 
   -webkit-transition: opacity 0.2s;
-
 }
 .airvis-scrollbar:hover .scrollbar { 
 
