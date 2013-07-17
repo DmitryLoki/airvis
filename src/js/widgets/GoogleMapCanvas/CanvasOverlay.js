@@ -88,5 +88,9 @@ define(["google.maps"],function(gmaps) {
 		return {x:Math.floor(this._width/2),y:Math.floor(this._height/2)};
 	}
 
+	CanvasOverlay.prototype.getHeight = function() {
+		return this._height;
+	}
+
 	return CanvasOverlay;
 });

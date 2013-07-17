@@ -136,6 +136,13 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			if (co.inViewport(p,r)) {
 				var context = co.getContext();
 				var color = config.canvas.waypoints.colors[w.type()] ? config.canvas.waypoints.colors[w.type()][w.state()] : config.canvas.waypoints.colors["default"][w.state()];
+
+				var opacity = 0, h = co.getHeight()/4;
+				if (r < h) opacity = config.canvas.waypoints.maxOpacity;
+				else if (r > 2*h) opacity = config.canvas.waypoints.minOpacity;
+				else opacity = config.canvas.waypoints.maxOpacity - (r-h)/h*(config.canvas.waypoints.maxOpacity-config.canvas.waypoints.minOpacity);
+				color = color.replace(/opacity/,opacity);
+
 				co.setProperties($.extend({},config.canvas.waypoints.basic,{fillStyle:color}));
 				context.beginPath();
 				context.arc(p.x,p.y,r,0,2*Math.PI);
@@ -154,6 +161,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			if (co.inViewport(p,r)) {
 				var context = co.getContext();
 				var color = config.canvas.waypoints.colors[w.type()] ? config.canvas.waypoints.colors[w.type()][w.state()] : config.canvas.waypoints.colors["default"][w.state()];
+				color = color.replace(/opacity/,config.canvas.waypoints.maxOpacity);
 				var textColor = config.canvas.waypoints.colors[w.type()] ? config.canvas.waypoints.colors[w.type()][w.state()+"Text"] : config.canvas.waypoints.colors["default"][w.state()+"Text"];
 				co.setProperties($.extend({},config.canvas.waypoints.basic,{fillStyle:color}));
 				var center = co.getCenter();
@@ -367,30 +375,33 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			co.setProperties(config.canvas.shortWay.basic);
 			var context = co.getContext();
 			context.beginPath();
+			for (var i = 0; i < w.data.length; i++) {
+				var p = co.abs2rel(w.data[i],self.zoom());
+				if (i > 0) context.lineTo(p.x,p.y);
+				else context.moveTo(p.x,p.y);
+			}
+			context.stroke();
 			var prevP = null;
 			for (var i = 0; i < w.data.length; i++) {
 				var p = co.abs2rel(w.data[i],self.zoom());
 				if (i > 0) {
-					context.lineTo(p.x,p.y);
 					var l = Math.sqrt(Math.pow(p.x-prevP.x,2)+Math.pow(p.y-prevP.y,2));
-					var s = config.canvas.shortWay.arrowSize/2
+					var s = config.canvas.shortWay.arrowSize/2;
 					if (l > s) {
 						var mP = {x:Math.floor((p.x+prevP.x)/2),y:Math.floor((p.y+prevP.y)/2)};
 						var a = Math.atan2(prevP.y-p.y,prevP.x-p.x);
+						context.beginPath();
 						context.moveTo(mP.x,mP.y);
 						var lP = {x:mP.x+s*Math.cos(a+Math.PI/6),y:mP.y+s*Math.sin(a+Math.PI/6)};
 						context.lineTo(lP.x,lP.y);
-						context.moveTo(mP.x,mP.y);
 						var lP = {x:mP.x+s*Math.cos(a-Math.PI/6),y:mP.y+s*Math.sin(a-Math.PI/6)};
 						context.lineTo(lP.x,lP.y);
-						context.moveTo(p.x,p.y);
+						context.lineTo(mP.x,mP.y);
+						context.fill();
 					}
 				}
-				else
-					context.moveTo(p.x,p.y);
 				prevP = p;
 			}
-			context.stroke();
 		}
 
 		w.renderLabels = function(co) {

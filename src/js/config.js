@@ -74,24 +74,26 @@ define({
 			},
 			colors: {
 				ss: {
-					closed: "rgba(217,12,12,0.7)",
-					opened: "rgba(142,217,12,0.7)",
+					closed: "rgba(217,12,12,opacity)",
+					opened: "rgba(142,217,12,opacity)",
 					closedText: "#4c0505",
 					openedText: "#324c05"
 				},
 				goal: {
-					closed: "rgba(186,7,212,0.7)",
-					opened: "rgba(186,7,212,0.7)",
+					closed: "rgba(186,7,212,opacity)",
+					opened: "rgba(186,7,212,opacity)",
 					closedText: "#ffffff",
 					openedText: "#ffffff"
 				},
 				default: {
-					closed: "rgba(142,142,142,0.7)",
-					opened: "rgba(142,142,142,0.7)",
+					closed: "rgba(142,142,142,opacity)",
+					opened: "rgba(142,142,142,opacity)",
 					closedText: "#1a1a1a",
 					openedText: "#1a1a1a"
 				}
 			},
+			minOpacity: 0.1,
+			maxOpacity: 0.7,
 			titleSize: 17,
 			titleRadius: 10,
 			titleOffset: 1
