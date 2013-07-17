@@ -528,7 +528,11 @@ define([
 			});
 		}
 
+		var _inRunCycle = false;
+
 		var run = function(callback) {
+			if (_inRunCycle) return;
+			_inRunCycle = true;
 			var dt = (new Date).getTime();
 			renderFrame(function() {
 				if (self.playerState() == "play") {
@@ -541,6 +545,7 @@ define([
 							self.playerState("pause");
 						}
 						self.currentKey(key);
+						_inRunCycle = false;
 						run();
 					});
 				}
