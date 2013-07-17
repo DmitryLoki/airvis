@@ -166,18 +166,17 @@ define([
 		// Йоу! Клевый код!
 		this._serverKey = ko.observable(0);
 		this._serverKeyUpdatedAt = (new Date).getTime();
-		this.serverKey = ko.computed({
-			read: function() {
-				if (!self.isOnline()) return null;
-//				return (self.startKey() + self.endKey()) / 2;
-				var d = (new Date).getTime();
-				return self._serverKey() + d - self._serverKeyUpdatedAt - config.serverDelay;
-			},
-			write: function(value) {
+		this.serverKey = function(value) {
+			if (value) {
 				self._serverKey(value);
 				self._serverKeyUpdatedAt = (new Date).getTime();
 			}
-		});
+			else {
+				if (!self.isOnline()) return null;
+				var d = (new Date).getTime();
+				return self._serverKey() + d - self._serverKeyUpdatedAt - config.serverDelay;
+			}
+		}
 
 		this.tracksVisualMode.subscribe(function() { if (self.map) self.map.update(); });
 		this.cylindersVisualMode.subscribe(function() { if (self.map) self.map.update("static"); });
@@ -574,12 +573,6 @@ define([
 
 		self.playerControl.on("change",function(v) {
 			self.currentKey(v);
-			if (self.isOnline()) {
-				if (Math.abs(v-self.serverKey()) < 60000)
-					self.isCurrentlyOnline(true);
-				else
-					self.isCurrentlyOnline(false);
-			}
 			resetUfosTracks();
 			run(runTableData);
 		});
@@ -590,8 +583,10 @@ define([
 			}
 		});
 
-		if (self.isOnline())
+		if (self.isOnline()) {
 			self.playerControl.setLiveMode();
+			self.playerControl.enableOfflineNotification();
+		}
 		else
 			run(runTableData);
 	}

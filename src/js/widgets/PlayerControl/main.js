@@ -24,20 +24,26 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		this.dragKey = ko.observable(0);
 		this.dragging = ko.observable(false);
 
-		if (this.isOnline) {
-      //по умолчанию скрывать сообщение
-			this.hideOnlineNotification = ko.observable(true);
-      this.isCurrentlyOnline.subscribe(function(val){
-        self.hideOnlineNotification(val);
-      });
-
-			this.showOnlineNotification = ko.computed(function() {
-				return (self.isOnline() && !self.isCurrentlyOnline() && !self.hideOnlineNotification());
-			});
-			this.turnOffOnlineNotification = function() {
-				self.hideOnlineNotification(true);
-			}
+		this.hideOnlineNotification = ko.observable(true);
+		this.showOnlineNotification = ko.computed(function() {
+			return (self.isOnline() && !self.isCurrentlyOnline() && !self.hideOnlineNotification());
+		});
+		this.turnOffOnlineNotification = function() {
+			self.hideOnlineNotification(true);
 		}
+
+		this.currentKey.subscribe(function(key) {
+//			console.log(key,self.serverKey());
+			if (!self.isOnline()) return;
+			if (!self.isCurrentlyOnline() && Math.abs(key-self.serverKey()) < 10000) {
+//				console.log("set live",key,self.serverKey());
+				self.setLiveMode();
+			}
+			else if (self.isCurrentlyOnline() && Math.abs(key-self.serverKey()) > 10000) {
+//				console.log("set offline",key,self.serverKey());
+				self.isCurrentlyOnline(false);
+			}
+		});
 
 		var getTimeStr = function(h,m,s) {
 			return (h<10?"0":"") + h + ":" + (m<10?"0":"") + m + ":" + (s<10?"0":"") + s;
@@ -116,6 +122,10 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		this.shortWayVisualSelect.on("expand",fadeSelects).on("collapse",unfadeSelects);
 		this.namesVisualSelect.on("expand",fadeSelects).on("collapse",unfadeSelects);
 		this.profVisualSelect.on("expand",fadeSelects).on("collapse",unfadeSelects);
+	}
+
+	PlayerControl.prototype.enableOfflineNotification = function() {
+		this.hideOnlineNotification(false);
 	}
 
 	PlayerControl.prototype.setLiveMode = function() {

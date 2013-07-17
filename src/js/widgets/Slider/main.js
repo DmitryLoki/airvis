@@ -83,6 +83,10 @@ define(["jquery","knockout"], function($,ko) {
 		if (!isClick) {
 			$("body").addClass("airvis-document-overwrite-cursor-pointer");
 			$(document).on("mousemove touchmove",mouseMove).one("mouseup mouseleave touchend touchcancel",function(e) {
+				self.disableClick = true;
+				setTimeout(function() {
+					self.disableClick = false;
+				},200);
 				$("body").removeClass("airvis-document-overwrite-cursor-pointer");
 				$(document).off("mousemove touchmove",mouseMove);
 				self.emit("change",self.drag());
@@ -94,6 +98,7 @@ define(["jquery","knockout"], function($,ko) {
 	}
 
 	Slider.prototype.clickStart = function(self,e) {
+		if (self.disableClick) return;
 		this.dragStart(self,e,true);
 	}
 
