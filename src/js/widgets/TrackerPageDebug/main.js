@@ -549,6 +549,8 @@ define([
 						run();
 					});
 				}
+				else
+					_inRunCycle = false;
 				if (callback && typeof callback == "function")
 					callback();
 			});
