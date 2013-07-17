@@ -121,7 +121,6 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 	PlayerControl.prototype.setLiveMode = function() {
 		if (!this.isOnline() || this.isCurrentlyOnline()) return;
 		this.isCurrentlyOnline(true);
-		console.log(this);
 		this.currentKey(this.serverKey());
 		this.playerState("play");
 		this.playerSpeed(1);

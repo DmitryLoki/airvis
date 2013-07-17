@@ -530,9 +530,10 @@ define([
 		}
 
 		var run = function(callback) {
+			var dt = (new Date).getTime();
 			renderFrame(function() {
 				if (self.playerState() == "play") {
-					dt = (new Date).getTime();
+//					var dt = (new Date).getTime();
 					requestAnimFrame(function() {
 						var t = (new Date).getTime();
 						var key = self.currentKey()+(t-dt)*self.playerSpeed();
