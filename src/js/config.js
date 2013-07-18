@@ -126,7 +126,8 @@ define({
 		mode: "short",
 		allVisibleCheckboxColor: "blue"
 	},
-	serverDelay: 300000,	// 5 минут
+//	serverDelay: 300000,	// 5 минут
+	serverDelay: 0,
 	retrieveState: "pause",
 	retrieveInterval: 10000,
 	playerState: "pause",
