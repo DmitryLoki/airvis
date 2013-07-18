@@ -1,6 +1,7 @@
 define(["utils","knockout"],function(utils,ko) {
-	var MainMenu = function() {
+	var MainMenu = function(options) {
 		this.titles = ko.observable({});
+		this.titleUrl = options.titleUrl;
 	}
 
 	MainMenu.prototype.setTitles = function(titles) {

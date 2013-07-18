@@ -317,6 +317,7 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 /* Title */
 .airvis-title { padding: 18px 18px 22px; color: #ffffff; font-size: 18px; position: relative; line-height: 20px;}
 .airvis-title h1 { font-size: 36px; line-height: 36px; margin: 0; padding: 0 0 4px; font-weight: bold; white-space:nowrap; overflow: hidden; }
+.airvis-title h1 a { color: #ffffff; text-decoration: none; }
 .airvis-title .airvis-title-place { float: left; margin: 10px 30px 0 0; background: url(../img/title_pics.png) no-repeat 0 2px; padding: 0 0 0 24px; font-weight: bold;}
 .airvis-title .airvis-title-date { float: left; margin: 10px 30px 0 0; background: url(../img/title_pics.png) no-repeat 0 -97px; padding: 0 0 0 27px;}
 .airvis-title .airvis-title-task { float: left; margin: 10px 30px 0 0; background: url(../img/title_pics.png) no-repeat 0 -198px; padding: 0 0 0 24px;}

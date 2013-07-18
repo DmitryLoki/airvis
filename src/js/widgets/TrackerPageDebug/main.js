@@ -141,6 +141,7 @@ define([
 		this.mapWidget = ko.observable(this.options.mapWidget);
 		this.mapOptions = ko.observable(this.options.mapOptions);
 		this.mode = ko.observable(this.options.mode);
+		this.titleUrl = ko.observable(this.options.titleUrl);
 		this.tracksVisualMode = ko.observable(this.options.tracksVisualMode);
 		this.cylindersVisualMode = ko.observable(this.options.cylindersVisualMode);
 		this.modelsVisualMode = ko.observable(this.options.modelsVisualMode);
@@ -284,7 +285,9 @@ define([
 			});
 			this.playerControlWindow = new Window(this.options.windows.playerControl);
 
-			this.mainMenu = new MainMenu();
+			this.mainMenu = new MainMenu({
+				titleUrl: this.titleUrl
+			});
 			this.mainMenuWindow = new Window(this.options.windows.mainMenu);
 
 			this.facebook = new Facebook();
@@ -336,7 +339,9 @@ define([
 			this.retrieveRawForm = new RetrieveRawForm({server:this.server});
 			this.retrieveRawFormWindow = new Window(this.options.windows.retrieveRawForm);
 
-			this.mainMenu = new MainMenu();
+			this.mainMenu = new MainMenu({
+				titleUrl: this.titleUrl
+			});
 			this.mainMenuWindow = new Window(this.options.windows.mainMenu);
 
 			this.topBar = new TopBar();
@@ -368,6 +373,8 @@ define([
 			this.options.mapOptions = params.mapOptions;
 		if (params.isOnline)
 			this.options.isOnline = params.isOnline;
+		if (params.titleUrl)
+			this.options.titleUrl = params.titleUrl;
 		this.rebuild();
 		if (params.callback)
 			params.callback(this);
@@ -387,6 +394,7 @@ define([
 		self.mapWidget(self.options.mapWidget);
 		self.mapOptions(self.options.mapOptions);
 		self.isOnline(self.options.isOnline);
+		self.titleUrl(self.options.titleUrl);
 
 		if (self.isOnline()) self.server.setOption("isOnline",true);
 
