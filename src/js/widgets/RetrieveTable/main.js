@@ -108,6 +108,7 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
 			gSpd: data.gSpd,
       lastUpdate: data.lastUpdate,
       trackerName: data.trackerName,
+      trackerCharge: data.trackerCharge,
 			tableData: data.tableData,
       visible: data.visible,
       smsData: data.smsData,
