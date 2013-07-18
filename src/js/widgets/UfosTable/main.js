@@ -77,13 +77,13 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 			if (s1 == "landed" && s2 != "landed") return 1;
 			if (s2 == "landed" && s1 != "landed") return -1;
 
-			if (d1 >= 0 && d2 >= 0) {
+			if (d1 >= 0 && d2 >= 0 && d1 != null && d2 != null) {
 				d1 = Math.floor(d1*10);
 				d2 = Math.floor(d2*10);
 				return d1 == d2 ? 0 : (d1 < d2 ? -1 : 1);
 			}
-			if (d2 >= 0) return 1;
-			if (d1 >= 0) return -1;
+			if (d2 >= 0 && d2 != null) return 1;
+			if (d1 >= 0 && d1 != null) return -1;
 			return 0;
 		});
 
@@ -136,6 +136,7 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 			return self.getTimeStr(Math.floor(d/3600),Math.floor(d%3600/60),d%60);
 		});
 		w.speed = ko.computed(function() {
+			if (!w.tableData.gSpd()) return "";
 			return Math.floor(w.tableData.gSpd()*36)/10;
 		});
 		w.country3 = ko.computed(function() {

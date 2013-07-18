@@ -105,7 +105,7 @@ define([
 	}
 
 	Ufo.prototype.updateTableData = function() {
-		this.tableData.dist((this.dist()/1000).toFixed(1));
+		this.tableData.dist(this.dist() ? (this.dist()/1000).toFixed(1) : "");
 		this.tableData.gSpd(this.gSpd());
 		this.tableData.vSpd(this.vSpd());
 		this.tableData.alt(this.alt());
@@ -537,11 +537,51 @@ define([
 		}
 
 		var _inRunCycle = false;
+		var _currentKeyUpdatedAt = null;
+		var _currentKey = null;
 
 		var run = function(callback) {
 			if (_inRunCycle) return;
 			_inRunCycle = true;
-			var dt = (new Date).getTime();
+			if (!_currentKeyUpdatedAt) {
+				_currentKeyUpdatedAt = (new Date).getTime();
+				_currentKey = self.currentKey();
+			}
+			renderFrame(function() {
+				if (self.playerState() == "play") {
+					requestAnimFrame(function() {
+						var _lastUpdated = _currentKeyUpdatedAt;
+						_currentKeyUpdatedAt = (new Date).getTime();
+						_currentKey += (_currentKeyUpdatedAt-_lastUpdated)*self.playerSpeed();
+						if (_currentKey > self.endKey()) {
+							_currentKey = self.endKey();
+							self.playerState("pause");
+						}
+						self.currentKey(_currentKey);
+						_inRunCycle = false;
+						run();
+					});
+				}
+				else {
+					_currentKeyUpdatedAt = null;
+					_currentKey = null;
+					_inRunCycle = false;
+				}
+				if (callback && typeof callback == "function")
+					callback();
+			});
+
+/*
+			requestAnimFrame(function() {
+				var _lastUpdated = _currentKeyUpdatedAt;
+				_currentKeyUpdatedAt = (new Date).getTime();
+				_currentKey += _currentKeyUpdatedAt - _lastUpdated;
+				self.currentKey(_currentKey);
+				_inRunCycle = false;
+				run();
+			});
+*/
+/*
 			renderFrame(function() {
 				if (self.playerState() == "play") {
 //					var dt = (new Date).getTime();
@@ -562,6 +602,7 @@ define([
 				if (callback && typeof callback == "function")
 					callback();
 			});
+*/
 		}
 
 		var resetUfosTracks = function() {

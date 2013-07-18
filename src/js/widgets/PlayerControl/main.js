@@ -33,16 +33,12 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		}
 
 		this.currentKey.subscribe(function(key) {
-//			console.log(key,self.serverKey());
 			if (!self.isOnline()) return;
-			if (!self.isCurrentlyOnline() && Math.abs(key-self.serverKey()) < config.dtDiffReply) {
-//				console.log("set live",key,self.serverKey());
+			var dt = Math.abs(key-self.serverKey());
+			if (!self.isCurrentlyOnline() && dt < config.dtDiffReply)
 				self.setLiveMode();
-			}
-			else if (self.isCurrentlyOnline() && Math.abs(key-self.serverKey()) > config.dtDiffReply) {
-//				console.log("set offline",key,self.serverKey());
+			else if (self.isCurrentlyOnline() && dt > config.dtDiffReply)
 				self.isCurrentlyOnline(false);
-			}
 		});
 
 		var getTimeStr = function(h,m,s) {

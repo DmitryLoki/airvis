@@ -62,7 +62,6 @@ define(["google.maps"],function(gmaps) {
 	}
 
 	CanvasOverlay.prototype.draw = function() {
-		console.log("CanvasOverlay.Draw");
 		this.relayout();
 	}
 
