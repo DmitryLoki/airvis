@@ -245,7 +245,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			u.iconSize = config.canvas.ufos.sizes[self.modelsVisualMode()] || config.canvas.ufos.sizes["default"];
 			u.iconCenter = {x:u.iconSize,y:u.iconSize};
 			u.iconCanvas = document.createElement("canvas");
-			u.iconCanvas.width = 100;
+			u.iconCanvas.width = 200;
 			u.iconCanvas.height = u.iconSize*2;
 			var ic = u.iconCanvas.getContext("2d");
 			// Тень от иконки
@@ -425,11 +425,6 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 
 	GoogleMap.prototype.destroyShortWay = function() {
 		if (this.mapShortWay) {
-			if (this.mapShortWay._models)
-				for (var i = 0; i < this.mapShortWay._models.length; i++)
-					this.mapShortWay._models[i].setMap(null);
-			this.mapShortWay.styleSubscribe.dispose();
-			this.mapShortWay.visibleSubscribe.dispose();
 			delete this.mapShortWay;
 		}
 	}
