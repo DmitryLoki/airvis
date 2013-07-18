@@ -100,7 +100,7 @@ define({
 		},
 		shortWay: {
 			basic: {
-				lineWidth: 5,
+				lineWidth: 3,
 				strokeStyle: "rgba(51,51,51,0.7)",
 				fillStyle: "rgba(51,51,51,0.7)",
 				font: "bold 11px verdana",
