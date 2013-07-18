@@ -56,7 +56,7 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		this.localTime = ko.computed(function() {
 			var d = new Date();
 			var localOffset = d.getTimezoneOffset() * 60000;
-			var utc = self.displayKey() + localOffset;
+			var utc = self.displayKey() + localOffset + config.serverFake;
 			var offset = self.timeoffset()*36000;
 			var d = new Date(utc + offset);
 //			console.log("localTime",localOffset,offset,"currentKey",self.currentKey());
