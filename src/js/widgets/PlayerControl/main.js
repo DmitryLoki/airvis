@@ -35,11 +35,11 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		this.currentKey.subscribe(function(key) {
 //			console.log(key,self.serverKey());
 			if (!self.isOnline()) return;
-			if (!self.isCurrentlyOnline() && Math.abs(key-self.serverKey()) < 10000) {
+			if (!self.isCurrentlyOnline() && Math.abs(key-self.serverKey()) < config.dtDiffReply) {
 //				console.log("set live",key,self.serverKey());
 				self.setLiveMode();
 			}
-			else if (self.isCurrentlyOnline() && Math.abs(key-self.serverKey()) > 10000) {
+			else if (self.isCurrentlyOnline() && Math.abs(key-self.serverKey()) > config.dtDiffReply) {
 //				console.log("set offline",key,self.serverKey());
 				self.isCurrentlyOnline(false);
 			}

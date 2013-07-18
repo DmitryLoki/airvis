@@ -128,6 +128,7 @@ define({
 	},
 	serverDelay: 300000,	// 5 минут
 	serverFake: 300000,
+	dtDiffReply: 60000,		// 1 минута разницы между реальным временем и данными с сервера - включается reply mode, < минуты - isCurrentlyOnline
 	retrieveState: "pause",
 	retrieveInterval: 10000,
 	playerState: "pause",
