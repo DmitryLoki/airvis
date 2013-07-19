@@ -137,11 +137,18 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				var context = co.getContext();
 				var color = config.canvas.waypoints.colors[w.type()] ? config.canvas.waypoints.colors[w.type()][w.state()] : config.canvas.waypoints.colors["default"][w.state()];
 
+/*
 				var opacity = 0, h = co.getHeight()/4;
 				if (r < h) opacity = config.canvas.waypoints.maxOpacity;
 				else if (r > 2*h) opacity = config.canvas.waypoints.minOpacity;
 				else opacity = config.canvas.waypoints.maxOpacity - (r-h)/h*(config.canvas.waypoints.maxOpacity-config.canvas.waypoints.minOpacity);
 				color = color.replace(/opacity/,opacity);
+*/
+				var opacity = 0, zo = config.canvas.waypoints.opacityByZoom;
+				if (self.zoom() < zo.minZoom) opacity = zo.minOpacity;
+				else if (self.zoom() < zo.maxZoom) opacity = zo[self.zoom()];
+				else opacity = zo.maxOpacity;
+				color = color.replace(/opacity/,opacity/100);
 
 				co.setProperties($.extend({},config.canvas.waypoints.basic,{fillStyle:color}));
 				context.beginPath();
@@ -480,9 +487,6 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				for (var j = 0; j < drawOrder[order].length; j++)
 					this.mapWaypoints[drawOrder[order][j]].render(canvas);
 		}
-		console.log("drawOrder",drawOrder,drawOrderKeys);
-
-
 
 //		this.mapWaypoints.forEach(function(waypoint) {
 //			waypoint.render(canvas);

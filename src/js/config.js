@@ -96,7 +96,18 @@ define({
 			maxOpacity: 0.7,
 			titleSize: 17,
 			titleRadius: 10,
-			titleOffset: 1
+			titleOffset: 1,
+			opacityByZoom: {
+				minZoom: 8,
+				maxZoom: 12,
+				minOpacity: 70,
+				maxOpacity: 30,
+				8: 70,
+				9: 65,
+				10: 60,
+				11: 50,
+				12: 40
+			}
 		},
 		shortWay: {
 			basic: {
@@ -231,7 +242,7 @@ define({
 	cylindersVisualMode: "full",
 	modelsVisualMode: "small",
 	shortWayVisualMode: "wide",
-	namesVisualMode: "auto",
+	namesVisualMode: "on",
 	profVisualMode: "user",
 	shortWay: {
 		wide: {
