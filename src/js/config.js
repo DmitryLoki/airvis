@@ -229,7 +229,7 @@ define({
 	},
 	tracksVisualMode: "off",
 	cylindersVisualMode: "full",
-	modelsVisualMode: "medium",
+	modelsVisualMode: "small",
 	shortWayVisualMode: "wide",
 	namesVisualMode: "auto",
 	profVisualMode: "user",
