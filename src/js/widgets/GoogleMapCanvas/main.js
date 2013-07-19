@@ -540,6 +540,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		});
 		gmaps.event.addListener(this.map,"zoom_changed",function() {
 			self.zoom(self.map.getZoom());
+			self.staticCanvasOverlay.relayout();
+			self.canvasOverlay.relayout();
 			self.updateIcons();
 			self.update("static",true);
 			self.update("dynamic",true);
