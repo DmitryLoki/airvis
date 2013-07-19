@@ -1,7 +1,7 @@
 <div>
-	<div class="airvis-player-online-notification" data-bind="visible:showOnlineNotification">
+	<div class="airvis-player-online-notification" data-bind="visible:offlineNotificationIsVisible">
 		<span class="airvis-player-online-notification-text">This replay is based on Live tracking data! Tracking replay will be available soon.</span>
-		<a class="airvis-window-close airvis-window-close-cross" href="#" data-bind="click:turnOffOnlineNotification"></a>
+		<a class="airvis-window-close airvis-window-close-cross" href="#" data-bind="click:turnOffOfflineNotification"></a>
 	</div>
 	<div class="airvis-clearfix">
 		<div data-bind="event:{mousedown:proxyDrag,touchstart:proxyDrag}">

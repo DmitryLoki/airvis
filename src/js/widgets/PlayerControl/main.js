@@ -20,26 +20,19 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		this.timeoffset = options.timeoffset;
 		this.isOnline = options.isOnline;
 		this.isCurrentlyOnline = options.isCurrentlyOnline;
+		this.setLiveMode = options.setLiveMode;
 
 		this.dragKey = ko.observable(0);
 		this.dragging = ko.observable(false);
 
-		this.hideOnlineNotification = ko.observable(true);
-		this.showOnlineNotification = ko.computed(function() {
-			return (self.isOnline() && !self.isCurrentlyOnline() && !self.hideOnlineNotification());
+		this.enableOfflineNotification = ko.observable(false);
+		this.hideOfflineNotification = ko.observable(false);
+		this.offlineNotificationIsVisible = ko.computed(function() {
+			return self.isOnline() && !self.isCurrentlyOnline() && self.enableOfflineNotification() && !self.hideOfflineNotification();
 		});
-		this.turnOffOnlineNotification = function() {
-			self.hideOnlineNotification(true);
+		this.turnOffOfflineNotification = function() {
+			self.hideOfflineNotification(true);
 		}
-
-		this.currentKey.subscribe(function(key) {
-			if (!self.isOnline()) return;
-			var dt = Math.abs(key-self.serverKey());
-			if (!self.isCurrentlyOnline() && dt < config.dtDiffReply)
-				self.setLiveMode();
-			else if (self.isCurrentlyOnline() && dt > config.dtDiffReply)
-				self.isCurrentlyOnline(false);
-		});
 
 		var getTimeStr = function(h,m,s) {
 			return (h<10?"0":"") + h + ":" + (m<10?"0":"") + m + ":" + (s<10?"0":"") + s;
@@ -120,18 +113,6 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		this.profVisualSelect.on("expand",fadeSelects).on("collapse",unfadeSelects);
 	}
 
-	PlayerControl.prototype.enableOfflineNotification = function() {
-		this.hideOnlineNotification(false);
-	}
-
-	PlayerControl.prototype.setLiveMode = function() {
-		if (!this.isOnline() || this.isCurrentlyOnline()) return;
-		this.isCurrentlyOnline(true);
-		this.currentKey(this.serverKey());
-		this.playerState("play");
-		this.playerSpeed(1);
-	}
-	
 	PlayerControl.prototype.switchState = function(self,e) {
 		e.stopPropagation();
 		e.preventDefault();

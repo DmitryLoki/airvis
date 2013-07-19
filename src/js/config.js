@@ -92,7 +92,7 @@ define({
 					openedText: "#1a1a1a"
 				}
 			},
-			minOpacity: 0.1,
+			minOpacity: 0.4,
 			maxOpacity: 0.7,
 			titleSize: 17,
 			titleRadius: 10,

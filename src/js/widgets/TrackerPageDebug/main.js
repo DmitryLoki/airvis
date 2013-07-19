@@ -281,7 +281,8 @@ define([
 				playerSpeed: this.playerSpeed,
 				isOnline: this.isOnline,
 				isCurrentlyOnline: this.isCurrentlyOnline,
-				loading: this.loading
+				loading: this.loading,
+				setLiveMode: function() { self.setLiveMode(); }
 			});
 			this.playerControlWindow = new Window(this.options.windows.playerControl);
 
@@ -490,6 +491,12 @@ define([
 		});
 	}
 
+	TrackerPageDebug.prototype.resetUfosTracks = function() {
+		this.ufos().forEach(function(ufo) {
+			ufo.resetTrack();
+		});
+	}
+
 	TrackerPageDebug.prototype.playerInit = function() {
 		var self = this;
 		var renderFrame = function(callback) {
@@ -540,10 +547,10 @@ define([
 		var _currentKeyUpdatedAt = null;
 		var _currentKey = null;
 
-		var run = function(callback) {
-			if (_inRunCycle) return;
+		var run = function(callback,force) {
+			if (_inRunCycle && !force) return;
 			_inRunCycle = true;
-			if (!_currentKeyUpdatedAt) {
+			if (!_currentKeyUpdatedAt || force) {
 				_currentKeyUpdatedAt = (new Date).getTime();
 				_currentKey = self.currentKey();
 			}
@@ -570,45 +577,6 @@ define([
 				if (callback && typeof callback == "function")
 					callback();
 			});
-
-/*
-			requestAnimFrame(function() {
-				var _lastUpdated = _currentKeyUpdatedAt;
-				_currentKeyUpdatedAt = (new Date).getTime();
-				_currentKey += _currentKeyUpdatedAt - _lastUpdated;
-				self.currentKey(_currentKey);
-				_inRunCycle = false;
-				run();
-			});
-*/
-/*
-			renderFrame(function() {
-				if (self.playerState() == "play") {
-//					var dt = (new Date).getTime();
-					requestAnimFrame(function() {
-						var t = (new Date).getTime();
-						var key = self.currentKey()+(t-dt)*self.playerSpeed();
-						if (key > self.endKey()) {
-							key = self.endKey();
-							self.playerState("pause");
-						}
-						self.currentKey(key);
-						_inRunCycle = false;
-						run();
-					});
-				}
-				else
-					_inRunCycle = false;
-				if (callback && typeof callback == "function")
-					callback();
-			});
-*/
-		}
-
-		var resetUfosTracks = function() {
-			self.ufos().forEach(function(ufo) {
-				ufo.resetTrack();
-			});
 		}
 
 		var tableTimerHandle = null;
@@ -629,8 +597,8 @@ define([
 
 		self.playerControl.on("change",function(v) {
 			self.currentKey(v);
-			resetUfosTracks();
-			run(runTableData);
+			self.resetUfosTracks();
+			run(runTableData,true);
 		});
 
 		self.playerState.subscribe(function(state) {
@@ -640,11 +608,35 @@ define([
 		});
 
 		if (self.isOnline()) {
-			self.playerControl.setLiveMode();
-			self.playerControl.enableOfflineNotification();
+			self.currentKey.subscribe(function(key) {
+				var dt = Math.abs(key-self.serverKey());
+				if (!self.isCurrentlyOnline() && dt < config.dtDiffReply)
+					self.setLiveMode();
+				else if (self.isCurrentlyOnline() && dt > config.dtDiffReply)
+					self.setReplyMode(false);
+			});
+			self.setLiveMode();
+			self.playerControl.enableOfflineNotification(true);
 		}
 		else
 			run(runTableData);
+	}
+
+	TrackerPageDebug.prototype.setLiveMode = function() {
+		if (!this.isOnline() || this.isCurrentlyOnline()) return;
+		this.isCurrentlyOnline(true);
+		this.currentKey(this.serverKey());
+		if (this.playerControl) {
+			this.playerState("play");
+			this.playerSpeed(1);
+		}
+		this.resetUfosTracks();
+	}
+
+	TrackerPageDebug.prototype.setReplyMode = function() {
+		if (!this.isOnline() || !this.isCurrentlyOnline()) return;
+		this.isCurrentlyOnline(false);
+		this.resetUfosTracks();
 	}
 
 	TrackerPageDebug.prototype.retrieveRun = function() {
