@@ -603,7 +603,7 @@ define([
 
 		self.playerState.subscribe(function(state) {
 			if (state == "play") {
-				run(runTableData);
+				run(runTableData,true);
 			}
 		});
 
@@ -629,6 +629,7 @@ define([
 		if (this.playerControl) {
 			this.playerState("play");
 			this.playerSpeed(1);
+			this.playerState.valueHasMutated();
 		}
 		this.resetUfosTracks();
 	}
