@@ -272,7 +272,8 @@ define({
 	waypointsNames: {
 		ss: "START",
 		es: "END OF SPEED SECTION",
-		goal: "GOAL"
+		goal: "GOAL",
+		to: "TAKE OFF"
 	},
 	map: {
 		zoom: 9,

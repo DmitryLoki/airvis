@@ -21,6 +21,7 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		this.isOnline = options.isOnline;
 		this.isCurrentlyOnline = options.isCurrentlyOnline;
 		this.setLiveMode = options.setLiveMode;
+		this.debug = options.debug;
 
 		this.dragKey = ko.observable(0);
 		this.dragging = ko.observable(false);
@@ -53,10 +54,26 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 			return getTimeStr(d.getHours(),d.getMinutes(),d.getSeconds());
 		});
 
-		this.raceTime = ko.computed(function() {
-			var d = Math.abs(Math.floor((self.displayKey()-self.raceKey())/1000));
-			return (self.displayKey()<self.raceKey()?"-":" ") + getTimeStr(Math.floor(d/3600),Math.floor(d%3600/60),d%60);
+		this.raceTime = ko.computed({
+			read: function() {
+				var d = Math.abs(Math.floor((self.displayKey()-self.raceKey())/1000));
+				return (self.displayKey()<self.raceKey()?"-":" ") + getTimeStr(Math.floor(d/3600),Math.floor(d%3600/60),d%60);
+			},
+			write: function(value) {
+				if (!value.match(/(\-)?\d\d:\d\d:\d\d/)) {
+					alert("Incorrect raceTime format");
+					return;
+				}
+				var sign = value.match(/\-/) ? -1 : 1;
+				var ar = value.replace(/\-/,"").split(/:/);
+				var dt = self.raceKey() + sign * (ar[0]*3600000+ar[1]*60000+ar[2]*1000);
+				self.emit("change",dt);
+			}
 		});
+
+		this.debugSetRaceTimeToZero = function() {
+			self.raceTime("00:00:00");
+		}
 
 		this.raceTimeText = ko.computed(function() {
 			return "Race to goal time";

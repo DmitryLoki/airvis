@@ -10,6 +10,8 @@
 
 	RealServer.prototype.get = function(query) {
 		var mult = 1000;
+		var testPilotCut = 3801;
+		var testPilotOn = false;
 		if (query.type == "race") {
 			$.ajax({
 				url: "http://api.airtribune.com/" + this.options.apiVersion + "/contest/" + this.options.contestId + "/race/" + this.options.raceId,
@@ -89,7 +91,7 @@
 					var data = [];
 					for (var i = 0; i < result.length; i++) {
 						var rw = result[i];
-//						if (rw.contest_number!="80") continue;
+						if (testPilotOn && rw.contest_number!=testPilotCut) continue;
 						data.push({
 							id: rw.contest_number,
 							personId: rw.person_id,
@@ -108,21 +110,23 @@
 			});
 		}
 		else if (query.type == "timeline") {
+			var ajaxRequestData = {
+				from_time: Math.floor(query.first/1000),
+				to_time: Math.floor(query.last/1000)
+			};
+			if (query.loadStartData)
+				ajaxRequestData.start_positions = 1;
 			$.ajax({
 //				url: "http://api.airtribune.com/" + this.options.apiVersion + "/race/" + this.options.raceId + "/tracks",
 				url: "http://api.airtribune.com/" + this.options.apiVersion + "/track/group/" + this.options.raceId + (query.isOnline||this.options.isOnline?"_online":""),
 				dataType: "json",
-				data: {
-					from_time: Math.floor(query.first/1000),
-					to_time: Math.floor(query.last/1000),
-					start_positions: 1
-				},
+				data: ajaxRequestData,
 				success: function(result,textStatus,request) {
 					if (!result.start) result.start = {};
 					var data = {start:{},timeline:{}}, tmp = {};
 					data.serverKey = (new Date(request.getResponseHeader("Date"))).getTime();
 					$.each(result.start,function(pilot_id,rw) {
-//						if (pilot_id!="80") return;
+						if (testPilotOn && pilot_id!=testPilotCut) return;
 						data.start[pilot_id] = {
 							dist: rw.dist,
 							gspd: rw.gspd,
@@ -142,7 +146,7 @@
 						dt *= 1000;
 						data.timeline[dt] = {};
 						$.each(rws,function(pilot_id,rw) {
-//							if (pilot_id != "80") return;
+							if (testPilotOn && pilot_id != testPilotCut) return;
 							data.timeline[dt][pilot_id] = {
 								dist: rw.dist,
 								gspd: rw.gspd,

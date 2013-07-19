@@ -149,6 +149,17 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
   -moz-border-radius: 3px; 
   border-radius: 3px;
 }
+
+.airvis-player-debug, .airvis-player-debug a {
+  color: #ffffff;
+}
+.airvis-player-debug input {
+  width: 70px;
+}
+.airvis-player-debug h3 { 
+  margin: 0;
+}
+
 .airvis-slider-target { height: 40px; padding-top: 15px; }
 .airvis-slider-container { padding: 0 10px; overflow: hidden;}
 .airvis-slider-handle { width: 18px; height: 18px; background: #ffffff; border: 1px solid #000000; position: absolute; margin-left: -9px; top: -5px;

@@ -1,4 +1,4 @@
-define(function() {
+define(["jquery"],function($) {
 
 	// Источник данных, типа кеширующего прокси, все данные должны запрашиваться через него, а не напрямую у server-а
 	var DataSource = function(options) {
@@ -13,14 +13,14 @@ define(function() {
 				// Здесь основная логика, это зачем вообще DataSource нужен.
 				// Нужно дать координаты на момент dt, при этом можно запросить данные на промежуток с запасом, 
 				// чтобы через секунду не слать новый запрос. Нужен балланс между объемом данных в запросе и частотой запросов.
-				// Первый блин - запрашиваем на 5 секунд * timeMultiplier, т.е. в случае x25 - на 125 секунд.
+				// Запрашиваем на минуту * timeMultiplier, т.е. в случае x10 - на 10 минут.
 				// Есть массив из загруженных интервалов. Если dt не попадает в один из них, нужно ставить загрузку 
 				// соответствующего интервала, после окончания загрузки отдавать данные.
 				// Если интервал есть, но скоро кончается, и после него данные не загружены, то нужно отдавать данные сейчас + 
 				// + ставить на загрузку следующий интервал. Если на момент dt данные не загружены, но уже грузятся,
 				// то нужно ждать и вызывать callback после того запроса, что сейчас в процессе.
-				// Еще момент: можем просмотреть всю гонку на скорости x25, а потом перекрутить на начало и смотреть на x1.
-				// В этом случае глупо не использовать кеш из x25.
+				// Еще момент: можем просмотреть всю гонку на скорости x10, а потом перекрутить на начало и смотреть на x1.
+				// В этом случае глупо не использовать кеш из x10.
 				// TODO: придумать название
 				// Фрейм - это то, что приходит с сервера и складывается в кеш, т.е. start data + список events
 				// Функция по данному frame вычисляет мгновенные данные всех объектов на момент dt
@@ -36,6 +36,7 @@ define(function() {
 				// Очевидно, что при переходе в следующий фрейм он "не прыгнет", потому что если бы он прыгнул, 
 				// было бы событие по изменению координат.
 				var getDataFromFrame = function(frame,dt) {
+//					console.log("getDataFromFrame",frame,dt);
 					var data = {}, dataBefore = {}, dataAfter = {}, keys = [];
 					// Пробегаем по всем событиям фрейма и для каждого пилота ищем ближайшие события до и после dt
 					for (var i in frame.timeline)
@@ -52,8 +53,6 @@ define(function() {
 					// Если у какого-то пилота не нашлось события до или после, проставляем его по данным frame.start
 					for (var pilot_id in frame.start)
 						if (frame.start.hasOwnProperty(pilot_id)) {
-							// Мегахак - потом убрать и починить!
-							//if (!dataBefore[pilot_id] && dataAfter[pilot_id]) dataBefore[pilot_id] = dataAfter[pilot_id];
 							if (!dataBefore[pilot_id]) dataBefore[pilot_id] = frame.start[pilot_id];
 							if (!dataAfter[pilot_id]) dataAfter[pilot_id] = dataBefore[pilot_id];
 						}
@@ -62,10 +61,9 @@ define(function() {
 					// На таких пилотов забиваем, отдаем только тех, у которых есть данные dataBefore
 
 					// По событиям до и после строим линейную пропорцию и получаем мгновенные координаты пилота
-					for (var pilot_id in dataBefore)
+					for (var pilot_id in dataBefore) {
 						if (dataBefore.hasOwnProperty(pilot_id)) {
 							var d1 = dataBefore[pilot_id], d2 = dataAfter[pilot_id];
-//							console.log(d1,d2,frame.start[pilot_id]);
 							if (!d2 || d1.dt == d2.dt)
 								data[pilot_id] = {
 									dist: d1.dist,
@@ -82,8 +80,6 @@ define(function() {
 										dt: d1.dt
 									},
 									alt: d1.alt,
-//									state: d1.state ? d1.state : frame.start[pilot_id] ? frame.start[pilot_id].state : null,
-//									stateChangedAt: d1.stateChangedAt ? d1.stateChangedAt : frame.start[pilot_id] ? frame.start[pilot_id].stateChangedAt : null,
 									state: d1.state,
 									stateChangedAt: d1.stateChangedAt,
 									dt: d1.dt
@@ -105,33 +101,16 @@ define(function() {
 										dt: d1.dt
 									},
 									alt: d1.alt,
-//									state: d1.state ? d1.state : frame.start[pilot_id] ? frame.start[pilot_id].state : null,
-//									stateChangedAt: d1.stateChangedAt ? d1.stateChangedAt : frame.start[pilot_id] ? frame.start[pilot_id].stateChangedAt : null,
 									state: d1.state,
 									stateChangedAt: d1.stateChangedAt,
 									dt: d1.dt
 								}
 							}
+//							console.log("computedP dt=",dt,"lat=",data[pilot_id].position.lat,"lng=",data[pilot_id].position.lng);
+//							console.log("dataBefor dt=",dataBefore[pilot_id].dt,"lat=",dataBefore[pilot_id].position.lat,"lng=",dataBefore[pilot_id].position.lng);
+//							console.log("dataAfter dt=",dataAfter[pilot_id].dt,"lat=",dataAfter[pilot_id].position.lat,"lng=",dataAfter[pilot_id].position.lng);
 						}
-
-
-					// Upd. теперь нужна еще и траектория. Ограничимся опять-таки текущим фреймом.
-					// Собственно, это значит, что весь фрейм и нужно вернуть.
-					// Пока что не будем наворачивать логику в этом методе выше, и так сложная, еще раз по массивам пробежимся.
-					/*
-					for (var pilot_id in frame.start)
-						if (frame.start.hasOwnProperty(pilot_id) && data[pilot_id]) {
-							data[pilot_id].track = [];
-							data[pilot_id].track.push(frame.start[pilot_id]);
-						}
-					for (var i in frame.timeline)
-						if (frame.timeline.hasOwnProperty(i)) 
-							for (var pilot_id in frame.timeline[i])
-								if (frame.timeline[i].hasOwnProperty(pilot_id) && data[pilot_id]) {
-									if (!data[pilot_id].track) data[pilot_id].track = [];
-									data[pilot_id].track.push(frame.timeline[i][pilot_id]);
-								}
-					*/
+					}
 					return data;
 				}
 
@@ -150,13 +129,51 @@ define(function() {
 					return null;
 				}
 
+
+				// data = {start:..,timeline:..}, по этим данным генерятся finish-данные, конечное положение всех пилотов для данного фрейма
+				var getFinishData = function(data) {
+					var finish = {};
+					// Пробегаем по всем событиям фрейма и для каждого пилота ищем самое последнее событие
+					for (var dt in data.timeline) {
+						if (data.timeline.hasOwnProperty(dt)) {
+							for (var pilot_id in data.timeline[dt]) {
+								if (data.timeline[dt].hasOwnProperty(pilot_id)) {
+									dt = Math.floor(dt);
+									if (!finish[pilot_id] || Math.floor(finish[pilot_id].dt) < dt) {
+										finish[pilot_id] = data.timeline[dt][pilot_id];
+									}
+								}
+							}
+						}
+					}
+					// Если у какого-то пилота не нашлось события в timeline, проставляем его по данным data.start
+					for (var pilot_id in data.start) {
+						if (data.start.hasOwnProperty(pilot_id)) {
+							if (!finish[pilot_id]) finish[pilot_id] = data.start[pilot_id];
+						}
+					}
+					return finish;
+				}
+
+				// Функция-суперхак! Получили finish-данные из предыдущего фрейма. Но у этих данных dt соответствуют реальному времени, когда данные были установлены. 
+				// Единственное, зачем finish нужен - засунуть данные в start для следующего фрейма.
+				// Нужно переписать все dt-шники из finish-а предыдущего фрейма на dt начала следующего!!!
+				var rewriteDt = function(data,dt) {
+					var out = $.extend(true,{},data);
+					for (var pilot_id in out)
+						if (out.hasOwnProperty(pilot_id)) {
+							out[pilot_id].dt = dt;
+						}
+					return out;
+				}
+
 				// Количество секунд, прошедших с начала гонки
 				var dtOffset = Math.floor((query.dt - query.dtStart) / 1000);
 
 				// Ищем среди всех кешей интервал, в который входит query.dt
 				var cachedFrame = getCachedFrame(this.cache,dtOffset);
 
-				// Размер интервала в секундах, т.е. грузим либо на 5, либо на 50, либо на 125 секунд
+				// Размер интервала в секундах, т.е. грузим либо на 30, либо на 60, либо на 300 секунд
 				var inSize = 30 * query.timeMultiplier;
 
 				// Количество интервалов, прошедших с начала гонки
@@ -173,12 +190,17 @@ define(function() {
 				// Но при этом хорошо бы делать предзагрузку следующего интервала.
 				// К примеру, если dt > inSize / 2 и на момент dt + inSize загруженного интервала нет, то поставим его на загрузку 
 				if (!query.disablePreload && cachedFrame && (dtOffset > inSize * inOffset + inSize / 2) && !getCachedFrame(this.cache,dtOffset + inSize)) {
+
+					// итак, у нас есть cachedFrame, причем этот фрейм - предыдущий относительно того, который сейчас поставим на загрузку
+					// предположим, что в cachedFrame были сгенерены finish-данные, конечные данные на этом интервале. 
+					// они будут начальными на следущем, поэтому следующий запрос пойдет без ?loadStartData=true
 					this.get({
 						type: query.type,
 						dt: query.dt + inSize * 1000,
 						timeMultiplier: query.timeMultiplier,
 						dtStart: query.dtStart,
 						disablePreload: true,
+						finishDataFromPrevFrame: cachedFrame.data ? cachedFrame.data.finish : null,
 						callback: function(data) { }
 					});
 				}
@@ -214,9 +236,18 @@ define(function() {
 						first: first,
 						last: last,
 						isOnline: query.isOnline,
+						loadStartData: !query.finishDataFromPrevFrame,
 						callback: function(data) {
+//							console.log("DataSource, loadedFrame data before processing",data);
+							if (query.finishDataFromPrevFrame) {
+								data.start = query.finishDataFromPrevFrame;
+							}
+//							console.log("DataSource, loadedFrame query=",query);
+							data.finish = rewriteDt(getFinishData(data),self.cache[inSize][inOffset].last);
+//							console.log("DataSource, generaedFinishData=",data.finish);
 							self.cache[inSize][inOffset].status = "ready";
 							self.cache[inSize][inOffset].data = data;
+//							console.log("DataSource, loadedFrame=",self.cache[inSize][inOffset]);
 							self.cache[inSize][inOffset].callback(data);
 							self.cache[inSize][inOffset].callback = function(data) { };
 						}

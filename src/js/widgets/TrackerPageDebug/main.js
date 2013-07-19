@@ -142,6 +142,7 @@ define([
 		this.mapOptions = ko.observable(this.options.mapOptions);
 		this.mode = ko.observable(this.options.mode);
 		this.titleUrl = ko.observable(this.options.titleUrl);
+		this.debug = ko.observable(this.options.debug);
 		this.tracksVisualMode = ko.observable(this.options.tracksVisualMode);
 		this.cylindersVisualMode = ko.observable(this.options.cylindersVisualMode);
 		this.modelsVisualMode = ko.observable(this.options.modelsVisualMode);
@@ -282,7 +283,8 @@ define([
 				isOnline: this.isOnline,
 				isCurrentlyOnline: this.isCurrentlyOnline,
 				loading: this.loading,
-				setLiveMode: function() { self.setLiveMode(); }
+				debug: this.debug,
+				setLiveMode: function() { self.setLiveMode(); },
 			});
 			this.playerControlWindow = new Window(this.options.windows.playerControl);
 
@@ -376,6 +378,8 @@ define([
 			this.options.isOnline = params.isOnline;
 		if (params.titleUrl)
 			this.options.titleUrl = params.titleUrl;
+		if (params.debug)
+			this.options.debug = params.debug;
 		this.rebuild();
 		if (params.callback)
 			params.callback(this);
@@ -396,6 +400,7 @@ define([
 		self.mapOptions(self.options.mapOptions);
 		self.isOnline(self.options.isOnline);
 		self.titleUrl(self.options.titleUrl);
+		self.debug(self.options.debug);
 
 		if (self.isOnline()) self.server.setOption("isOnline",true);
 
@@ -625,13 +630,11 @@ define([
 	TrackerPageDebug.prototype.setLiveMode = function() {
 		if (!this.isOnline() || this.isCurrentlyOnline()) return;
 		this.isCurrentlyOnline(true);
-		this.currentKey(this.serverKey());
 		if (this.playerControl) {
 			this.playerState("play");
 			this.playerSpeed(1);
-			this.playerState.valueHasMutated();
+			this.playerControl.emit("change",this.serverKey());
 		}
-		this.resetUfosTracks();
 	}
 
 	TrackerPageDebug.prototype.setReplyMode = function() {

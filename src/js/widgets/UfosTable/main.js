@@ -49,9 +49,10 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 
 	UfosTable.prototype.sortTableRows = function() {
 		this.tableUfos.sort(function(a,b) {
-			var undef1 = !a || !a.tableData;
-			var undef2 = !b || !b.tableData;
+			var undef1 = !a || !a.tableData || a.noData();
+			var undef2 = !b || !b.tableData || b.noData();
 			if (undef1 || undef2) return undef1 && undef2 ? 0 : (undef1 ? 1 : -1);
+
 
 			var d1 = a.dist && a.dist() >= 0 ? a.dist() : null;
 			var d2 = b.dist && b.dist() >= 0 ? b.dist() : null;
