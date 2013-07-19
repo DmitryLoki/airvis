@@ -275,6 +275,11 @@ define({
 		goal: "GOAL",
 		to: "TAKE OFF"
 	},
+	waypointsDrawOrder: {
+		goal: 3,
+		es: 2,
+		ss: 1
+	},
 	map: {
 		zoom: 9,
 		center: {lat: 55.748758, lng: 37.6174},

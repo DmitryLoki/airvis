@@ -464,9 +464,29 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 	}
 
 	GoogleMap.prototype._updateStaticCanvas = function(canvas) {
-		this.mapWaypoints.forEach(function(waypoint) {
-			waypoint.render(canvas);
-		},this);
+		var drawOrder = {}, drawOrderKeys = [];
+		this.mapWaypoints.forEach(function(waypoint,i) {
+			var order = config.waypointsDrawOrder[waypoint.type()] || 0;
+			if (!drawOrder[order]) {
+				drawOrder[order] = [];
+				drawOrderKeys.push(order);
+			}
+			drawOrder[order].push(i);
+		});
+		drawOrderKeys.sort();
+		for (var i = 0; i < drawOrderKeys.length; i++) {
+			var order = drawOrderKeys[i];
+			if (drawOrder.hasOwnProperty(order) && drawOrder[order].length > 0)
+				for (var j = 0; j < drawOrder[order].length; j++)
+					this.mapWaypoints[drawOrder[order][j]].render(canvas);
+		}
+		console.log("drawOrder",drawOrder,drawOrderKeys);
+
+
+
+//		this.mapWaypoints.forEach(function(waypoint) {
+//			waypoint.render(canvas);
+//		},this);
 		if (this.mapShortWay)
 			this.mapShortWay.render(canvas);
 		if (this.mapShortWay)
