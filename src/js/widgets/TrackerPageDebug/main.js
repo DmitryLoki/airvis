@@ -139,19 +139,21 @@ define([
 			state: ko.observable(null),
 			stateChangedAt: ko.observable(null)
 		};
-    this.status.subscribe(function(status){
-      if(self.type == "transport") return;
-      var state;
-      switch(status){
-        case 4: state = 'landed';break;
-        case 3: state = 'fly';break;
-        case 2: state = 'picked_up';break;
-        case 1: state = 'returned';break;
-      }
-      self.state(state);
-    });
+    this.status.subscribe(this.updateStateByStatus.bind(this));
     this.status(3);
 	}
+
+  Ufo.prototype.updateStateByStatus = function(status){
+    if(this.type == "transport") return;
+    var state;
+    switch(status){
+      case 4: state = 'landed';break;
+      case 3: state = 'fly';break;
+      case 2: state = 'picked_up';break;
+      case 1: state = 'returned';break;
+    }
+    this.state(state);
+  };
 
 	Ufo.prototype.updateTableData = function() {
 		this.tableData.dist((this.dist()/1000).toFixed(1));
@@ -759,7 +761,7 @@ define([
               ufo.trackerName(data[i].name);
               ufo.trackerCharge(rw[4]);
               ufo.noData(false);
-
+              ufo.updateStateByStatus(ufo.status());
               ufo.position({lat: rw[0], lng: rw[1], dt: null});
               if(self.hqCoords()){
                 ufo.dist(
@@ -767,11 +769,10 @@ define([
                     .toFixed(2)
                 );
               }
+
               if(ufo.lastUpdate() > 40*60) {
                 ufo.state("ufo_untrusted");
               }
-              if (rw.stateChangedAt)
-                ufo.stateChangedAt(rw.stateChangedAt);
               return;
             }
           }
