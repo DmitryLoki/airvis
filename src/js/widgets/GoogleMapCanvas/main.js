@@ -301,11 +301,12 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 
 		u.renderTrack = function(co) {
 			if (u.noData() || !u.visible()) return;
-			if (self.tracksVisualMode() == "off" || u.trackData.length <= 1) return;
+			if (self.tracksVisualMode() == "off" || u.trackData.length == 0) return;
 			var p = co.abs2rel(u.coords(),self.zoom());
 			if (co.inViewport(p,0)) {
 				var context = co.getContext();
-				co.setProperties($.extend({},config.canvas.ufos.basic,{strokeStyle:u.color()}));
+//				co.setProperties($.extend({},config.canvas.ufos.basic,{strokeStyle:u.color()}));
+				co.setProperties(config.canvas.ufos.basic);
 				context.beginPath();
 				for (var i = 0; i < u.trackData.length; i++) {
 					if (u.trackData[i].dt == null) continue;
@@ -326,7 +327,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		u.trackSubscribe = u.track.subscribe(function(v) {
 			if (!u.visible() || self.tracksVisualMode() == "off") return;
 			// если приходит специальное значение v.dt=null, обнуляем трек
-			if (v.dt == "null") {
+			if (v.dt == null) {
 				u.trackData = [];
 				return;
 			}
