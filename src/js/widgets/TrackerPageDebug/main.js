@@ -641,7 +641,7 @@ define([
 	}
 
 	TrackerPageDebug.prototype.setStartMode = function() {
-		this.playerControl.emit("change",this.startKey());
+		this.playerControl.emit("change",this.raceKey());
 	}
 
 	TrackerPageDebug.prototype.setReplyMode = function() {
