@@ -159,6 +159,7 @@ define([
 		this.isReady = ko.observable(false);
 		this.isOnline = ko.observable(false);
 		this.isCurrentlyOnline = ko.observable(false);
+		this.disableLiveButton = ko.observable(false);
 		this.loading = ko.observable(false);
 
 		this.ufos = ko.observableArray();
@@ -285,6 +286,7 @@ define([
 				loading: this.loading,
 				debug: this.debug,
 				setLiveMode: function() { self.setLiveMode(); },
+				disableLiveButton: this.disableLiveButton
 			});
 			this.playerControlWindow = new Window(this.options.windows.playerControl);
 
@@ -642,6 +644,7 @@ define([
 
 	TrackerPageDebug.prototype.setStartMode = function() {
 		this.playerControl.emit("change",this.raceKey());
+		this.disableLiveButton(true);
 	}
 
 	TrackerPageDebug.prototype.setReplyMode = function() {

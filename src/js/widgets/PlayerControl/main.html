@@ -38,7 +38,7 @@
 			<a data-bind="click: changeSpeed.bind($data,2), css: { 'player-button-on': playerSpeed() == 2, 'player-button-off': playerSpeed() != 2 }"><span>x2</span></a>
 			<a data-bind="click: changeSpeed.bind($data,10), css: { 'player-button-on': playerSpeed() == 10, 'player-button-off': playerSpeed() != 10 }"><span>x10</span></a>
 		</div>
-		<!-- ko if: isOnline -->
+		<!-- ko if: isOnline() && !disableLiveButton()-->
 			<div class="airvis-player-controls airvis-online-container">
 				<a class="airvis-online" href="#" data-bind="click:setLiveMode,css: { 'player-button-on': isCurrentlyOnline(), 'player-button-off': !isCurrentlyOnline() }"><span>LIVE</span></a>
 			</div>
