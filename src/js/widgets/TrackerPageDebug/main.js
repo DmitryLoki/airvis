@@ -622,10 +622,11 @@ define([
 				else if (self.isCurrentlyOnline() && dt > config.dtDiffReply)
 					self.setReplyMode(false);
 			});
+
 			if (self.endKey() < self.serverKey())
 				self.setStartMode();
 			else
-				self.setLiveMode();
+				self.setLiveMode();	
 			self.playerControl.enableOfflineNotification(true);
 		}
 		else
@@ -634,7 +635,7 @@ define([
 
 	TrackerPageDebug.prototype.setLiveMode = function() {
 		if (!this.isOnline() || this.isCurrentlyOnline()) return;
-//		this.isCurrentlyOnline(true);
+		this.isCurrentlyOnline(true);
 		if (this.playerControl) {
 			this.playerState("play");
 			this.playerSpeed(1);
