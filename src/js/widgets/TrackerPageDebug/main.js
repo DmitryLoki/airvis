@@ -87,7 +87,11 @@ define([
 		this.personId = ko.observable(options.personId);
     this.tracker = options.tracker;
 		this.color = ko.observable(options.color || config.ufo.color);
-    this.status = ko.observable(null);
+    this.status = ko.observable(3);
+    this.status.subscribe(function(){
+      self.statusChanged(true);
+    });
+    this.statusChanged = ko.observable(false);
 		this.state = ko.observable(null);
 		this.stateChangedAt = ko.observable(null);
 		this.position = ko.observable({lat:null,lng:null,dt:null});
@@ -139,8 +143,12 @@ define([
 			state: ko.observable(null),
 			stateChangedAt: ko.observable(null)
 		};
-    this.status.subscribe(this.updateStateByStatus.bind(this));
-    this.status(3);
+    this.status.subscribe(function(status){
+      self.updateStateByStatus(status);
+      if(status == 1) {
+        self.visible(false);
+      }
+    });
 	}
 
   Ufo.prototype.updateStateByStatus = function(status){
@@ -694,9 +702,11 @@ define([
 			lastSmsTimestamp: self.retrieveLastSmsTimestamp,
 			callback: function(data) {
 				var rev1 = {};
-				self.smsData().forEach(function(rw) {
-					rev1[rw.id] = 1;
-				});
+        if(self.smsData()) {
+          self.smsData().forEach(function(rw) {
+            rev1[rw.id] = 1;
+          });
+        }
 				var sms2push = [];
 				data.forEach(function(rw) {
 					if (!rev1[rw.id]) {
@@ -747,7 +757,9 @@ define([
 
     var loadTrackers = function () {
       self.dataSource.get({type: 'tracker', callback: function (data) {
-        self.ufosAndTransport().forEach(function (ufo) {
+        var ufosAndTransport =  self.ufosAndTransport();
+        if(ufosAndTransport)
+        ufosAndTransport.forEach(function (ufo) {
           for (var i = 0, l = data.length; i < l; ++i) {
             if (ufo.tracker == data[i].id) {
               var rw = data[i].last_point;
@@ -770,7 +782,7 @@ define([
                 );
               }
 
-              if(ufo.lastUpdate() > 40*60) {
+              if(ufo.lastUpdate() > 40*60 && !ufo.statusChanged()) {
                 ufo.state("ufo_untrusted");
               }
               return;
@@ -793,6 +805,7 @@ define([
 
     this.dataSource.get({type:"transport",callback: function(transports) {
       var transportsToAdd=[];
+      if($.isEmptyObject(transports)) return;
       transports.forEach(function(transport){
         transport.name = transport.title;
         var ufo = new Ufo(transport);

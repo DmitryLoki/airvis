@@ -5,9 +5,10 @@
 	<!-- /ko -->
     <div class="retrieve-ufo-table-statistic">
         <span class="statistic-info">Returned pilots: <span data-bind="text:getPilotsByStatus(1).length + ' / ' + ufos().length"></span></span>
-        <span class="statistic-info">Pilots in the air: <span data-bind="text:getPilotsByStatus(3).length"></span></span>
+        <span class="statistic-info">Pilots in air: <span data-bind="text:getPilotsByStatus(3).length"></span></span>
         <span class="statistic-info">Landed pilots: <span data-bind="text:getPilotsByStatus(4).length"></span></span>
-        <span class="statistic-info">SMS-Reported pilots: <span data-bind="text:ufos().filter(function(ufo){return ufo.smsData().length>0;}).length"></span></span>
+        <span class="statistic-info">SMS-Reported pilots: <span data-bind="text:ufos().filter(function(ufo){return ufo.smsData().some(function(sms){return sms.from != 'me'});}).length"></span></span>
+        <span class="statistic-info">Unread: <span data-bind="text:getUnreadCount()"></span></span>
     </div>
     <div class="retrieve-ufos-tables">
 	<div class="airvis-table-header-1">

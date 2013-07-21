@@ -56,7 +56,8 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
 
 	RetrieveTable.prototype.sortTableRows = function() {
 		this.tableUfos.sort(function(a,b) {
-      var aUnreadCount = a.unreadCount(),
+      return a.id() - b.id();
+      /*var aUnreadCount = a.unreadCount(),
         bUnreadCount = b.unreadCount(),
         aNewSMS = a.newSmsCount(),
         bNewSMS = b.newSmsCount();
@@ -83,7 +84,7 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
           else return aDist < bDist ? 1 : -1;
         }
           else return aStatus < bStatus ? 1: -1;
-      }
+      }*/
 		});
 	}
 
@@ -210,6 +211,13 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
     this.emit("pilotClicked", ufo.id());
   };
 
+  RetrieveTable.prototype.getUnreadCount = function(){
+    var arr = 0;
+    this.tableUfos().forEach(function(ufo){
+      arr += ufo.unreadCount();
+    });
+    return arr;
+  }
   RetrieveTable.prototype.getPilotsByStatus = function(status){
     return this.ufos().filter(function(ufo){return ufo.status() == status;});
   };
