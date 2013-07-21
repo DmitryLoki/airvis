@@ -150,6 +150,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				else opacity = zo.maxOpacity;
 				color = color.replace(/opacity/,opacity/100);
 
+console.log("opacity=",opacity,"zoom=",self.zoom());
+
 				co.setProperties($.extend({},config.canvas.waypoints.basic,{fillStyle:color}));
 				context.beginPath();
 				context.arc(p.x,p.y,r,0,2*Math.PI);
@@ -473,6 +475,11 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 
 	GoogleMap.prototype._updateStaticCanvas = function(canvas) {
 		var drawOrder = {}, drawOrderKeys = [];
+
+//		var context = canvas.getContext();
+//		context.fillStyle = "#ffffff";
+//		context.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
+
 		this.mapWaypoints.forEach(function(waypoint,i) {
 			var order = config.waypointsDrawOrder[waypoint.type()] || 0;
 			if (!drawOrder[order]) {

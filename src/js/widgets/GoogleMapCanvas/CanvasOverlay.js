@@ -91,5 +91,9 @@ define(["google.maps"],function(gmaps) {
 		return this._height;
 	}
 
+	CanvasOverlay.prototype.getWidth = function() {
+		return this._width;
+	}
+
 	return CanvasOverlay;
 });

@@ -90,6 +90,12 @@ define({
 					opened: "rgba(142,142,142,opacity)",
 					closedText: "#1a1a1a",
 					openedText: "#1a1a1a"
+				},
+				es: {
+					closed: "rgba(212,171,7,opacity)",
+					opened: "rgba(212,171,7,opacity)",
+					closedText: "#1a1a1a",
+					openedText: "#1a1a1a"
 				}
 			},
 			minOpacity: 0.4,
@@ -98,15 +104,17 @@ define({
 			titleRadius: 10,
 			titleOffset: 1,
 			opacityByZoom: {
-				minZoom: 8,
-				maxZoom: 12,
+				minZoom: 11,
+				maxZoom: 17,
 				minOpacity: 70,
-				maxOpacity: 30,
-				8: 70,
-				9: 65,
-				10: 60,
-				11: 50,
-				12: 40
+				maxOpacity: 10,
+				11: 65,
+				12: 60,
+				13: 50,
+				14: 40,
+				15: 30,
+				16: 20,
+				17: 10
 			}
 		},
 		shortWay: {
@@ -238,7 +246,7 @@ define({
       right: 90
     }
 	},
-	tracksVisualMode: "off",
+	tracksVisualMode: "10min",
 	cylindersVisualMode: "full",
 	modelsVisualMode: "small",
 	shortWayVisualMode: "wide",
