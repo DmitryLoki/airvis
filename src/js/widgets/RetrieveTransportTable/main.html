@@ -8,7 +8,6 @@
 			<tbody>
 				<tr>
                     <td class="airvis-checkbox"><!-- ko widget: { data: allVisibleCheckbox, type: 'Checkbox'} --><!-- /ko --></td>
-					<td class="airvis-pilot-number">#</td>
 					<td class="airvis-pilot-name">Object</td>
 					<td class="airvis-pilot-sms">Sms</td>
 					<td class="airvis-pilot-dist-to-hq">Dist. to HQ, km</td>
@@ -29,7 +28,6 @@
                         <td class="airvis-checkbox" data-bind="click:function(t,event){event.stopPropagation()}">
                             <!-- ko widget: { data: visibleCheckbox, type: 'Checkbox'} --><!-- /ko -->
                         </td>
-						<td class="airvis-pilot-number" data-bind="text:$index()+1"></td>
 						<td class="airvis-pilot-name" data-bind="text:name,click:$parent.onPilotClick.bind($parent)"></td>
 						<td class="airvis-pilot-sms"><div class="sms-box" data-bind="visible:newSmsCount()>0,text:newSmsCount"></div></td>
 						<td class="airvis-pilot-dist-to-hq">
