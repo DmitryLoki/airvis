@@ -16,10 +16,10 @@
 			<tbody>
 				<tr>
                     <td class="airvis-checkbox"><!-- ko widget: { data: allVisibleCheckbox, type: 'Checkbox'} --><!-- /ko --></td>
-					<td class="airvis-pilot-number">Id <input class="id-filter-input" type="text" data-bind="event:{keyup:filterPilotsById}"></td>
+					<td class="airvis-pilot-number"><a href="#" class="sort-link" data-bind="click:setSort.bind($data,'ID')">Id</a> <input class="id-filter-input" type="text" data-bind="event:{keyup:filterPilotsById}"></td>
 					<td class="airvis-pilot-name">Pilot <input class="pilot-filter-input" type="text" data-bind="event:{keyup:filterPilotsByName}"></td>
                     <td class="airvis-pilot-country"></td>
-					<td class="airvis-pilot-sms">Sms</td>
+					<td class="airvis-pilot-sms"><a href="#" class="sort-link" data-bind="event:{click:setSort.bind($data,'SMS')}">Sms</a></td>
 					<td class="airvis-pilot-status"><select data-bind="options:ufoStatuses,optionsCaption:'Any status',optionsText:'title',optionsValue:'weight',value:statusFilter"></select></td>
 					<!-- <td class="airvis-pilot-person-id">Person Id</td> -->
 					<td class="airvis-pilot-dist-to-hq">Dist. to HQ, km</td>

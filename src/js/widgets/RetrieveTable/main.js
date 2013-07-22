@@ -10,6 +10,7 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
     this.state = options.state;
     this.selectedUfo = options.selectedUfo;
     this.statusFilter = ko.observable(false);
+    this.sortFunction = RetrieveTable.sortByID;
     this.statusFilter.subscribe(function(){
       self.filterRowsVisibility();
     });
@@ -58,39 +59,67 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
     this.pilotNameFilter = ko.observable("");
     this.pilotIdFilter = ko.observable("");
   }
+  RetrieveTable.sortByID = function(a,b){
+    return a.id() - b.id();
+  };
+  RetrieveTable.sortBySMS = function(a,b){
+    var aUnreadCount = a.unreadCount(),
+      bUnreadCount = b.unreadCount(),
+      aNewSMS = a.newSmsCount(),
+      bNewSMS = b.newSmsCount(),
+      aDataLength = a.smsData().length,
+      bDataLength = b.smsData().length;
 
+    if(aNewSMS || aUnreadCount) aNewSMS = a.smsData().slice(-1)[0].timestamp;
+    if(bNewSMS || bUnreadCount) bNewSMS = b.smsData().slice(-1)[0].timestamp;
+
+    if(aUnreadCount && bUnreadCount) return aNewSMS > bNewSMS? 1 : -1;
+    if(!aUnreadCount && bUnreadCount) return 1;
+    if(!bUnreadCount && aUnreadCount) return -1;
+    if(aNewSMS && bNewSMS) return aNewSMS > bNewSMS?1:-1;
+    if(!aNewSMS && bNewSMS) return 1;
+    if(!bNewSMS && aNewSMS) return -1;
+    else {
+      if(aDataLength != bDataLength) return aDataLength > bDataLength ? 1 : -1;
+    }
+  };
+
+	RetrieveTable.prototype.setSort = function(sortType) {
+    this.sortFunction = RetrieveTable['sortBy'+sortType];
+    this.runTableSorter();
+  };
 	RetrieveTable.prototype.sortTableRows = function() {
-		this.tableUfos.sort(function(a,b) {
-      return a.id() - b.id();
-      /*var aUnreadCount = a.unreadCount(),
-        bUnreadCount = b.unreadCount(),
-        aNewSMS = a.newSmsCount(),
-        bNewSMS = b.newSmsCount();
-      if(aNewSMS || aUnreadCount) aNewSMS = a.smsData().slice(-1)[0].timestamp;
-      if(bNewSMS || bUnreadCount) bNewSMS = b.smsData().slice(-1)[0].timestamp;
+		this.tableUfos.sort(this.sortFunction);
+    /*function(a,b) {
+     return a.id() - b.id();
+     var aUnreadCount = a.unreadCount(),
+     bUnreadCount = b.unreadCount(),
+     aNewSMS = a.newSmsCount(),
+     bNewSMS = b.newSmsCount();
+     if(aNewSMS || aUnreadCount) aNewSMS = a.smsData().slice(-1)[0].timestamp;
+     if(bNewSMS || bUnreadCount) bNewSMS = b.smsData().slice(-1)[0].timestamp;
 
-      if(aUnreadCount && bUnreadCount) return aNewSMS > bNewSMS? 1 : -1;
-      if(!aUnreadCount && bUnreadCount) return 1;
-      if(!bUnreadCount && aUnreadCount) return -1;
+     if(aUnreadCount && bUnreadCount) return aNewSMS > bNewSMS? 1 : -1;
+     if(!aUnreadCount && bUnreadCount) return 1;
+     if(!bUnreadCount && aUnreadCount) return -1;
 
-      var  aStatus = a.status(),
-        bStatus = b.status(),
-        aDataLength = a.smsData().length,
-        bDataLength = b.smsData().length,
-        aDist = parseFloat(a.dist()),
-        bDist = parseFloat(b.dist());
-      if(aNewSMS && bNewSMS) return aNewSMS > bNewSMS?1:-1;
-      if(!aNewSMS && bNewSMS) return 1;
-      if(!bNewSMS && aNewSMS) return -1;
-      if(!bNewSMS && !aNewSMS) {
-        if(aStatus == bStatus) {
-          //if(aDataLength == 0 && bDataLength == 0) return 0;
-          if(aDataLength != bDataLength) return aDataLength > bDataLength ? 1 : -1;
-          else return aDist < bDist ? 1 : -1;
-        }
-          else return aStatus < bStatus ? 1: -1;
-      }*/
-		});
+     var  aStatus = a.status(),
+     bStatus = b.status(),
+     aDataLength = a.smsData().length,
+     bDataLength = b.smsData().length,
+     aDist = parseFloat(a.dist()),
+     bDist = parseFloat(b.dist());
+     if(aNewSMS && bNewSMS) return aNewSMS > bNewSMS?1:-1;
+     if(!aNewSMS && bNewSMS) return 1;
+     if(!bNewSMS && aNewSMS) return -1;
+     if(!bNewSMS && !aNewSMS) {
+     if(aStatus == bStatus) {
+     //if(aDataLength == 0 && bDataLength == 0) return 0;
+     if(aDataLength != bDataLength) return aDataLength > bDataLength ? 1 : -1;
+     else return aDist < bDist ? 1 : -1;
+     }
+     else return aStatus < bStatus ? 1: -1;
+     }*/
 	}
 
 	RetrieveTable.prototype.runTableSorter = function() {
@@ -99,7 +128,7 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
 			clearTimeout(this.tableSorterTimer);
 		this.tableSorterTimer = setTimeout(function() {
 			self.sortTableRows();
-		},1000);
+		},300);
 	}
 
 	RetrieveTable.prototype.createUfo = function(data) {
