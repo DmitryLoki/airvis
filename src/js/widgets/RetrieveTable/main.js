@@ -56,6 +56,7 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
     this.allVisibleCheckbox = new Checkbox({checked:this.allVisible,color:config.ufosTable.allVisibleCheckboxColor});
 
     this.pilotNameFilter = ko.observable("");
+    this.pilotIdFilter = ko.observable("");
   }
 
 	RetrieveTable.prototype.sortTableRows = function() {
@@ -205,7 +206,12 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
       this.scrollbarContainer.tinyscrollbar_update();
   };
 
-  RetrieveTable.prototype.filterPilots = function() {
+  RetrieveTable.prototype.filterPilotsById = function() {
+    this.pilotIdFilter(this.headerContainer.find('.id-filter-input').val());
+    setTimeout(this.updateScrollbar.bind(this),0);
+  };
+
+  RetrieveTable.prototype.filterPilotsByName = function() {
     this.pilotNameFilter(this.headerContainer.find('.pilot-filter-input').val());
     setTimeout(this.updateScrollbar.bind(this),0);
   };
@@ -232,9 +238,13 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
   };
 
   RetrieveTable.prototype.filterRowVisibility = function(ufo) {
-    return this.filterByStatus(ufo.status) && this.filterPilot(ufo.name);
+    return this.filterById(ufo.id) && this.filterByStatus(ufo.status) && this.filterPilot(ufo.name);
   };
 
+  RetrieveTable.prototype.filterById = function(id) {
+    if(!this.pilotIdFilter()) return true;
+    return id().indexOf(this.pilotIdFilter())>-1;
+  }
   RetrieveTable.prototype.filterByStatus = function(status) {
     if(!this.statusFilter()) return true;
     return status() == this.statusFilter();

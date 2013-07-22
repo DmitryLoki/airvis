@@ -244,7 +244,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","config"],funct
 			strokeColor: w.color(),
 			strokeOpacity: config.waypoint.strokeOpacity,
 			strokeWeight: config.waypoint.strokeWeight,
-			fillOpacity: w.fillOpacity(),
+			fillOpacity: 0,//w.fillOpacity(),
 			fillColor: w.color(),
 			map: self.map,
 			center: new gmaps.LatLng(w.center().lat,w.center().lng),
@@ -377,13 +377,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","config"],funct
 
 		u.icon = ko.computed(function() {
 			u.visible();
-//			if (self.raceKey() > self.currentKey())
-//				return "not started_" + self.modelsVisualMode();
-//			if (u.state() == "landed" && u.stateChangedAt() > 0) return "finished_landed_" + self.modelsVisualMode();
 			return u.state() + "_" + self.modelsVisualMode();
-//			return u.state() + self.modelsVisualMode();
-//			var icon = "fly" + self.modelsVisualMode();
-//			return icon;
 		});
 
 		u._trackBegin = ko.computed(function() {

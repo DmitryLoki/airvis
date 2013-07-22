@@ -16,8 +16,8 @@
 			<tbody>
 				<tr>
                     <td class="airvis-checkbox"><!-- ko widget: { data: allVisibleCheckbox, type: 'Checkbox'} --><!-- /ko --></td>
-					<td class="airvis-pilot-number">Id</td>
-					<td class="airvis-pilot-name">Pilot <input class="pilot-filter-input" type="text" data-bind="event:{keyup:filterPilots}"></td>
+					<td class="airvis-pilot-number">Id <input class="id-filter-input" type="text" data-bind="event:{keyup:filterPilotsById}"></td>
+					<td class="airvis-pilot-name">Pilot <input class="pilot-filter-input" type="text" data-bind="event:{keyup:filterPilotsByName}"></td>
                     <td class="airvis-pilot-country"></td>
 					<td class="airvis-pilot-sms">Sms</td>
 					<td class="airvis-pilot-status"><select data-bind="options:ufoStatuses,optionsCaption:'Any status',optionsText:'title',optionsValue:'weight',value:statusFilter"></select></td>
