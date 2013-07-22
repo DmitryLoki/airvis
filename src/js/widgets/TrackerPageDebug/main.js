@@ -553,6 +553,7 @@ define([
 		var _inRunCycle = false;
 		var _currentKeyUpdatedAt = null;
 		var _currentKey = null;
+		var _runTimeout = null;
 
 		var run = function(callback,force) {
 			if (_inRunCycle && !force) return;
@@ -560,10 +561,12 @@ define([
 			if (!_currentKeyUpdatedAt || force) {
 				_currentKeyUpdatedAt = (new Date).getTime();
 				_currentKey = self.currentKey();
+				if (_runTimeout) clearTimeout(_runTimeout);
+				_runTimeout = null;
 			}
 			renderFrame(function() {
 				if (self.playerState() == "play") {
-					requestAnimFrame(function() {
+					_runTimeout = setTimeout(function() {
 						var _lastUpdated = _currentKeyUpdatedAt;
 						_currentKeyUpdatedAt = (new Date).getTime();
 						_currentKey += (_currentKeyUpdatedAt-_lastUpdated)*self.playerSpeed();
@@ -574,7 +577,7 @@ define([
 						self.currentKey(_currentKey);
 						_inRunCycle = false;
 						run();
-					});
+					},50);
 				}
 				else {
 					_currentKeyUpdatedAt = null;

@@ -150,7 +150,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				else opacity = zo.maxOpacity;
 				color = color.replace(/opacity/,opacity/100);
 
-console.log("opacity=",opacity,"zoom=",self.zoom());
+				//console.log("opacity=",opacity,"zoom=",self.zoom());
 
 				co.setProperties($.extend({},config.canvas.waypoints.basic,{fillStyle:color}));
 				context.beginPath();
@@ -283,8 +283,8 @@ console.log("opacity=",opacity,"zoom=",self.zoom());
 			// Имя пилота
 			if (self.namesVisualMode() == "on" || (self.namesVisualMode() == "auto" && self.zoom() >= config.namesVisualModeAutoMinZoom)) {
 				setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.titles));
-				ic.strokeText(u.name(),u.iconCenter.x,u.iconCenter.y-config.canvas.ufos.nameOffset);
-				ic.fillText(u.name(),u.iconCenter.x,u.iconCenter.y-config.canvas.ufos.nameOffset);
+				ic.strokeText(u.name()+"("+u.id()+")",u.iconCenter.x,u.iconCenter.y-config.canvas.ufos.nameOffset);
+				ic.fillText(u.name()+"("+u.id()+")",u.iconCenter.x,u.iconCenter.y-config.canvas.ufos.nameOffset);
 			}
 		}
 
@@ -402,9 +402,9 @@ console.log("opacity=",opacity,"zoom=",self.zoom());
 						var a = Math.atan2(prevP.y-p.y,prevP.x-p.x);
 						context.beginPath();
 						context.moveTo(mP.x,mP.y);
-						var lP = {x:mP.x+s*Math.cos(a+Math.PI/6),y:mP.y+s*Math.sin(a+Math.PI/6)};
+						var lP = {x:mP.x+s*Math.cos(a+Math.PI/8),y:mP.y+s*Math.sin(a+Math.PI/8)};
 						context.lineTo(lP.x,lP.y);
-						var lP = {x:mP.x+s*Math.cos(a-Math.PI/6),y:mP.y+s*Math.sin(a-Math.PI/6)};
+						var lP = {x:mP.x+s*Math.cos(a-Math.PI/8),y:mP.y+s*Math.sin(a-Math.PI/8)};
 						context.lineTo(lP.x,lP.y);
 						context.lineTo(mP.x,mP.y);
 						context.fill();
