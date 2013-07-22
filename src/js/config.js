@@ -268,6 +268,9 @@ define({
 		type: "HYBRID"
 	},
   ufoStatuses:[{title:'Landed',weight:4},{title:'Fly',weight:3},{title:'Picked up',weight:2},{title:'Returned',weight:1}],
+  getStatusByWeight: function(weight){
+    return this.ufoStatuses.filter(function(status){return status.weight == weight})[0];
+  },
 	// Настройки тестового сервера
 	testServerOptions: {
 		mainTitle: "52th FAI european paragliding championship",

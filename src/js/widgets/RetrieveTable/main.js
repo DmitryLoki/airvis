@@ -306,7 +306,7 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
       data: {
         from: user,
         to: "SYSTEM",
-        body: "system:new_status:"+config.ufoStatuses.filter(function(status){return status.weight == ufo.status()})[0].title,
+        body: "system:new_status:" + config.getStatusByWeight(ufo.status()).title,
         sender: "web_app"
       },
       callback: function(result) {
@@ -329,7 +329,8 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
   RetrieveTable.prototype.filterById = function(id) {
     if(!this.pilotIdFilter()) return true;
     return id().indexOf(this.pilotIdFilter())>-1;
-  }
+  };
+
   RetrieveTable.prototype.filterByStatus = function(status) {
     if(!this.statusFilter()) return true;
     return status() == this.statusFilter();

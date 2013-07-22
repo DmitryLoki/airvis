@@ -4,7 +4,7 @@ define(["utils","knockout"],function(utils,ko) {
 		this.server = options.server;
 		this.form = {
 			from: ko.observable(""),
-			to: ko.observable("me"),
+			to: ko.observable(""),
 			body: ko.observable(""),
 			sender: ko.observable("web_app")
 		}
