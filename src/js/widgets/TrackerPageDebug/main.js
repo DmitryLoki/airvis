@@ -780,10 +780,10 @@ define([
             if (ufo.tracker == data[i].id) {
               var rw = data[i].last_point;
               ufo.lastUpdate(Math.floor((new Date).getTime()/1000-rw[3]));
-              /*if(ufo.lastUpdate() > 12 * 3600) {
+              if(ufo.lastUpdate() > 12 * 3600) {
                 ufo.lastUpdate(false);
                 continue;
-              }*/
+              }
               ufo.alt(rw.alt);
               ufo.gSpd(rw[5]);
               ufo.trackerName(data[i].name);
@@ -798,9 +798,9 @@ define([
                 );
               }
 
-             /* if(ufo.lastUpdate() > 40*60 && !ufo.statusChanged()) {
+              if(ufo.lastUpdate() > 40*60 && !ufo.statusChanged()) {
                 ufo.state("ufo_untrusted");
-              }*/
+              }
               return;
             }
           }

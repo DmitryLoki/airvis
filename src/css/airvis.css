@@ -557,7 +557,7 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 }
 
 .pilot-filter-input {margin-left:5px;height:10px;width:95px;}
-.id-filter-input {width:20px;height:10px;}
+.id-filter-input {width:30px;height:10px;}
 .airvis-table-body tr.picked-up {background-color: rgba(255, 255, 0, 0.5) !important;}
 .airvis-table-body tr.returned {background-color: rgba(66, 255, 82, 0.49) !important;}
 .retrieve-ufos-tables {padding-top: 3px;}
