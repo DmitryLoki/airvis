@@ -8,7 +8,7 @@
         <span class="statistic-info">Pilots in air: <span data-bind="text:getPilotsByStatus(3).length"></span></span>
         <span class="statistic-info">Landed pilots: <span data-bind="text:getPilotsByStatus(4).length"></span></span>
         <span class="statistic-info">SMS-Reported pilots: <span data-bind="text:ufos().filter(function(ufo){return ufo.smsData().some(function(sms){return sms.from != 'me'});}).length"></span></span>
-        <span class="statistic-info">Unread: <span data-bind="text:getUnreadCount()"></span></span>
+        <span class="statistic-info">Unread: <span data-bind="text:getUnreadSMSCount()"></span></span>
     </div>
     <div class="retrieve-ufos-tables">
 	<div class="airvis-table-header-1">
@@ -20,7 +20,7 @@
 					<td class="airvis-pilot-name">Pilot <input class="pilot-filter-input" type="text" data-bind="event:{keyup:filterPilots}"></td>
                     <td class="airvis-pilot-country"></td>
 					<td class="airvis-pilot-sms">Sms</td>
-					<td class="airvis-pilot-status">Status</td>
+					<td class="airvis-pilot-status"><select data-bind="options:ufoStatuses,optionsCaption:'Any status',optionsText:'title',optionsValue:'weight',value:statusFilter"></select></td>
 					<!-- <td class="airvis-pilot-person-id">Person Id</td> -->
 					<td class="airvis-pilot-dist-to-hq">Dist. to HQ, km</td>
 					<td class="airvis-pilot-speed">Ground spd</td>
@@ -35,7 +35,7 @@
 		<div class="airvis-table-body viewport">
 			<table class="overview airvis-sms-table" cellspacing="0" cellpadding="0" border="0">
 				<tbody data-bind="foreach:tableUfos" >
-					<tr data-bind="click:$parent.selectUfo.bind($parent,$data),css:{'airvis-selected':$parent.selectedUfo()?$parent.selectedUfo().personId()==personId():false,'picked-up':status()==2,'returned':status()==1},visible:$parent.filterPilot(name)">
+					<tr data-bind="click:$parent.selectUfo.bind($parent,$data),css:{'airvis-selected':$parent.selectedUfo()?$parent.selectedUfo().personId()==personId():false,'picked-up':status()==2,'returned':status()==1},visible:$parent.filterRowVisibility.bind($parent,$data)()">
                         <td class="airvis-checkbox" data-bind="click:function(t,event){event.stopPropagation()}">
                             <!-- ko widget: { data: visibleCheckbox, type: 'Checkbox'} --><!-- /ko -->
                         </td>

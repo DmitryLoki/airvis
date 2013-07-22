@@ -79,50 +79,59 @@ define([
 		this.openKey = ko.observable(options.openKey);
 	}
 
-	var Ufo = function(options) {
+  
+
+  var Ufo = function(options) {
+    this.ctor(options);
+  };
+  
+  Ufo.prototype.ctor = function(options) {
     var self = this;
-		this.id = ko.observable(options.id);
-		this.name = ko.observable(options.name);
-		this.country = ko.observable(options.country);
-		this.personId = ko.observable(options.personId);
+    this.id = ko.observable(options.id);
+    this.name = ko.observable(options.name);
+    this.country = ko.observable(options.country);
+    this.personId = ko.observable(options.personId);
     this.tracker = options.tracker;
-		this.color = ko.observable(options.color || config.ufo.color);
+    this.color = ko.observable(options.color || config.ufo.color);
     this.status = ko.observable(3);
-    this.status.subscribe(function(){
+    this.status.subscribe(function () {
       self.statusChanged(true);
     });
     this.statusChanged = ko.observable(false);
-		this.state = ko.observable(null);
-		this.stateChangedAt = ko.observable(null);
-		this.position = ko.observable({lat:null,lng:null,dt:null});
-		this.track = ko.observable({lat:null,lng:null,dt:null});
-		this.alt = ko.observable(null);
-		this.dist = ko.observable(null);
-		this.gSpd = ko.observable(null);
-		this.vSpd = ko.observable(null);
-		this.lastUpdate = ko.observable(null);
-		this.visible = ko.observable(config.ufo.visible);
-		this.trackerName = ko.observable(null);
-		this.trackerCharge = ko.observable(null);
-		this.trackVisible = ko.observable(config.ufo.trackVisible);
-		this.noData = ko.observable(true);
+    this.state = ko.observable(null);
+    this.stateChangedAt = ko.observable(null);
+    this.position = ko.observable({lat: null, lng: null, dt: null});
+    this.track = ko.observable({lat: null, lng: null, dt: null});
+    this.alt = ko.observable(null);
+    this.dist = ko.observable(null);
+    this.gSpd = ko.observable(null);
+    this.vSpd = ko.observable(null);
+    this.lastUpdate = ko.observable(null);
+    this.visible = ko.observable(config.ufo.visible);
+    this.trackerName = ko.observable(null);
+    this.trackerCharge = ko.observable(null);
+    this.trackVisible = ko.observable(config.ufo.trackVisible);
+    this.alwaysShowTitle = ko.observable(false);
+    this.noData = ko.observable(true);
     this.smsData = ko.observableArray();
     this.newSmsCount = ko.observable(0);
     this.unreadSmsCount = ko.observable(0);
 
-    this.smsData.subscribe(function(){
+    this.smsData.subscribe(function () {
       //обновить количество неотвеченных СМС
       //неотвеченные - те, которые пришли после последней смс от орга
-      if(self.smsData().length == 0) {
+      if (self.smsData().length == 0) {
         self.newSmsCount(0);
       } else {
-        var orgSms = self.smsData().filter(function(sms){
+        var orgSms = self.smsData().filter(function (sms) {
           return sms.from == "me";
         });
-        if(orgSms.length) {
-          orgSms.sort(function(a,b){return a.timestamp > b.timestamp?-1:1});
+        if (orgSms.length) {
+          orgSms.sort(function (a, b) {
+            return a.timestamp > b.timestamp ? -1 : 1
+          });
           var lastOrgSms = orgSms[0];
-          var unansweredSms = self.smsData().filter(function(sms){
+          var unansweredSms = self.smsData().filter(function (sms) {
             return sms.timestamp > lastOrgSms.timestamp;
           });
           self.newSmsCount(unansweredSms.length);
@@ -130,29 +139,30 @@ define([
       }
 
       //обновить количество непрочитанных смс
-      if(self.newSmsCount() == 0)
+      if (self.newSmsCount() == 0)
         self.unreadSmsCount(0);
       else
-        self.unreadSmsCount(self.smsData().filter(function(sms){return !sms.readed()}).length);
+        self.unreadSmsCount(self.smsData().filter(function (sms) {
+          return !sms.readed()
+        }).length);
     });
-		this.tableData = {
-			dist: ko.observable(null),
-			gSpd: ko.observable(null),
-			vSpd: ko.observable(null),
-			alt: ko.observable(null),
-			state: ko.observable(null),
-			stateChangedAt: ko.observable(null)
-		};
-    this.status.subscribe(function(status){
+    this.tableData = {
+      dist: ko.observable(null),
+      gSpd: ko.observable(null),
+      vSpd: ko.observable(null),
+      alt: ko.observable(null),
+      state: ko.observable(null),
+      stateChangedAt: ko.observable(null)
+    };
+    this.status.subscribe(function (status) {
       self.updateStateByStatus(status);
-      if(status == 1) {
+      //скрывать на карте returned пилотов
+      if (status == 1) {
         self.visible(false);
       }
     });
-	}
-
+  }
   Ufo.prototype.updateStateByStatus = function(status){
-    if(this.type == "transport") return;
     var state;
     switch(status){
       case 4: state = 'landed';break;
@@ -176,7 +186,15 @@ define([
 		// dt=null - специальное значение. Карта его отслеживает и убивает у себя трек при dt=null
 		this.track({lat:null,lng:null,dt:null});
 	}
-
+  
+  var Transport = function(options){
+    this.ctor(options);
+    this.alwaysShowTitle(true);
+  };
+  utils.inherits(Transport, Ufo);
+  
+  Transport.prototype.updateStateByStatus = function(){};
+  
 	var Sms = function(options) {
 		this.id = options.id;
 		this.from = options.from;
@@ -307,8 +325,6 @@ define([
 			}
 		});
 
-//		this.server = new TestServer(this.options);
-//		this.server.generateData();
 		this.server = new RealServer(this.options);
 		this.dataSource = new DataSource({
 			server: this.server
@@ -764,10 +780,10 @@ define([
             if (ufo.tracker == data[i].id) {
               var rw = data[i].last_point;
               ufo.lastUpdate(Math.floor((new Date).getTime()/1000-rw[3]));
-              if(ufo.lastUpdate() > 12 * 3600) {
+              /*if(ufo.lastUpdate() > 12 * 3600) {
                 ufo.lastUpdate(false);
                 continue;
-              }
+              }*/
               ufo.alt(rw.alt);
               ufo.gSpd(rw[5]);
               ufo.trackerName(data[i].name);
@@ -782,9 +798,9 @@ define([
                 );
               }
 
-              if(ufo.lastUpdate() > 40*60 && !ufo.statusChanged()) {
+             /* if(ufo.lastUpdate() > 40*60 && !ufo.statusChanged()) {
                 ufo.state("ufo_untrusted");
-              }
+              }*/
               return;
             }
           }
@@ -806,13 +822,14 @@ define([
     this.dataSource.get({type:"transport",callback: function(transports) {
       var transportsToAdd=[];
       if($.isEmptyObject(transports)) return;
-      transports.forEach(function(transport){
-        transport.name = transport.title;
-        var ufo = new Ufo(transport);
-        ufo.type="transport";
-        ufo.state(transport.type);
-        ufo.noData(false);
-        transportsToAdd.push(ufo);
+      transports.forEach(function(transportData){
+        transportData.name = transportData.title;
+        var transport = new Transport(transportData);
+        //ufo.type="transport";
+        transport.state(transportData.type);
+        //debugger;
+        transport.noData(false);
+        transportsToAdd.push(transport);
       });
       ko.utils.arrayPushAll(self.transport,transportsToAdd);
     }

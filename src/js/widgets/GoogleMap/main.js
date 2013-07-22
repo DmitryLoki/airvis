@@ -321,6 +321,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","config"],funct
 			track: data.track,
 			visible: data.visible,
 			trackVisible: data.trackVisible,
+      alwaysShowTitle: data.alwaysShowTitle,
 			noData: data.noData,
 			trackData: [],
       type: data.type,
@@ -367,11 +368,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","config"],funct
 		});
 
 		u.titleVisible = ko.computed(function() {
-      //TODO Рефакторить нах!
-      if(u.type=="transport"){
-        return u.visible() && !u.noData();
-      }
-			return u.visible() && !u.noData() && (self.namesVisualMode() == "on" || (self.namesVisualMode() == "auto" && self.zoom() >= config.namesVisualModeAutoMinZoom));
+			return u.visible() && !u.noData() && (self.zoom() >= config.namesVisualModeAutoMinZoom || u.alwaysShowTitle());
 		});
 
 		u.trackModelVisible = ko.computed(function() {

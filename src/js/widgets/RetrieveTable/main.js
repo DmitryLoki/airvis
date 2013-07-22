@@ -9,6 +9,10 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
     this.status = options.status;
     this.state = options.state;
     this.selectedUfo = options.selectedUfo;
+    this.statusFilter = ko.observable(false);
+    this.statusFilter.subscribe(function(){
+      self.filterRowsVisibility();
+    });
     //this.smsData = options.smsData;
     this.inModalWindow = ko.observable(false);
     this.ufoStatuses = ko.observableArray(config.ufoStatuses);
@@ -211,17 +215,32 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
     this.emit("pilotClicked", ufo.id());
   };
 
-  RetrieveTable.prototype.getUnreadCount = function(){
-    var arr = 0;
+  RetrieveTable.prototype.getUnreadSMSCount = function(){
+    var unreadCount = 0;
     this.tableUfos().forEach(function(ufo){
-      arr += ufo.unreadCount();
+      unreadCount += ufo.unreadCount();
     });
-    return arr;
-  }
+    return unreadCount;
+  };
+
   RetrieveTable.prototype.getPilotsByStatus = function(status){
     return this.ufos().filter(function(ufo){return ufo.status() == status;});
   };
-  RetrieveTable.prototype.filterPilot = function(name){
+
+  RetrieveTable.prototype.filterRowsVisibility = function() {
+    this.ufos().forEach(this.filterRowVisibility.bind(this));
+  };
+
+  RetrieveTable.prototype.filterRowVisibility = function(ufo) {
+    return this.filterByStatus(ufo.status) && this.filterPilot(ufo.name);
+  };
+
+  RetrieveTable.prototype.filterByStatus = function(status) {
+    if(!this.statusFilter()) return true;
+    return status() == this.statusFilter();
+  };
+
+  RetrieveTable.prototype.filterPilot = function(name) {
     return name().toLowerCase().indexOf(this.pilotNameFilter().toLowerCase())>-1;
   };
 
