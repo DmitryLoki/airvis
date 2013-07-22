@@ -13,7 +13,7 @@
         <span class="statistic-info">Returned pilots: <span data-bind="text:getPilotsByStatus(1).length + ' / ' + ufos().length"></span></span>
         <span class="statistic-info">Pilots in air: <span data-bind="text:getPilotsByStatus(3).length"></span></span>
         <span class="statistic-info">Landed pilots: <span data-bind="text:getPilotsByStatus(4).length"></span></span>
-        <span class="statistic-info">SMS-Reported pilots: <span data-bind="text:ufos().filter(function(ufo){return ufo.smsData().some(function(sms){return sms.from != 'me'});}).length"></span></span>
+        <span class="statistic-info">SMS-Reported pilots: <span data-bind="text:ufos().filter(function(ufo){return ufo.smsData().some(function(sms){return sms.sender != 'web_app'});}).length"></span></span>
         <span class="statistic-info">Unread: <span data-bind="text:getUnreadSMSCount()"></span></span>
     </div>
     <div class="retrieve-ufos-tables">
@@ -53,7 +53,7 @@
                         </td>
 						<td class="airvis-pilot-sms"><div class="sms-box" data-bind="css:{'unanswered-sms':newSmsCount()>0,'no-sms':smsData().length==0,'unread-sms':unreadCount()>0},text:smsCount"></div></td>
                         <td class="airvis-pilot-status">
-                            <select data-bind="options:$parent.ufoStatuses,value:status,optionsText:'title',optionsValue:'weight',event:{change:$parent.sortTableRows.bind($parent),click:function(t,event){event.stopPropagation()}}"></select></td>
+                            <select data-bind="options:$parent.ufoStatuses,value:status,optionsText:'title',optionsValue:'weight',event:{change:$parent.confirmStatusChange.bind($parent),click:function(t,event){event.stopPropagation()}}"></select></td>
                         <!-- <td class="airvis-pilot-person-id" data-bind="text:personId"></td>-->
 						<td class="airvis-pilot-dist-to-hq">
 							<span data-bind="text:dist"></span>

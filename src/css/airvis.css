@@ -509,14 +509,18 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 .airvis-chat-form textarea {
   display: block;
   float: left;
-  width: 300px;
+  width: 250px;
   height: 53px;
 }
 .airvis-chat-form button {
   display: block;
   float: right;
-  width: 60px;
-  height: 60px;
+  width: 115px;
+  height: 30px;
+}
+.airvis-chat-form .send-block {
+    display:inline-block;
+    color:white;
 }
 .airvis-distance-measurer {
     text-align: center;

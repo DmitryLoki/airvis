@@ -6,7 +6,7 @@ define(["utils","knockout"],function(utils,ko) {
 			from: ko.observable(""),
 			to: ko.observable("me"),
 			body: ko.observable(""),
-			sender: ko.observable("")
+			sender: ko.observable("web_app")
 		}
 		this.status = ko.observable("form");
 		this.send = function() {

@@ -5,6 +5,7 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
 
   RetrieveTable.prototype.constr = function(options){
     var self = this;
+    this.server = options.server;
     this.ufos = options.ufos;
     this.status = options.status;
     this.state = options.state;
@@ -189,6 +190,9 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
     w.status.subscribe(function(status){
       w.visible(self.getShowStatusVariableValue(status));
     });
+    w.status.subscribe(function(){
+      w.previousStatus = w.status();
+    },this,'beforeChange');
 		return w;
 	}
 
@@ -286,6 +290,30 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
     return unreadCount;
   };
 
+  RetrieveTable.prototype.confirmStatusChange = function(ufo, event) {
+    var self = this,
+      pin = prompt("Enter your pin"),
+      user = config.users[pin];
+
+    if(!user) {
+      alert('No user with such pin.');
+      ufo.status(ufo.previousStatus);
+      return;
+    }
+
+    this.server.post({
+      type: "sms",
+      data: {
+        from: user,
+        to: "SYSTEM",
+        body: "system:new_status:"+config.ufoStatuses.filter(function(status){return status.weight == ufo.status()})[0].title,
+        sender: "web_app"
+      },
+      callback: function(result) {
+      }
+    })
+  };
+
   RetrieveTable.prototype.getPilotsByStatus = function(status){
     return this.ufos().filter(function(ufo){return ufo.status() == status;});
   };
@@ -306,6 +334,7 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
     if(!this.statusFilter()) return true;
     return status() == this.statusFilter();
   };
+
 
   RetrieveTable.prototype.filterPilot = function(name) {
     return name().toLowerCase().indexOf(this.pilotNameFilter().toLowerCase())>-1;

@@ -124,7 +124,7 @@ define([
         self.newSmsCount(0);
       } else {
         var orgSms = self.smsData().filter(function (sms) {
-          return sms.from == "me";
+          return sms.sender == "web_app";
         });
         if (orgSms.length) {
           orgSms.sort(function (a, b) {
@@ -203,8 +203,8 @@ define([
 		this.sender = options.sender;
 		this.timestamp = options.timestamp;
 		this.body = options.body;
-		this.target = options.from == "me" ? options.to : options.from;
-		this.readed = ko.observable(options.from == "me");
+		this.target = options.sender == "web_app" || options.from == "me" ? options.to : options.from;
+		this.readed = ko.observable(options.sender == "web_app");
 		var d = new Date(this.timestamp * 1000);
 		this.time = (d.getHours()<10?"0":"") + d.getHours() + ":" + (d.getMinutes()<10?"0":"") + d.getMinutes();
 	}
@@ -385,7 +385,8 @@ define([
 				status: this.retrieveStatus,
 				state: this.retrieveState,
 				selectedUfo: this.retrieveSelectedUfo,
-				smsData: this.smsData
+				smsData: this.smsData,
+        server: this.server
 			});
       this.retrieveTable.on('pilotClicked', function(ufoId){
         self.map.centerOnUfo(ufoId);
