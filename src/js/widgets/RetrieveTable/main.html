@@ -4,6 +4,12 @@
 		<span class="airvis-window-ec-absolute-status" data-bind="visible:state()=='play',text:status"></span>
 	<!-- /ko -->
     <div class="retrieve-ufo-table-statistic">
+        <span class="statistic-info">Landed: <input type="checkbox" data-bind="checked:showLanded,event:{change:setUfoVisibilityByStatus.bind($data,4)}"></span>
+        <span class="statistic-info">Picked up: <input type="checkbox" data-bind="checked:showPicked,event:{change:setUfoVisibilityByStatus.bind($data,2)}"></span>
+        <span class="statistic-info">Fly: <input type="checkbox" data-bind="checked:showFly,event:{change:setUfoVisibilityByStatus.bind($data,3)}"></span>
+        <span class="statistic-info">Returned: <input type="checkbox" data-bind="checked:showReturned,event:{change:setUfoVisibilityByStatus.bind($data,1)}"></span>
+    </div>
+    <div class="retrieve-ufo-table-statistic">
         <span class="statistic-info">Returned pilots: <span data-bind="text:getPilotsByStatus(1).length + ' / ' + ufos().length"></span></span>
         <span class="statistic-info">Pilots in air: <span data-bind="text:getPilotsByStatus(3).length"></span></span>
         <span class="statistic-info">Landed pilots: <span data-bind="text:getPilotsByStatus(4).length"></span></span>

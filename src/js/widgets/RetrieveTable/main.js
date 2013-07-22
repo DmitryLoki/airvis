@@ -58,7 +58,22 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
 
     this.pilotNameFilter = ko.observable("");
     this.pilotIdFilter = ko.observable("");
-  }
+
+    this.showLanded = ko.observable(true);
+    this.showPicked = ko.observable(true);
+    this.showFly = ko.observable(true);
+    this.showReturned = ko.observable(true);
+  };
+
+  RetrieveTable.prototype.getShowStatusVariableValue = function(status) {
+    switch(status){
+      case 1: return this.showReturned();
+      case 2: return this.showPicked();
+      case 3: return this.showFly();
+      case 4: return this.showLanded();
+    }
+  };
+
   RetrieveTable.sortByID = function(a,b){
     return a.id() - b.id();
   };
@@ -84,6 +99,16 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
     }
   };
 
+  RetrieveTable.prototype.setUfoVisibilityByStatus = function(status, data, event){
+    var checkboxValue = event.srcElement.checked;
+    this.ufos()
+      .filter(function(ufo){
+        return ufo.status() == status;
+      })
+      .forEach(function(ufo){
+        ufo.visible(checkboxValue);
+      });
+  };
 	RetrieveTable.prototype.setSort = function(sortType) {
     this.sortFunction = RetrieveTable['sortBy'+sortType];
     this.runTableSorter();
@@ -161,6 +186,9 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
       return w.newSmsCount()|| w.smsData().length;
     });
     w.visibleCheckbox = new Checkbox({checked:w.visible,color:"#909090"});
+    w.status.subscribe(function(status){
+      w.visible(self.getShowStatusVariableValue(status));
+    });
 		return w;
 	}
 

@@ -316,6 +316,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","config"],funct
 			name: data.name,
 			color: data.color,
 			state: data.state,
+			title: data.title,
 			stateChangedAt: data.stateChangedAt,
 			position: data.position,
 			track: data.track,
@@ -346,7 +347,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","config"],funct
 		u._titleModel = new MapFloatElem({
 			template: self.templates.markerTitle,
 			data: {
-				title: u.name,
+				title: u.title,
 				color: u.color
 			}
 		});

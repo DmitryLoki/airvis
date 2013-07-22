@@ -111,13 +111,13 @@ define([
     this.trackerName = ko.observable(null);
     this.trackerCharge = ko.observable(null);
     this.trackVisible = ko.observable(config.ufo.trackVisible);
-    this.alwaysShowTitle = ko.observable(false);
+    this.alwaysShowTitle = ko.observable(true);
     this.noData = ko.observable(true);
     this.smsData = ko.observableArray();
     this.newSmsCount = ko.observable(0);
     this.unreadSmsCount = ko.observable(0);
-
-    this.smsData.subscribe(function () {
+    this.title = ko.computed(function(){return self.name() + " " + self.id();});
+      this.smsData.subscribe(function () {
       //обновить количество неотвеченных СМС
       //неотвеченные - те, которые пришли после последней смс от орга
       if (self.smsData().length == 0) {
@@ -190,6 +190,7 @@ define([
   var Transport = function(options){
     this.ctor(options);
     this.alwaysShowTitle(true);
+    this.title = this.name;
   };
   utils.inherits(Transport, Ufo);
   
