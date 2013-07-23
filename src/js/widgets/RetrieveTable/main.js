@@ -190,7 +190,7 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
     w.status.subscribe(function(status){
       w.visible(self.getShowStatusVariableValue(status));
     });
-    w.status.subscribe(function(){
+    w.status.subscribe(function() {
       w.previousStatus = w.status();
     },this,'beforeChange');
 		return w;
@@ -291,8 +291,11 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
   };
 
   RetrieveTable.prototype.confirmStatusChange = function(ufo, event) {
-    var self = this,
-      pin = prompt("Enter your pin"),
+//Маркер того, что статус изменил пользователь, а не произошло программное изменение
+    if(!ufo.wasFocused){return;}
+    ufo.wasFocused = false;
+
+    var pin = prompt("Enter your pin"),
       user = config.users[pin];
 
     if(!user) {

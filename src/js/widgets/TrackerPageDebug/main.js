@@ -720,6 +720,18 @@ define([
 			type: "sms",
 			lastSmsTimestamp: self.retrieveLastSmsTimestamp,
 			callback: function(data) {
+        //TODO Сделать нормальный парсер, блеать!!!
+        data.forEach(function(sms,i){
+          if(sms.body.indexOf('system:new_status:') == 0) {
+            var statusTitle = sms.body.split(':')[2],
+              status = config.getStatusByTitle(statusTitle);
+            if(status) {
+              var pilot = self.ufos().filter(function(ufo){return ufo.personId() == sms.to})[0];
+              if(pilot) pilot.status(status.weight);
+            }
+            delete data[i];
+          }
+        });
 				var rev1 = {};
         if(self.smsData()) {
           self.smsData().forEach(function(rw) {

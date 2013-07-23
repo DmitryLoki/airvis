@@ -184,10 +184,6 @@
 				data: data,
 				success: function(result) {
           result.forEach(function(sms, i) {
-            //remove system messages
-            if(sms.body.indexOf('system:') == 0) {
-              result[i] = {};
-            }
           });
 					if (query.callback)
 						query.callback(result);

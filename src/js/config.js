@@ -271,6 +271,9 @@ define({
   getStatusByWeight: function(weight){
     return this.ufoStatuses.filter(function(status){return status.weight == weight})[0];
   },
+  getStatusByTitle: function(title){
+    return this.ufoStatuses.filter(function(status){return status.title.toLowerCase() == title.toLowerCase()})[0];
+  },
 	// Настройки тестового сервера
 	testServerOptions: {
 		mainTitle: "52th FAI european paragliding championship",
