@@ -305,7 +305,7 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
       type: "sms",
       data: {
         from: user,
-        to: "SYSTEM",
+        to: ufo.personId(),
         body: "system:new_status:" + config.getStatusByWeight(ufo.status()).title,
         sender: "web_app"
       },
