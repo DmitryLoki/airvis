@@ -92,7 +92,7 @@ define([
     this.country = ko.observable(options.country);
     this.personId = ko.observable(options.personId);
     this.tracker = options.tracker;
-    this.color = ko.observable(options.color || config.ufo.color);
+    this.color = ko.observable(/*options.color || config.ufo.color*/'#000');
     this.status = ko.observable(3);
     this.status.subscribe(function () {
       self.statusChanged(true);
@@ -583,7 +583,6 @@ define([
 		self.dataSource.get({
 			type: "ufos",
 			callback: function(ufos) {
-        window.ufos = ufos;
 				var ufos2load = [];
 				if (ufos) {
 					for (var i = 0; i < ufos.length; i++) {
