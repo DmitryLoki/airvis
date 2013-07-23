@@ -42,7 +42,7 @@ define(["jquery","knockout","config","jquery.tinyscrollbar"], function($,ko,conf
 						from: config.users[this.form.userPin()],
 						to: self.ufo().personId(),
 						body: self.form.text(),
-						sender: "web_app"
+						sender: "web_app_" + config.version
 					},
 					callback: function(result) {
 						self.form.loading(false);
@@ -60,7 +60,6 @@ define(["jquery","knockout","config","jquery.tinyscrollbar"], function($,ko,conf
 				self.form.loading(false);
 			}
 		}
-    this.form.userPin.subscribe(function(){console.log('asd')})
 	}
 
 	RetrieveChat.prototype.updateScrollbar = function(it, scrollToBottom) {

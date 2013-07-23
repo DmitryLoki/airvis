@@ -267,7 +267,7 @@ define({
 		center: {lat: 55.748758, lng: 37.6174},
 		type: "HYBRID"
 	},
-  ufoStatuses:[{title:'Landed',weight:4},{title:'Fly',weight:3},{title:'Picked up',weight:2},{title:'Returned',weight:1}],
+  ufoStatuses:[{title:'Landed',textValue:'landed',weight:4},{title:'Fly',textValue:'fly',weight:3},{title:'Picked up',textValue:'picked_up',weight:2},{title:'Returned',textValue:'returned',weight:1}],
   getStatusByWeight: function(weight){
     return this.ufoStatuses.filter(function(status){return status.weight == weight})[0];
   },
@@ -317,5 +317,6 @@ define({
     5655:'Valentina',
     6878:'Semen',
     4547:'Boris'
-  }
+  },
+  version:'v0.1'
 });

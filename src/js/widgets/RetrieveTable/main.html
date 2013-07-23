@@ -13,7 +13,7 @@
         <span class="statistic-info">Returned pilots: <span data-bind="text:getPilotsByStatus(1).length + ' / ' + ufos().length"></span></span>
         <span class="statistic-info">Pilots in air: <span data-bind="text:getPilotsByStatus(3).length"></span></span>
         <span class="statistic-info">Landed pilots: <span data-bind="text:getPilotsByStatus(4).length"></span></span>
-        <span class="statistic-info">SMS-Reported pilots: <span data-bind="text:ufos().filter(function(ufo){return ufo.smsData().some(function(sms){return sms.sender != 'web_app'});}).length"></span></span>
+        <span class="statistic-info">SMS-Reported pilots: <span data-bind="text:ufos().filter(function(ufo){return ufo.smsData().some(function(sms){return sms.sender.indexOf('web_app')==-1});}).length"></span></span>
         <span class="statistic-info">Unread: <span data-bind="text:getUnreadSMSCount()"></span></span>
     </div>
     <div class="retrieve-ufos-tables">

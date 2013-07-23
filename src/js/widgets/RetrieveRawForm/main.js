@@ -1,4 +1,4 @@
-define(["utils","knockout"],function(utils,ko) {
+define(["utils","knockout","config"],function(utils,ko,config) {
 	var RetrieveRawForm = function(options) {
 		var self = this;
 		this.server = options.server;
@@ -6,7 +6,7 @@ define(["utils","knockout"],function(utils,ko) {
 			from: ko.observable(""),
 			to: ko.observable(""),
 			body: ko.observable(""),
-			sender: ko.observable("web_app")
+			sender: ko.observable("web_app_"+config.version)
 		}
 		this.status = ko.observable("form");
 		this.send = function() {

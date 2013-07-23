@@ -309,8 +309,8 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
       data: {
         from: user,
         to: ufo.personId(),
-        body: "system:new_status:" + config.getStatusByWeight(ufo.status()).title,
-        sender: "web_app"
+        body: "system:new_status:" + config.getStatusByWeight(ufo.status()).textValue,
+        sender: "web_app_"+config.version
       },
       callback: function(result) {
       }

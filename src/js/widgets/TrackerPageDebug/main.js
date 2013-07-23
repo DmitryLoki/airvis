@@ -124,7 +124,7 @@ define([
         self.newSmsCount(0);
       } else {
         var orgSms = self.smsData().filter(function (sms) {
-          return sms.sender == "web_app";
+          return sms.sender.indexOf("web_app") > -1;
         });
         if (orgSms.length) {
           orgSms.sort(function (a, b) {
@@ -205,8 +205,8 @@ define([
 		this.sender = options.sender;
 		this.timestamp = options.timestamp;
 		this.body = options.body;
-		this.target = options.sender == "web_app" || options.from == "me" ? options.to : options.from;
-		this.readed = ko.observable(options.sender == "web_app");
+		this.target = options.sender.indexOf("web_app") > -1 || options.from == "me" ? options.to : options.from;
+		this.readed = ko.observable(options.sender.indexOf("web_app") > -1);
 		var d = new Date(this.timestamp * 1000);
 		this.time = (d.getHours()<10?"0":"") + d.getHours() + ":" + (d.getMinutes()<10?"0":"") + d.getMinutes();
 	}
