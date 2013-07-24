@@ -240,6 +240,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			visible: data.visible,
 			trackVisible: data.trackVisible,
 			noData: data.noData,
+			noPosition: data.noPosition,
 			trackData: []
 		}
 
@@ -289,7 +290,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		}
 
 		u.render = function(co) {
-			if (u.noData() || !u.visible()) return;
+			if (u.noData() || u.noPosition() || !u.visible()) return;
 			if (!u.iconCanvas || u.updateIconRequired) {
 				u.prepareIcon();
 				u.updateIconRequired = false;
@@ -302,7 +303,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		}
 
 		u.renderTrack = function(co) {
-			if (u.noData() || !u.visible()) return;
+			if (u.noData() || u.noPosition() || !u.visible()) return;
 			if (self.tracksVisualMode() == "off" || u.trackData.length == 0) return;
 			var p = co.abs2rel(u.coords(),self.zoom());
 			if (co.inViewport(p,0)) {
@@ -333,6 +334,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				u.trackData = [];
 				return;
 			}
+			if (!v.lat || !v.lng) return;
 			// подготавливаем координаты и добавляем новую точку в trackData
 			var coords = self.prepareCoords(v.lat,v.lng);
 			v.x = coords.x;
@@ -343,6 +345,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				while (u.trackData[0] && (self.currentKey() > u.trackData[0].dt + 60000))
 					u.trackData.splice(0,1);
 			}
+			console.log("trackSubscribe",v,u.trackData);
 		});
 
 		u.visibleSubscribe = u.visible.subscribe(function() {

@@ -295,9 +295,9 @@ define({
 		to: "TAKE OFF"
 	},
 	waypointsDrawOrder: {
-		goal: 3,
-		es: 2,
-		ss: 1
+		goal: 2,
+		es: 1,
+		ss: 3
 	},
 	map: {
 		zoom: 9,

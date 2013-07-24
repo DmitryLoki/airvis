@@ -94,6 +94,7 @@ define([
 		this.visible = ko.observable(config.ufo.visible);
 		this.trackVisible = ko.observable(config.ufo.trackVisible);
 		this.noData = ko.observable(true);
+		this.noPosition = ko.observable(true);
 		this.tableData = {
 			dist: ko.observable(null),
 			gSpd: ko.observable(null),
@@ -520,6 +521,7 @@ define([
 				isOnline: self.isOnline(),
 				callback: function(data,query) {
 					if (query.dt != self.currentDataSourceGetKey) return;
+					console.log("dataSource result=",data,query);
 					// в data ожидается массив с ключами - id-шниками пилотов и данными - {lat и lng} - текущее положение
 					self.loading(false);
 					self.ufos().forEach(function(ufo) {
@@ -530,15 +532,21 @@ define([
 							ufo.gSpd(rw.gspd);
 							ufo.vSpd(rw.vspd);
 							ufo.noData(false);
-							if (!ufo.position() || 
-								!ufo.position().lat || 
-								!ufo.position().lng ||
-								Math.abs(rw.position.lat-ufo.position().lat) > 0.0000001 ||
-								Math.abs(rw.position.lng-ufo.position().lng) > 0.0000001) {
-								ufo.position({lat:rw.position.lat,lng:rw.position.lng,dt:rw.position.dt});
+							if (rw.position.lat && rw.position.lng) {
+								ufo.noPosition(false);
+								if (!ufo.position() || 
+									!ufo.position().lat || 
+									!ufo.position().lng ||
+									Math.abs(rw.position.lat-ufo.position().lat) > 0.0000001 ||
+									Math.abs(rw.position.lng-ufo.position().lng) > 0.0000001) {
+									ufo.position({lat:rw.position.lat,lng:rw.position.lng,dt:rw.position.dt});
+								}
+								if (!ufo.track() || !ufo.track().dt || ufo.track().dt != rw.track.dt)
+									ufo.track({lat:rw.track.lat,lng:rw.track.lng,dt:rw.track.dt});
 							}
-							if (!ufo.track() || !ufo.track().dt || ufo.track().dt != rw.track.dt)
-								ufo.track({lat:rw.track.lat,lng:rw.track.lng,dt:rw.track.dt});
+							else {
+								ufo.noPosition(true);
+							}
 							if (rw.state && rw.state != ufo.state()) {
 								ufo.state(rw.state);
 							}

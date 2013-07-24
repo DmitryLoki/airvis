@@ -10,8 +10,8 @@
 
 	RealServer.prototype.get = function(query) {
 		var mult = 1000;
-		var testPilotCut = 373;
-		var testPilotOn = false;
+		var testPilotCut = 87;
+		var testPilotOn = true;
 		if (query.type == "race") {
 			$.ajax({
 				url: "http://api.airtribune.com/" + this.options.apiVersion + "/contest/" + this.options.contestId + "/race/" + this.options.raceId,
@@ -170,6 +170,7 @@
 							}
 						});
 					});
+					console.log("RealServer data",data);
 					if (query.callback)
 						query.callback(data);
 				},
