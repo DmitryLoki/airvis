@@ -12,6 +12,7 @@ define(["jquery","knockout"],function($,ko) {
 			resizableX: false,
 			contentCss: "",
 			title: "",
+			buttonTitle: "",
 			menuTitlePosition: "left",
 			nodes: [],
 			width: 300,
@@ -36,6 +37,7 @@ define(["jquery","knockout"],function($,ko) {
 		self.resizableX = this.asObservable(options.resizableX,defaults.resizableX);
 		self.contentCss = this.asObservable(options.contentCss,defaults.contentCss);
 		self.title = this.asObservable(options.title,defaults.title);
+		self.buttonTitle = this.asObservable(options.buttonTitle,defaults.buttonTitle);
 		self.menuTitlePosition = this.asObservable(options.menuTitlePosition,defaults.menuTitlePosition);
 		self.width = this.asObservable(options.width,defaults.width);
 		self.height = this.asObservable(options.height,defaults.height);

@@ -183,8 +183,6 @@
 				dataType: "json",
 				data: data,
 				success: function(result) {
-          result.forEach(function(sms, i) {
-          });
 					if (query.callback)
 						query.callback(result);
 				}

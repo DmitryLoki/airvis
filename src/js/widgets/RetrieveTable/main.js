@@ -185,7 +185,7 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
       return w.country() && countryCodes[w.country()] ? countryCodes[w.country()] : w.country();
     });
     w.smsCount = ko.computed(function() {
-      return w.newSmsCount()|| w.smsData().length;
+      return w.unreadCount() || w.newSmsCount()|| w.smsData().length;
     });
     w.visibleCheckbox = new Checkbox({checked:w.visible,color:"#909090"});
     w.status.subscribe(function(status){

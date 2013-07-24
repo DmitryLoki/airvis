@@ -394,8 +394,22 @@ define([
         self.map.centerOnUfo(ufoId);
       });
 
-			this.retrieveTableWindow = new Window(this.options.windows.retrieveTable);
+      this.options.windows.retrieveTable.buttonTitle = ko.computed(function() {
+        var unreadSMSCount = self.retrieveTable.getUnreadSMSCount();
+        if(unreadSMSCount) {
+          return 'Pilots<span style="color:orange !important;">('+unreadSMSCount+')</span>';
+        }
+        return 'Pilots';
+      });
 
+			this.retrieveTableWindow = new Window(this.options.windows.retrieveTable);
+      this.retrieveTableWindow.on('open', function(){
+        //сортировать по СМС при открытии
+        var unreadSMSCount = self.retrieveTable.getUnreadSMSCount();
+        if(unreadSMSCount) {
+          self.retrieveTable.setSort('SMS');
+        }
+      });
       this.retrieveTransportTable = new RetrieveTransportTable({
         ufos: this.transport,
         status: this.retrieveStatus,

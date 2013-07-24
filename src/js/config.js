@@ -118,6 +118,7 @@ define({
 		ufosTable: {
 			visible: true,
 			title: "Leaderboard",
+      buttonTitle: "Leaderboard",
 			resizable: false,
 			resizableY: true,
 			height: 300,
@@ -128,7 +129,8 @@ define({
 		},
 		retrieveTable: {
 			visible: true,
-			title: "Pilots",
+      title:'Pilots',
+      buttonTitle:'Pilots',
 			resizable: false,
 			resizableY: true,
 			height: 300,
@@ -139,6 +141,7 @@ define({
     retrieveTransportTable: {
       visible: true,
       title: "Transport",
+      buttonTitle: "Transport",
       resizable: false,
       resizableY: true,
       height: 200,
@@ -149,6 +152,7 @@ define({
 		retrieveChat: {
 			visible: false,
 			title: "Chat",
+      buttonTitle: "Chat",
 			resizable: false,
 			resizableY: true,
 			height: 510,
@@ -159,6 +163,7 @@ define({
 		retrieveRawForm: {
 			visible: false,
 			title: "SMS sender",
+      buttonTitle: "SMS sender",
 			resizable: false,
 			height: 220,
 			width: 400,
@@ -172,6 +177,7 @@ define({
 			resizable: false,
 			absoluteCloseIcon: true,
 			title: "Player",
+      buttonTitle: "Player",
 			width: 940,
 			minWidth: 800,
 			top: 160,
@@ -183,6 +189,7 @@ define({
 		mainMenu: {
 			visible: true,
 			title: "Title",
+      buttonTitle: "Title",
 			showHeader: false,
 			resizable: false,
 			absoluteCloseIcon: true,
@@ -195,6 +202,7 @@ define({
 		facebook: {
 			visible: false,
 			title: "Facebook",
+      buttonTitle: "Facebook",
 			menuTitlePosition: "right",
 			resizable: false,
 			width: 292,
@@ -206,6 +214,7 @@ define({
     retrieveDistanceMeasurer: {
       visible: false,
       title: "Distance",
+      buttonTitle: "Distance",
       menuTitlePosition: "right",
       resizable: false,
       width: 180,
@@ -318,8 +327,9 @@ define({
   users: {
     2356:'Ivan',
     5655:'Valentina',
-    6878:'Semen',
-    4547:'Boris'
+    6878:'Simeon',
+    4547:'Boris',
+    1234:'Rescue'
   },
   version:'v0.1'
 });
