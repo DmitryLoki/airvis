@@ -167,6 +167,7 @@ define(["jquery","knockout","config","CountryCodes","widget!Checkbox","jquery.ti
 			country: data.country,
       status: data.status,
 			gSpd: data.gSpd,
+			alt: data.alt,
       lastUpdate: data.lastUpdate,
       trackerName: data.trackerName,
       trackerCharge: data.trackerCharge,

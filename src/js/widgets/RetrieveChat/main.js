@@ -31,15 +31,22 @@ define(["jquery","knockout","config","jquery.tinyscrollbar"], function($,ko,conf
 		});
 
 		this.form = {
-      userPin: ko.observable(""),
 			loading: ko.observable(false),
 			text: ko.observable(""),
 			send: function() {
 				self.form.loading(true);
+        var pin = prompt("Enter your pin"),
+          user = config.users[pin];
+
+        if(!user) {
+          alert('No user with such pin.');
+          return;
+        }
+
 				self.form.ajax = self.server.post({
 					type: "sms",
 					data: {
-						from: config.users[this.form.userPin()],
+						from: config.users[pin],
 						to: self.ufo().personId(),
 						body: self.form.text(),
 						sender: "web_app_" + config.version
@@ -47,7 +54,6 @@ define(["jquery","knockout","config","jquery.tinyscrollbar"], function($,ko,conf
 					callback: function(result) {
 						self.form.loading(false);
 						self.form.text("");
-            self.form.userPin("");
 						if (result.error)
 							console.warn("Failed sending message");
 						self.emit("newMessage");
@@ -71,10 +77,6 @@ define(["jquery","knockout","config","jquery.tinyscrollbar"], function($,ko,conf
 		},100);
 	};
 
-  RetrieveChat.prototype.checkUserPinOk = function(){
-    return !!config.users[this.form.userPin()];
-  };
-
 	RetrieveChat.prototype.domInit = function(element, params) {
 		var self = this;
 		this.modalWindow = params.modalWindow;
@@ -88,7 +90,6 @@ define(["jquery","knockout","config","jquery.tinyscrollbar"], function($,ko,conf
 			});
       this.modalWindow.on("open",function() {
         self.updateScrollbar(false, true);
-        self.form.userPin("");
       })
 		}
 		var div = ko.virtualElements.firstChild(element);

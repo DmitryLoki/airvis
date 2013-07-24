@@ -4,6 +4,7 @@
 		<span class="airvis-window-ec-absolute-status" data-bind="visible:state()=='play',text:status"></span>
 	<!-- /ko -->
     <div class="retrieve-ufo-table-statistic">
+        <span class="statistic-info">Show on map:</span>
         <span class="statistic-info">Landed: <input type="checkbox" data-bind="checked:showLanded,event:{change:setUfoVisibilityByStatus.bind($data,4)}"></span>
         <span class="statistic-info">Picked up: <input type="checkbox" data-bind="checked:showPicked,event:{change:setUfoVisibilityByStatus.bind($data,2)}"></span>
         <span class="statistic-info">Fly: <input type="checkbox" data-bind="checked:showFly,event:{change:setUfoVisibilityByStatus.bind($data,3)}"></span>
@@ -30,6 +31,7 @@
 					<!-- <td class="airvis-pilot-person-id">Person Id</td> -->
 					<td class="airvis-pilot-dist-to-hq">Dist. to HQ, km</td>
 					<td class="airvis-pilot-speed">Ground spd</td>
+					<td class="airvis-alt">Alt</td>
 					<td class="airvis-pilot-last-update">Data age</td>
 					<td class="airvis-pilot-tracker-name">Tracker</td>
 				</tr>
@@ -59,6 +61,7 @@
 							<span data-bind="text:dist"></span>
 						</td>
                         <td class="airvis-pilot-speed" data-bind="text:gSpd"></td>
+                        <td class="airvis-alt" data-bind="text:alt"></td>
                         <td class="airvis-pilot-last-update" data-bind="text:$parent.lastUpdateFormat(lastUpdate)"></td>
                         <td class="airvis-pilot-tracker-name" data-bind="text:trackerName"></td>
 					</tr>

@@ -17,11 +17,8 @@
 			</div>
 		</div>
 		<div class="airvis-chat-form">
-				<textarea data-bind="value:form.text"></textarea>
-            <div class="send-block" style="display:inline-block">
-                    <span>PIN:</span><input data-bind="value:form.userPin,valueUpdate: 'afterkeydown'" style="width:95px">
-            </div>
-            <button data-bind="click:form.send,visible:checkUserPinOk()">Send</button>
+		    <textarea data-bind="value:form.text"></textarea>
+            <button data-bind="click:form.send">Send</button>
 		</div>
 	</div>
 </div>

@@ -519,12 +519,9 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
   display: block;
   float: right;
   width: 115px;
-  height: 30px;
+  height: 60px;
 }
-.airvis-chat-form .send-block {
-    display:inline-block;
-    color:white;
-}
+
 .airvis-distance-measurer {
     text-align: center;
 }

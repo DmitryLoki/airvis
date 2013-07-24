@@ -723,8 +723,8 @@ define([
         //TODO Сделать нормальный парсер, блеать!!!
         data.forEach(function(sms,i){
           if(sms.body.indexOf('system:new_status:') == 0) {
-            var statusTitle = sms.body.split(':')[2],
-              status = config.getStatusByTitle(statusTitle);
+            var statusText = sms.body.split(':')[2],
+              status = config.getStatusByTextValue(statusText);
             if(status) {
               var pilot = self.ufos().filter(function(ufo){return ufo.personId() == sms.to})[0];
               if(pilot) pilot.status(status.weight);
@@ -799,7 +799,7 @@ define([
                 ufo.lastUpdate(false);
                 continue;
               }
-              ufo.alt(rw.alt);
+              ufo.alt(rw[2]);
               ufo.gSpd(rw[5]);
               ufo.trackerName(data[i].name);
               ufo.trackerCharge(rw[4]);
