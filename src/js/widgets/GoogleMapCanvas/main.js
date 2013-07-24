@@ -345,7 +345,6 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				while (u.trackData[0] && (self.currentKey() > u.trackData[0].dt + 60000))
 					u.trackData.splice(0,1);
 			}
-			console.log("trackSubscribe",v,u.trackData);
 		});
 
 		u.visibleSubscribe = u.visible.subscribe(function() {

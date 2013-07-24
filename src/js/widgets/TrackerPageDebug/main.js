@@ -521,7 +521,6 @@ define([
 				isOnline: self.isOnline(),
 				callback: function(data,query) {
 					if (query.dt != self.currentDataSourceGetKey) return;
-					console.log("dataSource result=",data,query);
 					// в data ожидается массив с ключами - id-шниками пилотов и данными - {lat и lng} - текущее положение
 					self.loading(false);
 					self.ufos().forEach(function(ufo) {
