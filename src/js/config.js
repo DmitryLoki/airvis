@@ -267,7 +267,7 @@ define({
 	shortWayMinSegmentLengthToShowArrow: 100,
 	namesVisualModeAutoMinZoom: 14,
 	namesVisualAutoMinZoom: 14,
-	waypointsVisualAutoMinZoom: 12,
+	waypointsVisualAutoMinZoom: 8,
 	waypoint: {
 		color: "#000000",
 		strokeOpacity: 0.8,
