@@ -10,7 +10,7 @@
 
 	RealServer.prototype.get = function(query) {
 		var mult = 1000;
-		var testPilotCut = 29;
+		var testPilotCut = 373;
 		var testPilotOn = false;
 		if (query.type == "race") {
 			$.ajax({
@@ -22,6 +22,7 @@
 						endKey: result.end_time*mult,
 						raceKey: result.start_time*mult,
 						timeoffset: result.timeoffset,
+						optdistance: result.optdistance,
 						titles: {
 							mainTitle: result.contest_title,
 							placeTitle: result.country + ", " + result.place,

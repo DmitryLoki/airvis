@@ -4,6 +4,7 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 
 		this.ufos = options.ufos;
 		this.raceKey = options.raceKey;
+		this.optdistance = options.optdistance;
 		this.inModalWindow = ko.observable(false);
 		this.mode = ko.observable(config.ufosTable.mode);
 
@@ -54,8 +55,8 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 			if (undef1 || undef2) return undef1 && undef2 ? 0 : (undef1 ? 1 : -1);
 
 
-			var d1 = a.dist && a.dist() >= 0 ? a.dist() : null;
-			var d2 = b.dist && b.dist() >= 0 ? b.dist() : null;
+			var d1 = a.tableData.dist()>0 ? a.tableData.distFrom() : null;
+			var d2 = b.tableData.dist()>0 ? b.tableData.distFrom() : null;
 			var s1 = a.tableData.state ? a.tableData.state() : null;
 			var s2 = b.tableData.state ? b.tableData.state() : null;
 			var c1 = a.tableData.stateChangedAt ? a.tableData.stateChangedAt() : null;
@@ -78,13 +79,13 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 			if (s1 == "landed" && s2 != "landed") return 1;
 			if (s2 == "landed" && s1 != "landed") return -1;
 
-			if (d1 >= 0 && d2 >= 0 && d1 != null && d2 != null) {
+			if (d1 != null && d2 != null) {
 				d1 = Math.floor(d1*10);
 				d2 = Math.floor(d2*10);
-				return d1 == d2 ? 0 : (d1 < d2 ? -1 : 1);
+				return d1 == d2 ? 0 : (d1 < d2 ? 1 : -1);
 			}
-			if (d2 >= 0 && d2 != null) return 1;
-			if (d1 >= 0 && d1 != null) return -1;
+			if (d2 != null) return 1;
+			if (d1 != null) return -1;
 			return 0;
 		});
 
@@ -124,6 +125,9 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 			noData: data.noData,
 			tableData: data.tableData
 		}
+		w.tableData.distFrom = ko.computed(function() {
+			return w.tableData.dist() > 0 ? Math.floor((self.optdistance() - w.tableData.dist())*10)/10 : Math.floor(self.optdistance()*10)/10;
+		});
 		w.visibleCheckbox = new Checkbox({checked:w.visible,color:"rgba(0,47,64,0.75)"});
 		w.trackVisibleCheckbox = new Checkbox({checked:w.trackVisible,color:w.color});
 		w.finishedTime = ko.computed(function() {

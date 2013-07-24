@@ -201,19 +201,19 @@ define(["jquery"],function($) {
 						dtStart: query.dtStart,
 						disablePreload: true,
 						finishDataFromPrevFrame: cachedFrame.data ? cachedFrame.data.finish : null,
-						callback: function(data) { }
+						callback: function(data,query) { }
 					});
 				}
 
 				// Если есть кеш, отдадим его значение на момент query.dt
 				if (cachedFrame && cachedFrame.status == "ready") {
-					query.callback(getDataFromFrame(cachedFrame.data,query.dt));
+					query.callback(getDataFromFrame(cachedFrame.data,query.dt),query);
 				}
 				// Интервал сейчас загружается, не нужно запускать новую загрузку
 				// Проставим только, чтобы после окончания загрузки интервала выполнился наш callback
 				else if (cachedFrame && cachedFrame.status == "loading") {
-					cachedFrame.callback = function(data) {
-						query.callback(getDataFromFrame(data,query.dt));
+					cachedFrame.callback = function(data,query) {
+						query.callback(getDataFromFrame(data,query.dt),query);
 					}
 				}
 				// Кеша нет, делаем запрос
@@ -227,8 +227,8 @@ define(["jquery"],function($) {
 						last: last,
 						inSize: inSize,
 						inOffset: inOffset,
-						callback: function(data) {
-							query.callback(getDataFromFrame(data,query.dt));
+						callback: function(data,query) {
+							query.callback(getDataFromFrame(data,query.dt),query);
 						}
 					}
 					this.options.server.get({
@@ -248,8 +248,8 @@ define(["jquery"],function($) {
 							self.cache[inSize][inOffset].status = "ready";
 							self.cache[inSize][inOffset].data = data;
 //							console.log("DataSource, loadedFrame=",self.cache[inSize][inOffset]);
-							self.cache[inSize][inOffset].callback(data);
-							self.cache[inSize][inOffset].callback = function(data) { };
+							self.cache[inSize][inOffset].callback(data,query);
+							self.cache[inSize][inOffset].callback = function(data,query) { };
 						}
 					});
 				}

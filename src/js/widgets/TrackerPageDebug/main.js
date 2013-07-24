@@ -161,6 +161,7 @@ define([
 		this.isCurrentlyOnline = ko.observable(false);
 		this.disableLiveButton = ko.observable(false);
 		this.loading = ko.observable(false);
+		this.optdistance = ko.observable(0);
 
 		this.ufos = ko.observableArray();
 		this.waypoints = ko.observableArray();
@@ -262,7 +263,8 @@ define([
 		if (this.mode() == "full") {
 			this.ufosTable = new UfosTable({
 				ufos: this.ufos,
-				raceKey: this.raceKey
+				raceKey: this.raceKey,
+				optdistance: this.optdistance
 			});
 			this.ufosTableWindow = new Window(this.options.windows.ufosTable);
 
@@ -453,6 +455,7 @@ define([
 				self.raceKey(data.raceKey||data.startKey);
 				self.serverKey(data.serverKey);
 				self.timeoffset(data.timeoffset);
+				self.optdistance(data.optdistance);
 				if (self.mainMenu && data.titles)
 					self.mainMenu.setTitles(data.titles);
 				var waypoints2load = [];
@@ -508,13 +511,15 @@ define([
 		var self = this;
 		var renderFrame = function(callback) {
 			self.loading(true);
+			self.currentDataSourceGetKey = self.currentKey();
 			self.dataSource.get({
 				type: "timeline",
-				dt: self.currentKey(),
+				dt: self.currentDataSourceGetKey,
 				timeMultiplier: self.playerSpeed(),
 				dtStart: self.startKey(),
 				isOnline: self.isOnline(),
-				callback: function(data) {
+				callback: function(data,query) {
+					if (query.dt != self.currentDataSourceGetKey) return;
 					// в data ожидается массив с ключами - id-шниками пилотов и данными - {lat и lng} - текущее положение
 					self.loading(false);
 					self.ufos().forEach(function(ufo) {
