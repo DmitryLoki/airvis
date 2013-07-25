@@ -555,6 +555,9 @@ define([
 						else
 							ufo.noData(true);
 					});
+					if (_updateIconsRequired)
+						self.map.updateIcons();
+					_updateIconsRequired = false;
 					self.map.update();
 					if (callback)
 						callback(data);
@@ -566,6 +569,7 @@ define([
 		var _currentKeyUpdatedAt = null;
 		var _currentKey = null;
 		var _runTimeout = null;
+		var _updateIconsRequired = false;
 
 		var run = function(callback,force) {
 			if (_inRunCycle && !force) return;
@@ -620,6 +624,7 @@ define([
 		self.playerControl.on("change",function(v) {
 			self.currentKey(v);
 			self.resetUfosTracks();
+			_updateIconsRequired = true;
 			run(runTableData,true);
 		});
 

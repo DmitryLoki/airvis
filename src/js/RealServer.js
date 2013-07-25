@@ -10,7 +10,7 @@
 
 	RealServer.prototype.get = function(query) {
 		var mult = 1000;
-		var testPilotCut = 87;
+		var testPilotCut = 47; //260
 		var testPilotOn = false;
 		if (query.type == "race") {
 			$.ajax({
@@ -124,7 +124,8 @@
 				data: ajaxRequestData,
 				success: function(result,textStatus,request) {
 					if (!result.start) result.start = {};
-					var data = {start:{},timeline:{}}, tmp = {};
+					var data = {start:{},timeline:{}};
+//					var tmp = {};
 					data.serverKey = (new Date(request.getResponseHeader("Date"))).getTime();
 					$.each(result.start,function(pilot_id,rw) {
 						if (testPilotOn && pilot_id!=testPilotCut) return;
@@ -141,7 +142,7 @@
 							stateChangedAt: rw.statechanged_at,
 							dt: query.first
 						}
-						tmp[pilot_id] = {state:rw.state,stateChangedAt:rw.statechanged_at};
+//						tmp[pilot_id] = {state:rw.state,stateChangedAt:rw.statechanged_at};
 					});
 					$.each(result.timeline,function(dt,rws) {
 						dt *= 1000;
@@ -160,14 +161,16 @@
 								state: rw.state,
 								dt: dt
 							}
-							if (rw.state) {
+							if (rw.state)
 								data.timeline[dt][pilot_id].stateChangedAt = Math.floor(dt/1000);
-								tmp[pilot_id] = {state:rw.state,stateChangedAt:Math.floor(dt/1000)};
-							}
-							else if (tmp[pilot_id]) {
-								data.timeline[dt][pilot_id].state = tmp[pilot_id].state;
-								data.timeline[dt][pilot_id].stateChangedAt = tmp[pilot_id].stateChangedAt;
-							}
+//							if (rw.state) {
+//								data.timeline[dt][pilot_id].stateChangedAt = Math.floor(dt/1000);
+//								tmp[pilot_id] = {state:rw.state,stateChangedAt:Math.floor(dt/1000)};
+//							}
+//							else if (tmp[pilot_id]) {
+//								data.timeline[dt][pilot_id].state = tmp[pilot_id].state;
+//								data.timeline[dt][pilot_id].stateChangedAt = tmp[pilot_id].stateChangedAt;
+//							}
 						});
 					});
 					if (query.callback)

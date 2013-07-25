@@ -252,6 +252,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		}
 
 		u.prepareIcon = function(co) {
+//			console.log("prepareIcon id=",u.id(),"state=",u.state());
 			u.iconSize = config.canvas.ufos.sizes[self.modelsVisualMode()] || config.canvas.ufos.sizes["default"];
 			u.iconCenter = {x:u.iconSize,y:u.iconSize};
 			u.iconCanvas = document.createElement("canvas");

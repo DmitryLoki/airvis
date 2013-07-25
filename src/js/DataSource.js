@@ -111,6 +111,7 @@ define(["jquery"],function($) {
 //							console.log("dataAfter dt=",dataAfter[pilot_id].dt,"lat=",dataAfter[pilot_id].position.lat,"lng=",dataAfter[pilot_id].position.lng);
 						}
 					}
+//					console.log("getDataFromFrame result=",data,"d1=",d1,"d2=",d2,"frame=",frame,"dt",dt);
 					return data;
 				}
 
@@ -165,6 +166,29 @@ define(["jquery"],function($) {
 							out[pilot_id].dt = dt;
 						}
 					return out;
+				}
+
+				// Штука проставляет state и stateChangedAt в каждый timeline
+				var prepareStates = function(data) {
+					var tmp = {};
+					for (var pilot_id in data.start)
+						if (data.start.hasOwnProperty(pilot_id)) {
+							var rw = data.start[pilot_id];
+							tmp[pilot_id] = {state:rw.state,stateChangedAt:rw.stateChangedAt};
+						}
+					for (var dt in data.timeline)
+						if (data.timeline.hasOwnProperty(dt))
+							for (var pilot_id in data.timeline[dt])
+								if (data.timeline[dt].hasOwnProperty(pilot_id)) {
+									var rw = data.timeline[dt][pilot_id];
+									if (rw.state)
+										tmp[pilot_id] = {state:rw.state,stateChangedAt:rw.stateChangedAt};
+									else if (tmp[pilot_id]) {
+										data.timeline[dt][pilot_id].state = tmp[pilot_id].state;
+										data.timeline[dt][pilot_id].stateChangedAt = tmp[pilot_id].stateChangedAt;
+									}
+								}
+					return data;
 				}
 
 				// Количество секунд, прошедших с начала гонки
@@ -238,16 +262,17 @@ define(["jquery"],function($) {
 						isOnline: query.isOnline,
 						loadStartData: !query.finishDataFromPrevFrame,
 						callback: function(data) {
-//							console.log("DataSource, loadedFrame data before processing",data);
+//							console.log("DataSource, loadedFrame data before processing",$.extend(true,{},data));
 							if (query.finishDataFromPrevFrame) {
 								data.start = query.finishDataFromPrevFrame;
 							}
 //							console.log("DataSource, loadedFrame query=",query);
+							data = prepareStates(data);
 							data.finish = rewriteDt(getFinishData(data),self.cache[inSize][inOffset].last);
-//							console.log("DataSource, generaedFinishData=",data.finish);
+//							console.log("DataSource, generatedFinishData=",data.finish);
 							self.cache[inSize][inOffset].status = "ready";
 							self.cache[inSize][inOffset].data = data;
-//							console.log("DataSource, loadedFrame=",self.cache[inSize][inOffset]);
+//							console.log("DataSource, loadedFrame=",$.extend(true,{},self.cache[inSize][inOffset]));
 							self.cache[inSize][inOffset].callback(data,query);
 							self.cache[inSize][inOffset].callback = function(data,query) { };
 						}
