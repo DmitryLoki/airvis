@@ -409,6 +409,9 @@ define([
 
 		if (self.isOnline()) self.server.setOption("isOnline",true);
 
+		// Когда онлайн убираем хвосты 10 минутных треков, на реплее включаем
+		self.tracksVisualMode(self.isOnline()?config.tracksVisualModeOnline:config.tracksVisualModeReplay);
+
 		// Сначала проставляем mode из настроек виджета
 		self.mode(self.options.mode);
 		// Для данного mode создаем все окна и виджеты
@@ -649,8 +652,12 @@ define([
 				self.setLiveMode();	
 			self.playerControl.enableOfflineNotification(true);
 		}
-		else
+		else {
+			self.setReplyMode();
+			self.playerState("play");
+			self.playerSpeed(2);
 			run(runTableData);
+		}
 	}
 
 	TrackerPageDebug.prototype.setLiveMode = function() {

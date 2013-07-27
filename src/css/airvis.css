@@ -141,7 +141,24 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 
 
 /* Livetracking controls */
-.airvis-player-controls { padding: 8px 0 0 10px;}
+.airvis-player-controls { 
+  padding-top: 8px;
+  padding-left: 10px;
+  overflow: hidden; 
+  height: 24px;
+  width: 115px;
+  transition: all 1s ease-in-out;
+  -webkit-transition: all 1s ease-in-out;
+}
+.airvis-player-controls-invisible {
+  width: 0px;
+  padding-left: 0;
+}
+.airvis-player-controls-inner {
+  width: 150px;
+}
+
+
 .airvis-player-controls button { margin: 2px;}
 .airvis-current-time { color: #00aeef; font-size: 12.8px; padding: 0 10px; padding-bottom: 5px;}
 .airvis-slider { background-color: rgba(0, 47, 64, 0.75); border: 1px solid rgba(0, 35, 48, 0.53); height: 9px; margin-top:; position: relative;
@@ -190,7 +207,7 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 }
 .airvis-player-timeWindow.airvis-active { background-color: #ced828;}
 .airvis-player-timeWindow.airvis-inactive { background-color: #fbd72c;}
-.airvis-player-timeWindow.airvis-local { background-color: #b0d3d8; padding-top: 15px;}
+.airvis-player-timeWindow.airvis-local { background-color: #b0d3d8;}
 .airvis-player-timeText { float: left; font-size: 14px; font-weight: bold; line-height: 20px; margin: 19px 0 10px 10px; margin-left: 0; width: 70px; }
 .airvis-player-timeText.airvis-active { color: #ced828;}
 .airvis-player-timeText.airvis-inactive { color: #fbd72c;}
@@ -236,6 +253,7 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 .airvis-player-controls-wrapper .airvis-online-container {
   float: right;
   padding: 8px 10px 0 0;
+  width: auto;
 }
 
 
@@ -349,7 +367,8 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 .gmap > div > .gmnoprint:nth-child(3n+1) {
   top: 47px !important;
 }
-.gmap > div > .gmnoprint:last-child {
+/*.gmap > div > .gmnoprint:last-child {*/
+.gmap > div > .gmnoprint:nth-child(3n+2) {
   top: 55px !important;
   right: 20px !important;
 }

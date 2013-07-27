@@ -11,6 +11,7 @@
 			</div>
 			<div class="airvis-player-timeText" data-bind="css:raceTimeCss,text:raceTimeText"></div>
 			<div class="airvis-player-timeWindow airvis-local">
+				<div class="airvis-player-time-status" data-bind="text:isOnline()?'2min delay':'&nbsp;'"></div>
 				<div class="airvis-player-time" data-bind="text:localTime"></div>
 			</div>
 			<div class="airvis-player-timeText airvis-local">Local time</div>
@@ -32,11 +33,13 @@
 		<!-- /ko -->
 	</div>
 	<div class="airvis-player-controls-wrapper">
-		<div class="airvis-player-controls" data-bind="visible:!isCurrentlyOnline()">
-			<a class="play_pause" data-bind="click:switchState,css:{'player-button-play':playerState()=='play','player-button-pause':playerState()=='pause'}"></a>
-			<a data-bind="click: changeSpeed.bind($data,1), css: { 'player-button-on': playerSpeed() == 1, 'player-button-off': playerSpeed() != 1 }"><span>x1</span></a>
-			<a data-bind="click: changeSpeed.bind($data,2), css: { 'player-button-on': playerSpeed() == 2, 'player-button-off': playerSpeed() != 2 }"><span>x2</span></a>
-			<a data-bind="click: changeSpeed.bind($data,10), css: { 'player-button-on': playerSpeed() == 10, 'player-button-off': playerSpeed() != 10 }"><span>x10</span></a>
+		<div class="airvis-player-controls" data-bind="css:{'airvis-player-controls-invisible':isCurrentlyOnline()}">
+			<div class="airvis-player-controls-inner">
+				<a class="play_pause" data-bind="click:switchState,css:{'player-button-play':playerState()=='play','player-button-pause':playerState()=='pause'}"></a>
+				<a data-bind="click: changeSpeed.bind($data,1), css: { 'player-button-on': playerSpeed() == 1, 'player-button-off': playerSpeed() != 1 }"><span>x1</span></a>
+				<a data-bind="click: changeSpeed.bind($data,2), css: { 'player-button-on': playerSpeed() == 2, 'player-button-off': playerSpeed() != 2 }"><span>x2</span></a>
+				<a data-bind="click: changeSpeed.bind($data,10), css: { 'player-button-on': playerSpeed() == 10, 'player-button-off': playerSpeed() != 10 }"><span>x10</span></a>
+			</div>
 		</div>
 		<!-- ko if: isOnline() && !disableLiveButton()-->
 			<div class="airvis-player-controls airvis-online-container">

@@ -10,7 +10,7 @@
 
 	RealServer.prototype.get = function(query) {
 		var mult = 1000;
-		var testPilotCut = 47; //260
+		var testPilotCut = 333; //260
 		var testPilotOn = false;
 		if (query.type == "race") {
 			$.ajax({
@@ -32,6 +32,7 @@
 						waypoints: [],
 						serverKey: (new Date(request.getResponseHeader("Date"))).getTime()
 					}
+					console.log(new Date(result.start_time*mult));
 					var d = new Date(data.startKey);
 //					data.titles.dateTitle = d.toDateString();
 					var m_ar = "Jan Fab Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(/ /);
@@ -144,7 +145,16 @@
 						}
 //						tmp[pilot_id] = {state:rw.state,stateChangedAt:rw.statechanged_at};
 					});
-					$.each(result.timeline,function(dt,rws) {
+
+					// resort
+					var keys = [];
+					for (var dt in result.timeline)
+						if (result.timeline.hasOwnProperty(dt))
+							keys.push(dt);
+					keys.sort();
+					for (var key_i = 0; key_i < keys.length; key_i++) {
+						var dt = keys[key_i];
+						var rws = result.timeline[dt];
 						dt *= 1000;
 						data.timeline[dt] = {};
 						$.each(rws,function(pilot_id,rw) {
@@ -172,7 +182,7 @@
 //								data.timeline[dt][pilot_id].stateChangedAt = tmp[pilot_id].stateChangedAt;
 //							}
 						});
-					});
+					}
 					if (query.callback)
 						query.callback(data);
 				},

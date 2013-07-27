@@ -581,7 +581,6 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			self.update("static",true);
 			self.update("dynamic",true);
 		});
-
 		this.isReady(true);
 		this.mapOptions.valueHasMutated();
 	}

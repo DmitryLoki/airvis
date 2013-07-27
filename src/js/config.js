@@ -41,8 +41,10 @@ define({
 					strokeStyle: "#005e80"
 				},
 				finished: {
-					fillStyle: "#fc20e8",
-					strokeStyle: "#651b80"
+//					fillStyle: "#fc20e8",
+//					strokeStyle: "#651b80"
+					fillStyle: "#fc4cff",
+					strokeStyle: "#7e21a0"
 				}
 			},
 			titles: {
@@ -145,8 +147,8 @@ define({
 		mode: "short",
 		allVisibleCheckboxColor: "blue"
 	},
-	serverDelay: 300000,	// 5 минут
-	serverFake: 300000,
+	serverDelay: 120000,	// 2 минуты
+	serverFake: 0,		
 	dtDiffReply: 60000,		// 1 минута разницы между реальным временем и данными с сервера - включается reply mode, < минуты - isCurrentlyOnline
 	retrieveState: "pause",
 	retrieveInterval: 10000,
@@ -247,6 +249,8 @@ define({
     }
 	},
 	tracksVisualMode: "10min",
+	tracksVisualModeReplay: "10min",
+	tracksVisualModeOnline: "off",
 	cylindersVisualMode: "full",
 	modelsVisualMode: "small",
 	shortWayVisualMode: "wide",
