@@ -14,7 +14,7 @@ define(["jquery","utils","knockout","jquery.color"],function($,utils,ko) {
 			items.forEach(function(item) {
 				item.buttonOn.subscribe(function(visible) {
                     var button = self.container.find('.top-bar-button').filter(function(i, button){
-                       return $(button).data('item') == item;
+                        return $(button).data('item') == item;
                     });
                     setButtonBackgroundColor(visible, button);
 				});
@@ -29,51 +29,35 @@ define(["jquery","utils","knockout","jquery.color"],function($,utils,ko) {
 			for (var i = 0; i < nodes.length && nodes[i].nodeType != 1; i++);
 			if (i >= nodes.length) return;
 			item.registerSwitch(nodes[i]);
-
-            var link = $(nodes[i]).find("a");
-			self.mouseout(item,{target:link});
-
-            link.data('item',item);
+			self.mouseout(item,{target:$(nodes[i]).find("a")});
 		}
 
 		this.unregisterSwitch = function(node,i,item) {
 			item.unregisterSwitch();
 		}
 
-        function extractTarget(item, e) {
-            if (!e && item.prevE) e = item.prevE;
-            item.prevE = e;
-            var t = $(e.target).stop(true);
-            return t;
-        }
-
-        this.mouseover = function(item,e) {
-            var t = extractTarget(item, e);
-            item.isHovered = true;
+		this.mouseover = function(item,e) {
+			if (!e && item.prevE) e = item.prevE;
+			item.prevE = e;
+			item.isHovered = true;
+			var t = $(e.target).stop(true);
 			if (!item.buttonOn())
 				t.animate({backgroundColor:"#ffffff",color:"#002a3a"},200);
 			else
 				t.animate({backgroundColor:"#ffffff",color:"#002a3a"},200);
 		}
 
-        function setButtonBackgroundColor(isOn, button) {
-            if (!isOn)
-                button.animate({backgroundColor: "rgba(255,255,255,0.75)", color: "#002a3a"});
-            else
-                button.animate({backgroundColor: "transparent", color: "#ffffff"}, 200);
-        }
-
-        this.mouseout = function(item,e) {
-			var t = extractTarget(item, e);
+		this.mouseout = function(item,e) {
+			if (!e && item.prevE) e = item.prevE;
+			item.prevE = e;
 			item.isHovered = false;
-			setButtonBackgroundColor(item.buttonOn(), t);
+			var t = $(e.target).stop(true);
+			if (!item.buttonOn())
+				t.animate({backgroundColor:"rgba(255,255,255,0.75)",color:"#002a3a"});
+			else
+				t.animate({backgroundColor:"transparent",color:"#ffffff"},200);
 		}
-	};
-
-    TopBar.prototype.afterRender = function(){debugger};
-    TopBar.prototype.domInit = function(element){
-        this.container = $(element.nextSibling);
-    };
+	}
 
 	TopBar.prototype.templates = ["main"];
 
