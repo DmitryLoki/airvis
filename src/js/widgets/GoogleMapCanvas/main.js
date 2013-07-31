@@ -17,73 +17,85 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		this.playerState = options.playerState;
 		this.imgRootUrl = options.imgRootUrl;
 		this.zoom = ko.observable(config.map.zoom);
-		this.isReady = ko.observable(false);
+		this.isReady = $.Deferred();
 		this.mapOptions = options.mapOptions;
+        //Отключить зум контрол для тач-устройств
+        if('ontouchstart' in document.documentElement) {
+            this.mapOptions({zoomControl:false});
+        }
 		this.mode = options.mode;
 		this.activateMapScroll = ko.observable(false);
 
 		this.mapWaypoints = [];
 		this.waypoints.subscribe(function(waypoints) {
-			if (!self.isReady()) return;
-			var rev1 = {}, rev2 = {};
-			for (var i = 0; i < waypoints.length; i++)
-				rev1[waypoints[i].id()] = i;
-			for (var i = 0; i < self.mapWaypoints.length; i++)
-				rev2[self.mapWaypoints[i].id()] = i;
-			for (var i = 0; i < waypoints.length; i++) {
-				if (rev2[waypoints[i].id()] == null) {
-					self.mapWaypoints.push(self.createWaypoint(waypoints[i]));
-					rev2[waypoints[i].id()] = self.mapWaypoints.length - 1;
-				}
-			}
-			for (var i = 0; i < self.mapWaypoints.length; i++) {
-				if (rev1[self.mapWaypoints[i].id()] == null) {
-					self.destroyWaypoint(self.mapWaypoints[i]);
-					self.mapWaypoints.splice(i,1);
-					i--;
-				}
-			}
+            $.when(self.isReady).done(function(){
+                var rev1 = {}, rev2 = {};
+                for (var i = 0; i < waypoints.length; i++)
+                    rev1[waypoints[i].id()] = i;
+                for (var i = 0; i < self.mapWaypoints.length; i++)
+                    rev2[self.mapWaypoints[i].id()] = i;
+                for (var i = 0; i < waypoints.length; i++) {
+                    if (rev2[waypoints[i].id()] == null) {
+                        self.mapWaypoints.push(self.createWaypoint(waypoints[i]));
+                        rev2[waypoints[i].id()] = self.mapWaypoints.length - 1;
+                    }
+                }
+                for (var i = 0; i < self.mapWaypoints.length; i++) {
+                    if (rev1[self.mapWaypoints[i].id()] == null) {
+                        self.destroyWaypoint(self.mapWaypoints[i]);
+                        self.mapWaypoints.splice(i,1);
+                        i--;
+                    }
+                }
+            });
+
 		});
 
 		this.mapUfos = [];
 		this.ufos.subscribe(function(ufos) {
-			if (!self.isReady()) return;
-			var rev1 = {}, rev2 = {};
-			for (var i = 0; i < ufos.length; i++)
-				rev1[ufos[i].id()] = i;
-			for (var i = 0; i < self.mapUfos.length; i++)
-				rev2[self.mapUfos[i].id()] = i;
-			for (var i = 0; i < ufos.length; i++) {
-				if (rev2[ufos[i].id()] == null) {
-					self.mapUfos.push(self.createUfo(ufos[i]));
-					rev2[ufos[i].id()] = self.mapUfos.length - 1;
-				}
-			}
-			for (var i = 0; i < self.mapUfos.length; i++) {
-				if (rev1[self.mapUfos[i].id()] == null) {
-					self.detroyUfo(self.mapUfos[i]);
-					self.mapUfos.splice(i,1);
-					i--;
-				}
-			}
+            $.when(self.isReady).done(function(){
+                var rev1 = {}, rev2 = {};
+                for (var i = 0; i < ufos.length; i++)
+                    rev1[ufos[i].id()] = i;
+                for (var i = 0; i < self.mapUfos.length; i++)
+                    rev2[self.mapUfos[i].id()] = i;
+                for (var i = 0; i < ufos.length; i++) {
+                    if (rev2[ufos[i].id()] == null) {
+                        self.mapUfos.push(self.createUfo(ufos[i]));
+                        rev2[ufos[i].id()] = self.mapUfos.length - 1;
+                    }
+                }
+                for (var i = 0; i < self.mapUfos.length; i++) {
+                    if (rev1[self.mapUfos[i].id()] == null) {
+                        self.detroyUfo(self.mapUfos[i]);
+                        self.mapUfos.splice(i,1);
+                        i--;
+                    }
+                }
+            });
 		});
 
 		this.mapShortWay = null;
 		this.shortWay.subscribe(function(w) {
-			if (!self.isReady()) return;
-			self.destroyShortWay(self.mapShortWay);
-			self.mapShortWay = self.createShortWay(w);
+            $.when(self.isReady).done(function(){
+                self.destroyShortWay(self.mapShortWay);
+                self.mapShortWay = self.createShortWay(w);
+            });
+
 		});
 
 		this.mapOptions.subscribe(function(options) {
-			if (!self.isReady() || !options) return;
-			self.map.setOptions(options);
-			self.activateMapScroll(options.scrollwheel);
+            $.when(self.isReady).done(function(){
+                if (!options) return;
+                self.map.setOptions(options);
+                self.activateMapScroll(options.scrollwheel);
+            });
 		});
 
 		this.activateMapScroll.subscribe(function(b) {
-			if (!self.isReady()) return;
-			self.map.setOptions({scrollwheel:b});
+            $.when(self.isReady).done(function(){
+			    self.map.setOptions({scrollwheel:b});
+            });
 		});
 
 		this.setProfVisualMode = function() {
@@ -521,6 +533,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		var self = this;
 		var canvas = type=="static" ? this.staticCanvasOverlay : this.canvasOverlay;
 		if (!canvas) return;
+
 		if (!force && canvas._updating) {
 			canvas._updateRequired = true;
 			return;
@@ -568,20 +581,27 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 
 		gmaps.event.addListener(this.map,"center_changed",function() {
 			// событие center_changed возникает когда меняется размер карты (так же поступает bounds_changed, но он с глючной задержкой)
-			self.staticCanvasOverlay.relayout();
-			self.canvasOverlay.relayout();
-			self.update("static",true);
-			self.update("dynamic",true);
+            $.when(self.isReady).done(function(){
+                self.staticCanvasOverlay.relayout();
+                self.canvasOverlay.relayout();
+                self.update("static",true);
+                self.update("dynamic",true);
+            });
 		});
 		gmaps.event.addListener(this.map,"zoom_changed",function() {
-			self.zoom(self.map.getZoom());
-			self.staticCanvasOverlay.relayout();
-			self.canvasOverlay.relayout();
-			self.updateIcons();
-			self.update("static",true);
-			self.update("dynamic",true);
+            $.when(self.isReady).done(function(){
+                self.zoom(self.map.getZoom());
+                self.staticCanvasOverlay.relayout();
+                self.canvasOverlay.relayout();
+                self.updateIcons();
+                self.update("static",true);
+                self.update("dynamic",true);
+            });
 		});
-		this.isReady(true);
+        gmaps.event.addListenerOnce(this.map, 'idle', function(){
+            self.isReady.resolve();
+        });
+
 		this.mapOptions.valueHasMutated();
 	}
 	

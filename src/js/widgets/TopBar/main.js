@@ -13,8 +13,10 @@ define(["jquery","utils","knockout","jquery.color"],function($,utils,ko) {
 		this.items.subscribe(function(items) {
 			items.forEach(function(item) {
 				item.buttonOn.subscribe(function(visible) {
-                    var t = extractTarget(item);
-                    setButtonBackgroundColor(visible, t);
+                    var button = self.container.find('.top-bar-button').filter(function(i, button){
+                       return $(button).data('item') == item;
+                    });
+                    setButtonBackgroundColor(visible, button);
 				});
 			});
 		});
@@ -27,7 +29,11 @@ define(["jquery","utils","knockout","jquery.color"],function($,utils,ko) {
 			for (var i = 0; i < nodes.length && nodes[i].nodeType != 1; i++);
 			if (i >= nodes.length) return;
 			item.registerSwitch(nodes[i]);
-			self.mouseout(item,{target:$(nodes[i]).find("a")});
+
+            var link = $(nodes[i]).find("a");
+			self.mouseout(item,{target:link});
+
+            link.data('item',item);
 		}
 
 		this.unregisterSwitch = function(node,i,item) {
@@ -62,7 +68,12 @@ define(["jquery","utils","knockout","jquery.color"],function($,utils,ko) {
 			item.isHovered = false;
 			setButtonBackgroundColor(item.buttonOn(), t);
 		}
-	}
+	};
+
+    TopBar.prototype.afterRender = function(){debugger};
+    TopBar.prototype.domInit = function(element){
+        this.container = $(element.nextSibling);
+    };
 
 	TopBar.prototype.templates = ["main"];
 

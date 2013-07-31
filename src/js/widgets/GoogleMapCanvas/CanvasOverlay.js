@@ -30,7 +30,8 @@ define(["google.maps"],function(gmaps) {
 	}
 
 	CanvasOverlay.prototype.clear = function() {
-		this._canvas.height = this._canvas.height;
+        if(this._canvas)
+		    this._canvas.height = this._canvas.height;
 //		if (!this._context) return;
 //		this._context.clearRect(0,0,this._width,this._height);
 	}
