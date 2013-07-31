@@ -524,7 +524,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 	GoogleMap.prototype.update = function(type,force) {
 		var self = this;
 		var canvas = type=="static" ? this.staticCanvasOverlay : this.canvasOverlay;
-		if (!canvas) return;
+		if (!canvas || !canvas._canvas) return;
 		if (!force && canvas._updating) {
 			canvas._updateRequired = true;
 			return;
