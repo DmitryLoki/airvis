@@ -35,17 +35,20 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 
 		this.allVisible = ko.computed({
 			read: function() {
-				return !self.ufos().some(function(w) { 
-					return !w.visible();
+				var total = 0, visible = 0;
+				self.ufos().forEach(function(w) {
+					if (w.visible()) visible++;
+					total++;
 				});
+				return total==visible?1:(visible>0?2:0);
 			},
 			write: function(val) {
 				self.ufos().forEach(function(w) {
-					w.visible(val);
+					w.visible(val==1);
 				});
 			}
 		});
-		this.allVisibleCheckbox = new Checkbox({checked:this.allVisible,color:config.ufosTable.allVisibleCheckboxColor});
+		this.allVisibleCheckbox = new Checkbox({checked:this.allVisible,color:config.ufosTable.allVisibleCheckboxColor,css:"checkbox-white",mode:"half"});
 	}
 
 	UfosTable.prototype.sortTableRows = function() {

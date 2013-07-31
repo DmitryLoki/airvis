@@ -85,8 +85,10 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 
 .airvis-window td.airvis-checkbox { text-align: center; width: 28px;}
 .airvis-window tr td.airvis-checkbox:first-child { width: 28px;}
+/*
 .airvis-window .airvis-table-header-1 td.airvis-checkbox span.checkbox { background-color: #ffffff !important; background-position: 0 -12px;}
 .airvis-window .airvis-table-header-1 td.airvis-checkbox span.unchecked { background-position: 0 -100px;}
+*/
 .airvis-window td.airvis-checkbox .checkbox { top: 1px; position: relative;}
 
 .airvis-window table .airvis-pilot-number { width: 29px;}

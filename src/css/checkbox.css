@@ -13,3 +13,13 @@ span.checkbox {
 span.checkbox.checked {
     background: #002f40 url("../img/checkbox.png") no-repeat 0 0;
 }
+
+span.checkbox-white span.checkbox {
+    background-color: #ffffff;
+}
+span.checkbox-white span.checkbox.checked {
+    background: #ffffff url("../img/checkbox.png") no-repeat 0 -24px;
+}
+span.checkbox-white span.checkbox.halfchecked {
+    background: #ffffff url("../img/checkbox.png") no-repeat 0 -12px;
+}

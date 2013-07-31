@@ -1,1 +1,3 @@
-<span class="checkbox" data-bind="click: clickHandler, css:(checked()?'checked':'unchecked')"></span>
+<span class="checkbox-container" data-bind="css:_css">
+	<span class="checkbox" data-bind="click:click,css:{'checked':isChecked(),'unchecked':isUnChecked(),'halfchecked':isHalfChecked()},style:{'background-color':_color}"></span>
+</span>
