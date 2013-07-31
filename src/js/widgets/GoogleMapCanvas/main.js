@@ -19,6 +19,10 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		this.zoom = ko.observable(config.map.zoom);
 		this.isReady = ko.observable(false);
 		this.mapOptions = options.mapOptions;
+        //Отключить зум контрол для тач-устройств
+        if('ontouchstart' in document.documentElement) {
+            this.mapOptions({zoomControl:false});
+        }
 		this.mode = options.mode;
 		this.activateMapScroll = ko.observable(false);
 
