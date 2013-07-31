@@ -167,8 +167,12 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 				self.alignColumns(1);
 			},100);
 		}
-		if (this.scrollbarContainer)
-			this.scrollbarContainer.tinyscrollbar_update();
+    //Запоминаем позицию скроллбара при апдейте
+		if (this.scrollbarContainer) {
+      var currentScrollPosition = parseInt(this.tableOverview.css('top'),10);
+      this.scrollbarContainer.tinyscrollbar_update(currentScrollPosition);
+    }
+
 	}
 
 	UfosTable.prototype.domInit = function(element, params) {
@@ -213,6 +217,7 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 		});
 
 		this.scrollbarContainer = this.container.find(".airvis-scrollbar").tinyscrollbar();
+		this.tableOverview = this.scrollbarContainer.find(".overview");
 	};
 
 	UfosTable.prototype.proxyDrag = function(self,e) {
