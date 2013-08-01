@@ -35,7 +35,8 @@ define(["jquery"],function($) {
 				// При этом данные одного фрейма достаточны. т.е. если нет события "после", то параплан неподвижен. 
 				// Очевидно, что при переходе в следующий фрейм он "не прыгнет", потому что если бы он прыгнул, 
 				// было бы событие по изменению координат.
-				var getDataFromFrame = function(frame,dt) {
+
+				var getDataFromFrame = function(frame,dt,mode) {
 //					console.log("getDataFromFrame",frame,dt);
 					var data = {}, dataBefore = {}, dataAfter = {}, keys = [];
 					// Пробегаем по всем событиям фрейма и для каждого пилота ищем ближайшие события до и после dt
@@ -64,7 +65,7 @@ define(["jquery"],function($) {
 					for (var pilot_id in dataBefore) {
 						if (dataBefore.hasOwnProperty(pilot_id)) {
 							var d1 = dataBefore[pilot_id], d2 = dataAfter[pilot_id];
-							if (!d2 || d1.dt == d2.dt)
+							if (mode == "simple" || !d2 || d1.dt == d2.dt)
 								data[pilot_id] = {
 									dist: d1.dist,
 									gspd: d1.gspd,
@@ -231,13 +232,13 @@ define(["jquery"],function($) {
 
 				// Если есть кеш, отдадим его значение на момент query.dt
 				if (cachedFrame && cachedFrame.status == "ready") {
-					query.callback(getDataFromFrame(cachedFrame.data,query.dt),query);
+					query.callback(getDataFromFrame(cachedFrame.data,query.dt,query.mode),query);
 				}
 				// Интервал сейчас загружается, не нужно запускать новую загрузку
 				// Проставим только, чтобы после окончания загрузки интервала выполнился наш callback
 				else if (cachedFrame && cachedFrame.status == "loading") {
 					cachedFrame.callback = function(data,query) {
-						query.callback(getDataFromFrame(data,query.dt),query);
+						query.callback(getDataFromFrame(data,query.dt,query.mode),query);
 					}
 				}
 				// Кеша нет, делаем запрос
@@ -252,7 +253,7 @@ define(["jquery"],function($) {
 						inSize: inSize,
 						inOffset: inOffset,
 						callback: function(data,query) {
-							query.callback(getDataFromFrame(data,query.dt),query);
+							query.callback(getDataFromFrame(data,query.dt,query.mode),query);
 						}
 					}
 					this.options.server.get({
