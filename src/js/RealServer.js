@@ -14,7 +14,7 @@
 		var testPilotOn = false;
 		if (query.type == "race") {
 			$.ajax({
-				url: "http://api.airtribune.com/" + this.options.apiVersion + "/contest/" + this.options.contestId + "/race/" + this.options.raceId,
+				url: this.options.apiDomain + "/" + this.options.apiVersion + "/contest/" + this.options.contestId + "/race/" + this.options.raceId,
 				dataType: "json",
 				success: function(result,textStatus,request) {
 					var data = {
@@ -23,6 +23,8 @@
 						raceKey: result.start_time*mult,
 						timeoffset: result.timeoffset,
 						optdistance: result.optdistance,
+						raceType: result.race_type,
+						raceTypeOptions: {},
 						titles: {
 							mainTitle: result.contest_title,
 							placeTitle: result.country + ", " + result.place,
@@ -32,7 +34,9 @@
 						waypoints: [],
 						serverKey: (new Date(request.getResponseHeader("Date"))).getTime()
 					}
-					console.log(new Date(result.start_time*mult));
+					if (data.raceType == "opendistance")
+						raceTypeOptions.bearing = result.bearing;
+
 					var d = new Date(data.startKey);
 //					data.titles.dateTitle = d.toDateString();
 					var m_ar = "Jan Fab Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(/ /);
@@ -87,7 +91,7 @@
     			return color;
 			}
 			$.ajax({
-				url: "http://api.airtribune.com/" + this.options.apiVersion + "/contest/" + this.options.contestId + "/race/" + this.options.raceId + "/paragliders",
+				url: this.options.apiDomain + "/" + this.options.apiVersion + "/contest/" + this.options.contestId + "/race/" + this.options.raceId + "/paragliders",
 				dataType: "json",
 				success: function(result) {
 					var data = [];
@@ -119,8 +123,7 @@
 			if (query.loadStartData)
 				ajaxRequestData.start_positions = 1;
 			$.ajax({
-//				url: "http://api.airtribune.com/" + this.options.apiVersion + "/race/" + this.options.raceId + "/tracks",
-				url: "http://api.airtribune.com/" + this.options.apiVersion + "/track/group/" + this.options.raceId + (query.isOnline||this.options.isOnline?"_online":""),
+				url: this.options.apiDomain + "/" + this.options.apiVersion + "/track/group/" + this.options.raceId + (query.isOnline||this.options.isOnline?"_online":""),
 				dataType: "json",
 				data: ajaxRequestData,
 				success: function(result,textStatus,request) {
@@ -196,7 +199,7 @@
 			var data = {};
 			if (query.lastSmsTimestamp) data.from_time = query.lastSmsTimestamp + 1; // здесь прибавляем 1 чтобы было не включительно (чтобы последняя смс не приходила снова и снова)
 			$.ajax({
-				url: "http://apidev.airtribune.com/chatroom/" + this.options.raceId,
+				url: this.options.apiDomain + "/chatroom/" + this.options.raceId,
 //				url: "http://apidev.airtribune.com/chatroom/r-7dc4d514-aa6b-44cb-b515-18cec12d8691",
 				dataType: "json",
 				data: data,
@@ -211,7 +214,7 @@
 	RealServer.prototype.post = function(query) {
 		if (query.type == "sms") {
 			var ajax = $.ajax({
-				url: "http://apidev.airtribune.com/chatroom/" + this.options.raceId,
+				url: this.options.apiDomain + "/chatroom/" + this.options.raceId,
 //				url: "http://apidev.airtribune.com/chatroom/r-7dc4d514-aa6b-44cb-b515-18cec12d8691",
 				type: "POST",
 				dataType: "json",
