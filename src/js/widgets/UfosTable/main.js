@@ -57,9 +57,8 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 			var undef2 = !b || !b.tableData || b.noData();
 			if (undef1 || undef2) return undef1 && undef2 ? 0 : (undef1 ? 1 : -1);
 
-
-			var d1 = a.tableData.dist()>0 ? a.tableData.distFrom() : null;
-			var d2 = b.tableData.dist()>0 ? b.tableData.distFrom() : null;
+			var d1 = a.tableData.dist()>0 ? a.tableData.dist() : null;
+			var d2 = b.tableData.dist()>0 ? b.tableData.dist() : null;
 			var s1 = a.tableData.state ? a.tableData.state() : null;
 			var s2 = b.tableData.state ? b.tableData.state() : null;
 			var c1 = a.tableData.stateChangedAt ? a.tableData.stateChangedAt() : null;
@@ -85,7 +84,7 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 			if (d1 != null && d2 != null) {
 				d1 = Math.floor(d1*10);
 				d2 = Math.floor(d2*10);
-				return d1 == d2 ? 0 : (d1 < d2 ? 1 : -1);
+				return d1 == d2 ? 0 : (d1 < d2 ? -1 : 1);
 			}
 			if (d2 != null) return 1;
 			if (d1 != null) return -1;
