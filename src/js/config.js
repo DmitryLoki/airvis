@@ -4,6 +4,8 @@ define({
 	mode: "full",
 	mapWidget: "2d",
 	imgRootUrl: "/img/",
+	apiVersion: "v0.2",
+	apiDomain: "http://api.airtribune.com",
 	icons: {
 		"default_medium": {url: "ufo_default_medium.png", width: 32, height: 35, x: 16, y: 35},
 		"default_small": {url: "ufo_default_small.png", width: 16, height: 17, x: 8, y: 8},
@@ -145,7 +147,7 @@ define({
 	},
 	ufosTable: {
 		mode: "short",
-		allVisibleCheckboxColor: "blue"
+		allVisibleCheckboxColor: "#ffffff"
 	},
 	serverDelay: 120000,	// 2 минуты
 	serverFake: 0,		
