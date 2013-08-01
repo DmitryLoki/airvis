@@ -163,6 +163,8 @@ define([
 		this.disableLiveButton = ko.observable(false);
 		this.loading = ko.observable(false);
 		this.optdistance = ko.observable(0);
+		this.raceType = ko.observable("");
+		this.raceTypeOptions = ko.observable({});
 
 		this.ufos = ko.observableArray();
 		this.waypoints = ko.observableArray();
@@ -367,6 +369,8 @@ define([
 			this.options.raceId = params.raceId;
 		if (params.apiVersion)
 			this.options.apiVersion = params.apiVersion;
+		if (params.apiDomain)
+			this.options.apiDomain = params.apiDomain;
 		if (params.imgRootUrl)
 			this.options.imgRootUrl = params.imgRootUrl;
 		if (params.width)
@@ -522,6 +526,8 @@ define([
 				timeMultiplier: self.playerSpeed(),
 				dtStart: self.startKey(),
 				isOnline: self.isOnline(),
+//				mode: self.isCurrentlyOnline() ? "simple" : "linear",
+				mode: self.isCurrentlyOnline() ? "simple" : "simple",
 				callback: function(data,query) {
 					if (query.dt != self.currentDataSourceGetKey) return;
 					// в data ожидается массив с ключами - id-шниками пилотов и данными - {lat и lng} - текущее положение

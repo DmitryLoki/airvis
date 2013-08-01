@@ -4,29 +4,25 @@ define(["google.maps"],function(gmaps) {
 		this._map = options.map;
 		this._container = options.container;
 		this._mapDiv = this._map.getDiv();
+		this._onAddCallback = options.onAdd;
 		this.setMap(this._map);
 	}
 	CanvasOverlay.prototype = new gmaps.OverlayView();
 
 	CanvasOverlay.prototype.relayout = function() {
-		if (!this._mapDiv) return;
+		if (!this._mapDiv || !this._canvas || !this._map) return;
 		if (this._width != this._mapDiv.offsetWidth || this._height != this._mapDiv.offsetHeight) {
 			this._width = this._mapDiv.offsetWidth;
 			this._height = this._mapDiv.offsetHeight;
-			if (this._canvas) {
-				this._canvas.width = this._width;
-				this._canvas.height = this._height;
-			}
+			this._canvas.width = this._width;
+			this._canvas.height = this._height;
 		}
 		this._bounds = this._map.getBounds();
 		this._corner = new gmaps.LatLng(this._bounds.getNorthEast().lat(), this._bounds.getSouthWest().lng());
 		this._mapCorner = this._map.getProjection().fromLatLngToPoint(this._corner);
 		this._pxCorner = this.getProjection().fromLatLngToDivPixel(this._corner);
-
-		if (this._canvas) {
-			this._canvas.style.left = this._pxCorner.x + "px";
-			this._canvas.style.top = this._pxCorner.y + "px";
-		}
+		this._canvas.style.left = this._pxCorner.x + "px";
+		this._canvas.style.top = this._pxCorner.y + "px";
 	}
 
 	CanvasOverlay.prototype.clear = function() {
@@ -43,10 +39,13 @@ define(["google.maps"],function(gmaps) {
 		this._canvas.style.pointerEvents = "none";
 		this._context = this._canvas.getContext("2d");
 		this._proj = this._map.getProjection();
+		console.log("CanvasOverlay.onAdd",this._canvas);
 
 		this.getPanes().floatPane.appendChild(this._canvas);
 //		this._map.controls[this._container].push(this._canvas);
 		this.relayout();
+		if (typeof this._onAddCallback == "function")
+			this._onAddCallback();
 	}
 
 	CanvasOverlay.prototype.onRemove = function() {

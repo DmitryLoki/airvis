@@ -17,85 +17,69 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		this.playerState = options.playerState;
 		this.imgRootUrl = options.imgRootUrl;
 		this.zoom = ko.observable(config.map.zoom);
-		this.isReady = $.Deferred();
+		this.isReady = ko.observable(false);
 		this.mapOptions = options.mapOptions;
-        //Отключить зум контрол для тач-устройств
-        if('ontouchstart' in document.documentElement) {
-            this.mapOptions({zoomControl:false});
-        }
 		this.mode = options.mode;
 		this.activateMapScroll = ko.observable(false);
 
 		this.mapWaypoints = [];
 		this.waypoints.subscribe(function(waypoints) {
-            $.when(self.isReady).done(function(){
-                var rev1 = {}, rev2 = {};
-                for (var i = 0; i < waypoints.length; i++)
-                    rev1[waypoints[i].id()] = i;
-                for (var i = 0; i < self.mapWaypoints.length; i++)
-                    rev2[self.mapWaypoints[i].id()] = i;
-                for (var i = 0; i < waypoints.length; i++) {
-                    if (rev2[waypoints[i].id()] == null) {
-                        self.mapWaypoints.push(self.createWaypoint(waypoints[i]));
-                        rev2[waypoints[i].id()] = self.mapWaypoints.length - 1;
-                    }
+            var rev1 = {}, rev2 = {};
+            for (var i = 0; i < waypoints.length; i++)
+                rev1[waypoints[i].id()] = i;
+            for (var i = 0; i < self.mapWaypoints.length; i++)
+                rev2[self.mapWaypoints[i].id()] = i;
+            for (var i = 0; i < waypoints.length; i++) {
+                if (rev2[waypoints[i].id()] == null) {
+                    self.mapWaypoints.push(self.createWaypoint(waypoints[i]));
+                    rev2[waypoints[i].id()] = self.mapWaypoints.length - 1;
                 }
-                for (var i = 0; i < self.mapWaypoints.length; i++) {
-                    if (rev1[self.mapWaypoints[i].id()] == null) {
-                        self.destroyWaypoint(self.mapWaypoints[i]);
-                        self.mapWaypoints.splice(i,1);
-                        i--;
-                    }
+            }
+            for (var i = 0; i < self.mapWaypoints.length; i++) {
+                if (rev1[self.mapWaypoints[i].id()] == null) {
+                    self.destroyWaypoint(self.mapWaypoints[i]);
+                    self.mapWaypoints.splice(i,1);
+                    i--;
                 }
-            });
-
+            }
 		});
 
 		this.mapUfos = [];
 		this.ufos.subscribe(function(ufos) {
-            $.when(self.isReady).done(function(){
-                var rev1 = {}, rev2 = {};
-                for (var i = 0; i < ufos.length; i++)
-                    rev1[ufos[i].id()] = i;
-                for (var i = 0; i < self.mapUfos.length; i++)
-                    rev2[self.mapUfos[i].id()] = i;
-                for (var i = 0; i < ufos.length; i++) {
-                    if (rev2[ufos[i].id()] == null) {
-                        self.mapUfos.push(self.createUfo(ufos[i]));
-                        rev2[ufos[i].id()] = self.mapUfos.length - 1;
-                    }
+            var rev1 = {}, rev2 = {};
+            for (var i = 0; i < ufos.length; i++)
+                rev1[ufos[i].id()] = i;
+            for (var i = 0; i < self.mapUfos.length; i++)
+                rev2[self.mapUfos[i].id()] = i;
+            for (var i = 0; i < ufos.length; i++) {
+                if (rev2[ufos[i].id()] == null) {
+                    self.mapUfos.push(self.createUfo(ufos[i]));
+                    rev2[ufos[i].id()] = self.mapUfos.length - 1;
                 }
-                for (var i = 0; i < self.mapUfos.length; i++) {
-                    if (rev1[self.mapUfos[i].id()] == null) {
-                        self.detroyUfo(self.mapUfos[i]);
-                        self.mapUfos.splice(i,1);
-                        i--;
-                    }
+            }
+            for (var i = 0; i < self.mapUfos.length; i++) {
+                if (rev1[self.mapUfos[i].id()] == null) {
+                    self.detroyUfo(self.mapUfos[i]);
+                    self.mapUfos.splice(i,1);
+                    i--;
                 }
-            });
+            }
 		});
 
 		this.mapShortWay = null;
 		this.shortWay.subscribe(function(w) {
-            $.when(self.isReady).done(function(){
-                self.destroyShortWay(self.mapShortWay);
-                self.mapShortWay = self.createShortWay(w);
-            });
-
+            self.destroyShortWay(self.mapShortWay);
+            self.mapShortWay = self.createShortWay(w);
 		});
 
 		this.mapOptions.subscribe(function(options) {
-            $.when(self.isReady).done(function(){
-                if (!options) return;
-                self.map.setOptions(options);
-                self.activateMapScroll(options.scrollwheel);
-            });
+            if (!options) return;
+            self.map.setOptions(options);
+            self.activateMapScroll(options.scrollwheel);
 		});
 
 		this.activateMapScroll.subscribe(function(b) {
-            $.when(self.isReady).done(function(){
-			    self.map.setOptions({scrollwheel:b});
-            });
+		    self.map.setOptions({scrollwheel:b});
 		});
 
 		this.setProfVisualMode = function() {
@@ -119,14 +103,11 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			center: data.center,
 			radius: data.radius,
 			openKey: data.openKey,
-			shortWay: data.shortWay
+			shortWay: data.shortWay,
+			prepareCoordsRequired: true,
+			preparedCoords: null,
+			preparedSpCoords: null
 		}
-
-		w.spherePoint = ko.computed(function() {
-			if (!w.center() || !w.radius()) return null;
-			var rp = gmaps.geometry.spherical.computeOffset(new gmaps.LatLng(w.center().lat,w.center().lng),w.radius(),90);
-			return self.map.getProjection().fromLatLngToPoint(rp);
-		});
 
 		// Здесь заводим еще переменную, иначе computed каждый тик вызывает свой subscribe
 		w.stateUpdate = ko.observable();
@@ -139,16 +120,21 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			self.update("static");
 		});
 
-		w.render = function(co) {
-			if (self.cylindersVisualMode() == "off") return;
-			var coords = self.prepareCoords(w.center().lat,w.center().lng);
-			var p = co.abs2rel(coords,self.zoom());
-			var sp = co.abs2rel(w.spherePoint(),self.zoom());
+		w.render = function(co,type) {
+			if (!self.isReady() || self.cylindersVisualMode() == "off") return;
+			if (w.prepareCoordsRequired) {
+				w.preparedCoords = self.prepareCoords(w.center().lat,w.center().lng);
+				w.preparedSpCoords = self.map.getProjection().fromLatLngToPoint(gmaps.geometry.spherical.computeOffset(new gmaps.LatLng(w.center().lat,w.center().lng),w.radius(),90));
+				w.prepareCoordsRequired = false;
+			}
+			var p = co.abs2rel(w.preparedCoords,self.zoom());
+			var sp = co.abs2rel(w.preparedSpCoords,self.zoom());
 			var r = Math.sqrt(Math.pow(p.x-sp.x,2)+Math.pow(p.y-sp.y,2));
-			if (co.inViewport(p,r)) {
-				var context = co.getContext();
-				var color = config.canvas.waypoints.colors[w.type()] ? config.canvas.waypoints.colors[w.type()][w.state()] : config.canvas.waypoints.colors["default"][w.state()];
+			if (!co.inViewport(p,r)) return;
+			var context = co.getContext();
 
+			if (type == "waypoint") {
+				var color = config.canvas.waypoints.colors[w.type()] ? config.canvas.waypoints.colors[w.type()][w.state()] : config.canvas.waypoints.colors["default"][w.state()];
 /*
 				var opacity = 0, h = co.getHeight()/4;
 				if (r < h) opacity = config.canvas.waypoints.maxOpacity;
@@ -162,8 +148,6 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				else opacity = zo.maxOpacity;
 				color = color.replace(/opacity/,opacity/100);
 
-				//console.log("opacity=",opacity,"zoom=",self.zoom());
-
 				co.setProperties($.extend({},config.canvas.waypoints.basic,{fillStyle:color}));
 				context.beginPath();
 				context.arc(p.x,p.y,r,0,2*Math.PI);
@@ -171,16 +155,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				if (self.cylindersVisualMode() == "full")
 					context.fill();
 			}
-		}
 
-		w.renderLabels = function(co) {
-			if (self.cylindersVisualMode() == "off") return;
-			var coords = self.prepareCoords(w.center().lat,w.center().lng);
-			var p = co.abs2rel(coords,self.zoom());
-			var sp = co.abs2rel(w.spherePoint(),self.zoom());
-			var r = Math.sqrt(Math.pow(p.x-sp.x,2)+Math.pow(p.y-sp.y,2));
-			if (co.inViewport(p,r)) {
-				var context = co.getContext();
+			if (type == "label") {
 				var color = config.canvas.waypoints.colors[w.type()] ? config.canvas.waypoints.colors[w.type()][w.state()] : config.canvas.waypoints.colors["default"][w.state()];
 				color = color.replace(/opacity/,config.canvas.waypoints.maxOpacity);
 				var textColor = config.canvas.waypoints.colors[w.type()] ? config.canvas.waypoints.colors[w.type()][w.state()+"Text"] : config.canvas.waypoints.colors["default"][w.state()+"Text"];
@@ -253,8 +229,14 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			trackVisible: data.trackVisible,
 			noData: data.noData,
 			noPosition: data.noPosition,
-			trackData: []
+			trackData: [],
+			preparedCoords: null,
+			prepareCoordsRequired: true
 		}
+
+		u.position.subscribe(function(p) {
+			u.prepareCoordsRequired = true;
+		});
 
 		var setProperties = function(context,properties) {
 			if (!context) return;
@@ -263,7 +245,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 					context[i] = properties[i];
 		}
 
-		u.prepareIcon = function(co) {
+		u._prepareIcon = function(co) {
 //			console.log("prepareIcon id=",u.id(),"state=",u.state());
 			u.iconSize = config.canvas.ufos.sizes[self.modelsVisualMode()] || config.canvas.ufos.sizes["default"];
 			u.iconCenter = {x:u.iconSize,y:u.iconSize};
@@ -302,26 +284,33 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			}
 		}
 
-		u.render = function(co) {
-			if (u.noData() || u.noPosition() || !u.visible()) return;
-			if (!u.iconCanvas || u.updateIconRequired) {
-				u.prepareIcon();
-				u.updateIconRequired = false;
+		u._prepareCoords = function() {
+			if (!self.isReady() || u.noData() || !u.position()) {
+				u.preparedCoords = null;
+				return;
 			}
-			var p = co.abs2rel(u.coords(),self.zoom());
-			if (co.inViewport(p,u.iconSize)) {
-				var context = co.getContext();
-				context.drawImage(u.iconCanvas,p.x-u.iconCenter.x,p.y-u.iconCenter.y);
-			}
+			u.preparedCoords = self.prepareCoords(u.position().lat,u.position().lng);
 		}
 
-		u.renderTrack = function(co) {
-			if (u.noData() || u.noPosition() || !u.visible()) return;
-			if (self.tracksVisualMode() == "off" || u.trackData.length == 0) return;
-			var p = co.abs2rel(u.coords(),self.zoom());
-			if (co.inViewport(p,0)) {
-				var context = co.getContext();
-//				co.setProperties($.extend({},config.canvas.ufos.basic,{strokeStyle:u.color()}));
+		u.render = function(co,type) {
+			if (!self.isReady() || u.noData() || u.noPosition() || !u.visible()) return;
+			if (!u.iconCanvas || u.updateIconRequired) {
+				u._prepareIcon();
+				u.updateIconRequired = false;
+			}
+			if (!u.preparedCoords || u.prepareCoordsRequired) {
+				u._prepareCoords();
+				u.prepareCoordsRequired = false;
+			}
+			var p = co.abs2rel(u.preparedCoords,self.zoom());
+			if (!co.inViewport(p,u.iconSize)) return;
+			var context = co.getContext();
+
+			if (type == "icon") {
+				context.drawImage(u.iconCanvas,p.x-u.iconCenter.x,p.y-u.iconCenter.y);
+			}
+
+			if (type == "track" && self.tracksVisualMode() != "off" && u.trackData.length > 0) {
 				co.setProperties(config.canvas.ufos.basic);
 				context.beginPath();
 				for (var i = 0; i < u.trackData.length; i++) {
@@ -335,13 +324,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			}
 		}
 
-		u.coords = ko.computed(function() {
-			if (u.noData() || !u.position()) return null;
-			return self.prepareCoords(u.position().lat,u.position().lng);
-		});
-
 		u.trackSubscribe = u.track.subscribe(function(v) {
-			if (!u.visible() || self.tracksVisualMode() == "off") return;
+			if (!self.isReady() || !u.visible() || self.tracksVisualMode() == "off") return;
 			// если приходит специальное значение v.dt=null, обнуляем трек
 			if (v.dt == null) {
 				u.trackData = [];
@@ -386,65 +370,76 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		var self = this;
 		if (!data) return null;
 
-		for (var i = 0; i < data.length; i++) {
-			var p = self.prepareCoords(data[i].lat,data[i].lng);
-			data[i].x = p.x;
-			data[i].y = p.y;
-		}
-
 		var w = {
 			data:data
-		};
+		}
 
-		w.render = function(co) {
+		var _prepareCoords = function(rw) {
+			if (rw.preparedCoordsExist && !rw.prepareCoordsRequired) return rw;
+			var p = self.prepareCoords(rw.lat,rw.lng);
+			rw.x = p.x;
+			rw.y = p.y;
+			rw.preparedCoordsExist = true;
+			rw.prepareCoordsRequired = false;
+			return rw;
+		}
+
+		w.render = function(co,type) {
+			if (!self.isReady() || w.data.length == 0) return;
 			co.setProperties(config.canvas.shortWay.basic);
 			var context = co.getContext();
-			context.beginPath();
-			for (var i = 0; i < w.data.length; i++) {
-				var p = co.abs2rel(w.data[i],self.zoom());
-				if (i > 0) context.lineTo(p.x,p.y);
-				else context.moveTo(p.x,p.y);
+
+			if (type == "line") {
+				context.beginPath();
+				for (var i = 0; i < w.data.length; i++) {
+					w.data[i] = _prepareCoords(w.data[i]);
+					var p = co.abs2rel(w.data[i],self.zoom());
+					if (i > 0) context.lineTo(p.x,p.y);
+					else context.moveTo(p.x,p.y);
+				}
+				context.stroke();
 			}
-			context.stroke();
-			var prevP = null;
-			for (var i = 0; i < w.data.length; i++) {
-				var p = co.abs2rel(w.data[i],self.zoom());
-				if (i > 0) {
-					var l = Math.sqrt(Math.pow(p.x-prevP.x,2)+Math.pow(p.y-prevP.y,2));
-					var s = config.canvas.shortWay.arrowSize/2;
-					if (l > s) {
-						var mP = {x:Math.floor((p.x+prevP.x)/2),y:Math.floor((p.y+prevP.y)/2)};
-						var a = Math.atan2(prevP.y-p.y,prevP.x-p.x);
+
+			if (type == "arrows") {
+				var prevP = null;
+				for (var i = 0; i < w.data.length; i++) {
+					var p = co.abs2rel(w.data[i],self.zoom());
+					if (i > 0) {
+						var l = Math.sqrt(Math.pow(p.x-prevP.x,2)+Math.pow(p.y-prevP.y,2));
+						var s = config.canvas.shortWay.arrowSize/2;
+						if (l > s) {
+							var mP = {x:Math.floor((p.x+prevP.x)/2),y:Math.floor((p.y+prevP.y)/2)};
+							var a = Math.atan2(prevP.y-p.y,prevP.x-p.x);
+							context.beginPath();
+							context.moveTo(mP.x,mP.y);
+							var lP = {x:mP.x+s*Math.cos(a+Math.PI/8),y:mP.y+s*Math.sin(a+Math.PI/8)};
+							context.lineTo(lP.x,lP.y);
+							var lP = {x:mP.x+s*Math.cos(a-Math.PI/8),y:mP.y+s*Math.sin(a-Math.PI/8)};
+							context.lineTo(lP.x,lP.y);
+							context.lineTo(mP.x,mP.y);
+							context.fill();
+						}
+					}
+					prevP = p;
+				}
+			}
+			
+			if (type == "labels") {
+				for (var i = 0; i < w.data.length; i++) {
+					var t = _prepareCoords(w.data[i]);
+					var p = co.abs2rel(t,self.zoom());
+					if (t.type == "ordinal") {
+						co.setProperties(config.canvas.shortWay.basic);
 						context.beginPath();
-						context.moveTo(mP.x,mP.y);
-						var lP = {x:mP.x+s*Math.cos(a+Math.PI/8),y:mP.y+s*Math.sin(a+Math.PI/8)};
-						context.lineTo(lP.x,lP.y);
-						var lP = {x:mP.x+s*Math.cos(a-Math.PI/8),y:mP.y+s*Math.sin(a-Math.PI/8)};
-						context.lineTo(lP.x,lP.y);
-						context.lineTo(mP.x,mP.y);
+						context.arc(p.x,p.y,config.canvas.shortWay.circleSize,0,2*Math.PI);
 						context.fill();
+						co.setProperties($.extend({},config.canvas.shortWay.basic,config.canvas.shortWay.text));
+						context.fillText(t.id-1,p.x,p.y);
 					}
 				}
-				prevP = p;
 			}
 		}
 
-		w.renderLabels = function(co) {
-			co.setProperties(config.canvas.shortWay.basic);
-			var context = co.getContext();
-			for (var i = 0; i < w.data.length; i++) {
-				var t = w.data[i];
-				var p = co.abs2rel(t,self.zoom());
-				if (t.type == "ordinal") {
-					co.setProperties(config.canvas.shortWay.basic);
-					context.beginPath();
-					context.arc(p.x,p.y,config.canvas.shortWay.circleSize,0,2*Math.PI);
-					context.fill();
-					co.setProperties($.extend({},config.canvas.shortWay.basic,config.canvas.shortWay.text));
-					context.fillText(t.id-1,p.x,p.y);
-				}
-			}
-		}
 		return w;
 	}
 
@@ -480,21 +475,19 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 	GoogleMap.prototype._updateDynamicCanvas = function(canvas) {
 		if (this.tracksVisualMode() != "off") {
 			this.mapUfos.forEach(function(ufo) {
-				ufo.renderTrack(canvas);
+				ufo.render(canvas,"track");
 			},this);
 		}
 		this.mapUfos.forEach(function(ufo) {
-			ufo.render(canvas);
+			ufo.render(canvas,"icon");
 		},this);
 	}
 
 	GoogleMap.prototype._updateStaticCanvas = function(canvas) {
 		var drawOrder = {}, drawOrderKeys = [];
-
 //		var context = canvas.getContext();
 //		context.fillStyle = "#ffffff";
 //		context.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
-
 		this.mapWaypoints.forEach(function(waypoint,i) {
 			var order = config.waypointsDrawOrder[waypoint.type()] || 0;
 			if (!drawOrder[order]) {
@@ -508,18 +501,18 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			var order = drawOrderKeys[i];
 			if (drawOrder.hasOwnProperty(order) && drawOrder[order].length > 0)
 				for (var j = 0; j < drawOrder[order].length; j++)
-					this.mapWaypoints[drawOrder[order][j]].render(canvas);
+					this.mapWaypoints[drawOrder[order][j]].render(canvas,"waypoint");
 		}
-
 //		this.mapWaypoints.forEach(function(waypoint) {
 //			waypoint.render(canvas);
 //		},this);
-		if (this.mapShortWay)
-			this.mapShortWay.render(canvas);
-		if (this.mapShortWay)
-			this.mapShortWay.renderLabels(canvas);
+		if (this.mapShortWay) {
+			this.mapShortWay.render(canvas,"line");
+			this.mapShortWay.render(canvas,"arrows");
+			this.mapShortWay.render(canvas,"labels");
+		}
 		this.mapWaypoints.forEach(function(waypoint) {
-			waypoint.renderLabels(canvas);
+			waypoint.render(canvas,"label");
 		},this);
 	}
 
@@ -551,6 +544,24 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		},100);
 	}
 
+	GoogleMap.prototype.updateAll = function() {
+//		console.log("updateAll1");
+        this.staticCanvasOverlay.relayout();
+        this.canvasOverlay.relayout();
+//      console.log("updateAll2");
+        this.update("static",true);
+        this.update("dynamic",true);
+	}
+
+/*
+	GoogleMap.prototype.domInit = function(elem,params) {
+		var self = this;
+		setTimeout(function() {
+			self._domInit.call(self,elem,params);
+		},1000);
+	}
+*/
+
 	GoogleMap.prototype.domInit = function(elem,params) {
 		var self = this;
 		var div = ko.virtualElements.firstChild(elem);
@@ -569,39 +580,52 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			self.activateMapScroll(true);
 		});
 
+		var _staticCanvasOverlayIsReady = false, _canvasOverlayIsReady = false, _mapIsReady = false;
+		var readyCallback = function() {
+			console.log("readyCallback");
+			gmaps.event.clearListeners(self.map,"idle");
+			self.isReady(true);
+			self.calculateAndSetDefaultPosition();
+			self.updateIcons();
+			self.updateAll();
+		}
+
 		this.staticCanvasOverlay = new CanvasOverlay({
 			map: this.map,
-			container: gmaps.ControlPosition.TOP_CENTER
+			onAdd: function() {
+				_staticCanvasOverlayIsReady = true;
+				if (_staticCanvasOverlayIsReady && _canvasOverlayIsReady && _mapIsReady) readyCallback();
+			}
 		});
 
 		this.canvasOverlay = new CanvasOverlay({
 			map: this.map,
-			container: gmaps.ControlPosition.BOTTOM_CENTER
+			onAdd: function() {
+				_canvasOverlayIsReady = true;
+				if (_staticCanvasOverlayIsReady && _canvasOverlayIsReady && _mapIsReady) readyCallback();
+			}			
 		});
 
 		gmaps.event.addListener(this.map,"center_changed",function() {
 			// событие center_changed возникает когда меняется размер карты (так же поступает bounds_changed, но он с глючной задержкой)
-            $.when(self.isReady).done(function(){
-                self.staticCanvasOverlay.relayout();
-                self.canvasOverlay.relayout();
-                self.update("static",true);
-                self.update("dynamic",true);
-            });
+			self.updateAll();
 		});
 		gmaps.event.addListener(this.map,"zoom_changed",function() {
-            $.when(self.isReady).done(function(){
-                self.zoom(self.map.getZoom());
-                self.staticCanvasOverlay.relayout();
-                self.canvasOverlay.relayout();
-                self.updateIcons();
-                self.update("static",true);
-                self.update("dynamic",true);
-            });
+            self.zoom(self.map.getZoom());
+            self.updateIcons();
+            self.updateAll();
 		});
-        gmaps.event.addListenerOnce(this.map, 'idle', function(){
-            self.isReady.resolve();
+        gmaps.event.addListener(this.map,"idle",function() {
+        	_mapIsReady = true;
+			if (_staticCanvasOverlayIsReady && _canvasOverlayIsReady && _mapIsReady) readyCallback();
         });
 
+        //Отключить зум контрол для тач-устройств
+        if("ontouchstart" in document.documentElement) {
+        	var o = this.mapOptions();
+        	o.zoomControl = false;
+        	this.mapOptions(o);
+        }
 		this.mapOptions.valueHasMutated();
 	}
 	
