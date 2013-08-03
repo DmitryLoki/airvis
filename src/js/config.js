@@ -329,7 +329,10 @@ define({
     5655:'Valentina',
     6878:'Simeon',
     4547:'Boris',
-    1234:'Rescue'
+    1234:'Rescue',
+    4542:'Zeljko',
+    2230:'Srdjan',
+    3319:'Branko'
   },
   version:'v0.1'
 });
