@@ -33,6 +33,16 @@ define({
 				fillStyle: "#1a1a1a",
 				lineWidth: 1
 			},
+			stick: {
+				fillStyle: "#909090",
+				strokeStyle: "#1a1a1a",
+				lineWidth: 0.2
+			},
+			stickDot: {
+				fillStyle: "#909090",
+				strokeStyle: "#1a1a1a",
+				lineWidth: 1
+			},
 			icons: {
 				default: {
 					fillStyle: "#fc0d1b",
@@ -102,8 +112,8 @@ define({
 					openedText: "#1a1a1a"
 				}
 			},
-			minOpacity: 0.4,
-			maxOpacity: 0.7,
+			minOpacity: 0.1,
+			maxOpacity: 0.6,
 			titleSize: 17,
 			titleRadius: 10,
 			titleOffset: 1,

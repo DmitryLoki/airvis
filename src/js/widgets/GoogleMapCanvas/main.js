@@ -21,6 +21,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		this.mapOptions = options.mapOptions;
 		this.mode = options.mode;
 		this.activateMapScroll = ko.observable(false);
+		this.raceType = options.raceType;
+		this.raceTypeOptions = options.raceTypeOptions;
 
 		this.mapWaypoints = [];
 		this.waypoints.subscribe(function(waypoints) {
@@ -135,18 +137,31 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 
 			if (type == "waypoint") {
 				var color = config.canvas.waypoints.colors[w.type()] ? config.canvas.waypoints.colors[w.type()][w.state()] : config.canvas.waypoints.colors["default"][w.state()];
+
+				var opacity = 0, a = Math.max(1-2*r/co.getHeight(),0), min = config.canvas.waypoints.minOpacity, max = config.canvas.waypoints.maxOpacity;
+				opacity = min+(max-min)*a;
+				if (w.id() == 3)
+					console.log("opacity",opacity);
+
+//				var opacity = 0, h = co.getHeight()/4;
+//				if (r < h) opacity = config.canvas.waypoints.maxOpacity;
+//				else if (r > 2*h) opacity = config.canvas.waypoints.minOpacity;
+//				else opacity = config.canvas.waypoints.maxOpacity - (r-h)/h*(config.canvas.waypoints.maxOpacity-config.canvas.waypoints.minOpacity);
+				color = color.replace(/opacity/,opacity);
+
 /*
 				var opacity = 0, h = co.getHeight()/4;
 				if (r < h) opacity = config.canvas.waypoints.maxOpacity;
 				else if (r > 2*h) opacity = config.canvas.waypoints.minOpacity;
 				else opacity = config.canvas.waypoints.maxOpacity - (r-h)/h*(config.canvas.waypoints.maxOpacity-config.canvas.waypoints.minOpacity);
 				color = color.replace(/opacity/,opacity);
-*/
+
 				var opacity = 0, zo = config.canvas.waypoints.opacityByZoom;
 				if (self.zoom() < zo.minZoom) opacity = zo.minOpacity;
 				else if (self.zoom() < zo.maxZoom) opacity = zo[self.zoom()];
 				else opacity = zo.maxOpacity;
 				color = color.replace(/opacity/,opacity/100);
+*/
 
 				co.setProperties($.extend({},config.canvas.waypoints.basic,{fillStyle:color}));
 				context.beginPath();
@@ -231,7 +246,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			noPosition: data.noPosition,
 			trackData: [],
 			preparedCoords: null,
-			prepareCoordsRequired: true
+			prepareCoordsRequired: true,
+			alt: data.alt
 		}
 
 		u.position.subscribe(function(p) {
@@ -254,6 +270,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			u.iconCanvas.height = u.iconSize*2;
 			var ic = u.iconCanvas.getContext("2d");
 			// Тень от иконки
+			/*
 			ic.beginPath();
 			setProperties(ic,$.extend({},config.canvas.ufos.basiс,config.canvas.ufos.shadow));
 			ic.moveTo(u.iconCenter.x-u.iconSize/4,u.iconCenter.y);
@@ -262,6 +279,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			ic.lineTo(u.iconCenter.x,u.iconCenter.y+u.iconSize/10);
 			ic.lineTo(u.iconCenter.x-u.iconSize/4,u.iconCenter.y);
 			ic.fill();
+			*/
 			// Иконка
 			ic.beginPath();
 			setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.icons[u.state()] || config.canvas.ufos.icons["default"]));
@@ -292,6 +310,25 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			u.preparedCoords = self.prepareCoords(u.position().lat,u.position().lng);
 		}
 
+		var _drawEllipse = function(ctx, x, y, w, h) {
+			var kappa = .5522848,
+        	ox = (w / 2) * kappa, // control point offset horizontal
+        	oy = (h / 2) * kappa, // control point offset vertical
+        	xe = x + w,           // x-end
+        	ye = y + h,           // y-end
+        	xm = x + w / 2,       // x-middle
+        	ym = y + h / 2;       // y-middle
+    		ctx.beginPath();
+			ctx.moveTo(x,ym);
+			ctx.bezierCurveTo(x,ym-oy,xm-ox,y,xm,y);
+			ctx.bezierCurveTo(xm+ox,y,xe,ym-oy,xe,ym);
+			ctx.bezierCurveTo(xe,ym+oy,xm+ox,ye,xm,ye);
+			ctx.bezierCurveTo(xm-ox,ye,x,ym+oy,x,ym);
+			ctx.closePath();
+			ctx.stroke();
+			ctx.fill();
+	    }
+
 		u.render = function(co,type) {
 			if (!self.isReady() || u.noData() || u.noPosition() || !u.visible()) return;
 			if (!u.iconCanvas || u.updateIconRequired) {
@@ -306,8 +343,19 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			if (!co.inViewport(p,u.iconSize)) return;
 			var context = co.getContext();
 
+			var height = Math.floor(u.alt()/100);
+
 			if (type == "icon") {
-				context.drawImage(u.iconCanvas,p.x-u.iconCenter.x,p.y-u.iconCenter.y);
+				context.drawImage(u.iconCanvas,p.x-u.iconCenter.x,p.y-u.iconCenter.y-height);
+			}
+
+			if (type == "elev") {
+				co.setProperties(config.canvas.ufos.stickDot);
+				_drawEllipse(context,p.x-10,p.y-5,20,10);
+				co.setProperties(config.canvas.ufos.stick);
+				context.beginPath();
+				context.fillRect(p.x-2,p.y-height,4,height);
+				context.strokeRect(p.x-2,p.y-height,4,height);
 			}
 
 			if (type == "track" && self.tracksVisualMode() != "off" && u.trackData.length > 0) {
@@ -423,6 +471,36 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 					prevP = p;
 				}
 			}
+
+			if (type == "bearing" && self.raceType() == "opendistance" && self.raceTypeOptions()) {
+				var lp = co.abs2rel(_prepareCoords(w.data[w.data.length-1]),self.zoom());
+
+				var a = (self.raceTypeOptions().bearing || 0)/180*Math.PI;
+				var d = Math.max(co.getWidth(),co.getHeight());
+				if (Math.cos(a) > 0)
+					d = Math.min(d,lp.y/Math.cos(a));
+				else if (Math.cos(a) < 0)
+					d = Math.min(d,(lp.y-co.getHeight())/Math.cos(a));
+				if (Math.sin(a) > 0)
+					d = Math.min(d,(co.getWidth()-lp.x)/Math.sin(a));
+				else if (Math.sin(a) < 0)
+					d = Math.min(d,-lp.x/Math.sin(a));
+				var p = {x:lp.x+Math.sin(a)*d/2,y:lp.y-Math.cos(a)*d/2};
+				context.beginPath();
+				context.moveTo(lp.x,lp.y);
+				context.lineTo(p.x,p.y);
+				context.stroke();
+				var s = config.canvas.shortWay.arrowSize/2;
+				var cP = {x:p.x+s*Math.sin(a)*Math.cos(Math.PI/8),y:p.y-s*Math.cos(a)*Math.cos(Math.PI/8)};
+				context.beginPath();
+				context.moveTo(cP.x,cP.y);
+				var lP = {x:cP.x+s*Math.sin(a+Math.PI+Math.PI/8),y:cP.y-s*Math.cos(a+Math.PI+Math.PI/8)};
+				context.lineTo(lP.x,lP.y);
+				var lP = {x:cP.x+s*Math.sin(a+Math.PI-Math.PI/8),y:cP.y-s*Math.cos(a+Math.PI-Math.PI/8)};
+				context.lineTo(lP.x,lP.y);
+				context.lineTo(cP.x,cP.y);
+				context.fill();
+			}
 			
 			if (type == "labels") {
 				for (var i = 0; i < w.data.length; i++) {
@@ -479,6 +557,9 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			},this);
 		}
 		this.mapUfos.forEach(function(ufo) {
+			ufo.render(canvas,"elev");
+		},this);
+		this.mapUfos.forEach(function(ufo) {
 			ufo.render(canvas,"icon");
 		},this);
 	}
@@ -509,6 +590,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		if (this.mapShortWay) {
 			this.mapShortWay.render(canvas,"line");
 			this.mapShortWay.render(canvas,"arrows");
+			this.mapShortWay.render(canvas,"bearing");
 			this.mapShortWay.render(canvas,"labels");
 		}
 		this.mapWaypoints.forEach(function(waypoint) {
@@ -631,6 +713,9 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 	
 	GoogleMap.prototype.domDestroy = function(elem,params) {
 		delete this.map;
+	}
+
+	GoogleMap.prototype.destroy = function() {
 	}
 
 	GoogleMap.prototype.templates = ["main"];

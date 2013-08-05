@@ -216,6 +216,7 @@ define([
 
 		this.mapInitializer = ko.computed(function() {
 			if (self.isReady()) {
+				console.log(self.map);
 				if (self.map)
 					self.map.destroy();
 				var mapOptions = {
@@ -232,8 +233,11 @@ define([
 						raceKey: self.raceKey,
 						imgRootUrl: self.imgRootUrl,
 						mapOptions: self.mapOptions,
-						mode: self.mode
+						mode: self.mode,
+						raceType: self.raceType,
+						raceTypeOptions: self.raceTypeOptions
 				};
+				console.log("set",self.raceType(),self.raceTypeOptions());
 				if (self.mapWidget() == "2d-old") {
 					self.map = new GoogleMap(mapOptions);
 					self.mapType = "GoogleMap";
@@ -464,6 +468,8 @@ define([
 				self.serverKey(data.serverKey);
 				self.timeoffset(data.timeoffset);
 				self.optdistance(data.optdistance);
+				self.raceType(data.raceType);
+				self.raceTypeOptions(data.raceTypeOptions);
 				if (self.mainMenu && data.titles)
 					self.mainMenu.setTitles(data.titles);
 				var waypoints2load = [];

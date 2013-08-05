@@ -35,7 +35,7 @@
 						serverKey: (new Date(request.getResponseHeader("Date"))).getTime()
 					}
 					if (data.raceType == "opendistance")
-						raceTypeOptions.bearing = result.bearing;
+						data.raceTypeOptions.bearing = result.bearing;
 
 					var d = new Date(data.startKey);
 //					data.titles.dateTitle = d.toDateString();

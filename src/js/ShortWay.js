@@ -14,8 +14,16 @@ define(function() {
 				data[i].aPoint = this.calculatePoint(data[i],data[i-1].aPoint,data[i+1].aPoint);
 			}
 		}
-		data[0].aPoint = this.calculateEndPoint(data[0],data[1].aPoint);
-		data[data.length-1].aPoint = this.calculateEndPoint(data[data.length-1],data[data.length-2].aPoint);
+
+		if (data.length == 2) {
+			data[0].aPoint = this.calculateEndPoint(data[0],data[1]);
+			data[1].aPoint = this.calculateEndPoint(data[1],data[0]);
+		}
+		else {
+			data[0].aPoint = this.calculateEndPoint(data[0],data[1].aPoint);
+			data[data.length-1].aPoint = this.calculateEndPoint(data[data.length-1],data[data.length-2].aPoint);
+		}
+		
 		var out = [];
 		for (var i = 0; i < data.length; i++)
 			out.push({lat:data[i].aPoint.lat,lng:data[i].aPoint.lng,id:data[i].id,name:data[i].name,type:data[i].type});
