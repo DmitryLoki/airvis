@@ -688,7 +688,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 
 		var _staticCanvasOverlayIsReady = false, _canvasOverlayIsReady = false, _mapIsReady = false;
 		var readyCallback = function() {
-			console.log("readyCallback");
+//			console.log("readyCallback");
 			gmaps.event.clearListeners(self.map,"idle");
 			self.isReady(true);
 			self.calculateAndSetDefaultPosition();
@@ -720,6 +720,14 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
             self.zoom(self.map.getZoom());
             self.updateIcons();
             self.updateAll();
+
+            // на максимальном зуме переключаем режим карты чтобы были еще зумы
+            if (self.map.getMapTypeId() == "terrain") {
+	            var mapType = self.map.mapTypes[self.map.getMapTypeId()];
+	            if (mapType && mapType.maxZoom > 0 && mapType.maxZoom == self.map.getZoom()) {
+	            	self.map.setMapTypeId("hybrid");
+	            }
+            }
 		});
         gmaps.event.addListener(this.map,"idle",function() {
         	_mapIsReady = true;

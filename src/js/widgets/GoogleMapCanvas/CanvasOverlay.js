@@ -39,7 +39,7 @@ define(["google.maps"],function(gmaps) {
 		this._canvas.style.pointerEvents = "none";
 		this._context = this._canvas.getContext("2d");
 		this._proj = this._map.getProjection();
-		console.log("CanvasOverlay.onAdd",this._canvas);
+//		console.log("CanvasOverlay.onAdd",this._canvas);
 
 		this.getPanes().floatPane.appendChild(this._canvas);
 //		this._map.controls[this._container].push(this._canvas);

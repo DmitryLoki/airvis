@@ -218,7 +218,6 @@ define([
 
 		this.mapInitializer = ko.computed(function() {
 			if (self.isReady()) {
-				console.log(self.map);
 				if (self.map)
 					self.map.destroy();
 				var mapOptions = {
