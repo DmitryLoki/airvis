@@ -104,7 +104,7 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 
 		this.tracksVisualSelect = new Select({data:this.tracksVisualMode,label:"Tracks",values:[{value:"10min",title:"10 min"},{value:"full",title:"Full"},{value:"off",title:"Off"}],expandDirection:"up"});
 		this.cylindersVisualSelect = new Select({data:this.cylindersVisualMode,label:"Cylinders",values:[{value:"full",title:"Full"},{value:"empty",title:"Empty"},{value:"off",title:"Off"}]});
-		this.heightsVisualSelect = new Select({data:this.heightsVisualMode,label:"Altitude",values:[{value:"off",title:"Off"},{value:"level",title:"Level"},{value:"level+",title:"Lvl(m)"}]});
+		this.heightsVisualSelect = new Select({data:this.heightsVisualMode,label:"Altitude",values:[{value:"off",title:"Off"},{value:"level",title:"Level"},{value:"level+",title:"Lvl (m)"}]});
 		this.modelsVisualSelect = new Select({data:this.modelsVisualMode,label:"Models",values:[{value:"large",title:"Large"},{value:"medium",title:"Medium"},{value:"small",title:"Small"}],expandDirection:"up"});
 		this.shortWayVisualSelect = new Select({data:this.shortWayVisualMode,label:"Shortest way",values:[{value:"wide",title:"Wide"},{value:"thin",title:"Thin"},{value:"off",title:"Off"}]});
 		this.namesVisualSelect = new Select({data:this.namesVisualMode,label:"Names",values:[{value:"on",title:"On"},{value:"auto",title:"Auto"},{value:"off",title:"Off"}]});
