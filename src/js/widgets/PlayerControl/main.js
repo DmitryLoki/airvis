@@ -9,6 +9,7 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		this.serverKey = options.serverKey;
 		this.tracksVisualMode = options.tracksVisualMode;
 		this.cylindersVisualMode = options.cylindersVisualMode;
+		this.heightsVisualMode = options.heightsVisualMode;
 		this.modelsVisualMode = options.modelsVisualMode;
 		this.shortWayVisualMode = options.shortWayVisualMode;
 		this.namesVisualMode = options.namesVisualMode;
@@ -103,6 +104,7 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 
 		this.tracksVisualSelect = new Select({data:this.tracksVisualMode,label:"Tracks",values:[{value:"10min",title:"10 min"},{value:"full",title:"Full"},{value:"off",title:"Off"}],expandDirection:"up"});
 		this.cylindersVisualSelect = new Select({data:this.cylindersVisualMode,label:"Cylinders",values:[{value:"full",title:"Full"},{value:"empty",title:"Empty"},{value:"off",title:"Off"}]});
+		this.heightsVisualSelect = new Select({data:this.heightsVisualMode,label:"Altitude",values:[{value:"off",title:"Off"},{value:"level",title:"Level"},{value:"level+",title:"Lvl(m)"}]});
 		this.modelsVisualSelect = new Select({data:this.modelsVisualMode,label:"Models",values:[{value:"large",title:"Large"},{value:"medium",title:"Medium"},{value:"small",title:"Small"}],expandDirection:"up"});
 		this.shortWayVisualSelect = new Select({data:this.shortWayVisualMode,label:"Shortest way",values:[{value:"wide",title:"Wide"},{value:"thin",title:"Thin"},{value:"off",title:"Off"}]});
 		this.namesVisualSelect = new Select({data:this.namesVisualMode,label:"Names",values:[{value:"on",title:"On"},{value:"auto",title:"Auto"},{value:"off",title:"Off"}]});
@@ -110,7 +112,7 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		
 		var fadeSelects = function(v) {
 			setTimeout(function() {
-			var selects = ["tracksVisualSelect","cylindersVisualSelect","modelsVisualSelect","shortWayVisualSelect","namesVisualSelect","profVisualSelect"];
+			var selects = ["tracksVisualSelect","cylindersVisualSelect","heightsVisualSelect","modelsVisualSelect","shortWayVisualSelect","namesVisualSelect","profVisualSelect"];
 			for (var i = 0; i < selects.length; i++)
 				if (self[selects[i]] != v)
 					self[selects[i]].fade();
@@ -118,13 +120,14 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		}
 
 		var unfadeSelects = function() {
-			var selects = ["tracksVisualSelect","cylindersVisualSelect","modelsVisualSelect","shortWayVisualSelect","namesVisualSelect","profVisualSelect"];
+			var selects = ["tracksVisualSelect","cylindersVisualSelect","heightsVisualSelect","modelsVisualSelect","shortWayVisualSelect","namesVisualSelect","profVisualSelect"];
 			for (var i = 0; i < selects.length; i++)
 				self[selects[i]].unfade();
 		}
 
 		this.tracksVisualSelect.on("expand",fadeSelects).on("collapse",unfadeSelects);
 		this.cylindersVisualSelect.on("expand",fadeSelects).on("collapse",unfadeSelects);
+		this.heightsVisualSelect.on("expand",fadeSelects).on("collapse",unfadeSelects);
 		this.modelsVisualSelect.on("expand",fadeSelects).on("collapse",unfadeSelects);
 		this.shortWayVisualSelect.on("expand",fadeSelects).on("collapse",unfadeSelects);
 		this.namesVisualSelect.on("expand",fadeSelects).on("collapse",unfadeSelects);

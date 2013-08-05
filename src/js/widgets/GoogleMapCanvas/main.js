@@ -8,6 +8,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		this.shortWay = options.shortWay;
 		this.tracksVisualMode = options.tracksVisualMode;
 		this.cylindersVisualMode = options.cylindersVisualMode;
+		this.heightsVisualMode = options.heightsVisualMode;
 		this.modelsVisualMode = options.modelsVisualMode;
 		this.shortWayVisualMode = options.shortWayVisualMode;
 		this.namesVisualMode = options.namesVisualMode;
@@ -67,6 +68,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
                 }
             }
 		});
+		this._minAlt = 0;
+		this._maxAlt = 0;
 
 		this.mapShortWay = null;
 		this.shortWay.subscribe(function(w) {
@@ -140,8 +143,6 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 
 				var opacity = 0, a = Math.max(1-2*r/co.getHeight(),0), min = config.canvas.waypoints.minOpacity, max = config.canvas.waypoints.maxOpacity;
 				opacity = min+(max-min)*a;
-				if (w.id() == 3)
-					console.log("opacity",opacity);
 
 //				var opacity = 0, h = co.getHeight()/4;
 //				if (r < h) opacity = config.canvas.waypoints.maxOpacity;
@@ -250,8 +251,43 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			alt: data.alt
 		}
 
-		u.position.subscribe(function(p) {
+		u.trackSubscribe = u.track.subscribe(function(v) {
+			if (!self.isReady() || !u.visible() || self.tracksVisualMode() == "off") return;
+			// если приходит специальное значение v.dt=null, обнуляем трек
+			if (v.dt == null) {
+				u.trackData = [];
+				return;
+			}
+			if (!v.lat || !v.lng) return;
+			// подготавливаем координаты и добавляем новую точку в trackData
+			var coords = self.prepareCoords(v.lat,v.lng);
+			v.x = coords.x;
+			v.y = coords.y;
+			u.trackData.push(v);
+			// если 10 минут ограничение трека, убираем из начала трека старые точки
+			if (self.tracksVisualMode() == "10min") {
+				while (u.trackData[0] && (self.currentKey() > u.trackData[0].dt + 60000))
+					u.trackData.splice(0,1);
+			}
+		});
+
+		u.visibleSubscribe = u.visible.subscribe(function() {
+			self.update();
+		});
+		u.stateSubscribe = u.state.subscribe(function() {
+			u.updateIconRequired = true;
+			self.update();
+		});
+		u.nameSubscribe = u.name.subscribe(function() {
+			u.updateIconRequired = true;
+			self.update();
+		});
+		u.positionSubscribe = u.position.subscribe(function(p) {
 			u.prepareCoordsRequired = true;
+		});
+		u.altSubscribe = u.alt.subscribe(function() {
+			if (self.heightsVisualMode() == "level+")
+				u.updateIconRequired = true;
 		});
 
 		var setProperties = function(context,properties) {
@@ -269,17 +305,19 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			u.iconCanvas.width = 200;
 			u.iconCanvas.height = u.iconSize*2;
 			var ic = u.iconCanvas.getContext("2d");
+
 			// Тень от иконки
-			/*
-			ic.beginPath();
-			setProperties(ic,$.extend({},config.canvas.ufos.basiс,config.canvas.ufos.shadow));
-			ic.moveTo(u.iconCenter.x-u.iconSize/4,u.iconCenter.y);
-			ic.lineTo(u.iconCenter.x,u.iconCenter.y-u.iconSize/10);
-			ic.lineTo(u.iconCenter.x+u.iconSize/4,u.iconCenter.y);
-			ic.lineTo(u.iconCenter.x,u.iconCenter.y+u.iconSize/10);
-			ic.lineTo(u.iconCenter.x-u.iconSize/4,u.iconCenter.y);
-			ic.fill();
-			*/
+			if (u.state() == "landed" || self.heightsVisualMode() == "off") {
+				ic.beginPath();
+				setProperties(ic,$.extend({},config.canvas.ufos.basiс,config.canvas.ufos.shadow));
+				ic.moveTo(u.iconCenter.x-u.iconSize/4,u.iconCenter.y);
+				ic.lineTo(u.iconCenter.x,u.iconCenter.y-u.iconSize/10);
+				ic.lineTo(u.iconCenter.x+u.iconSize/4,u.iconCenter.y);
+				ic.lineTo(u.iconCenter.x,u.iconCenter.y+u.iconSize/10);
+				ic.lineTo(u.iconCenter.x-u.iconSize/4,u.iconCenter.y);
+				ic.fill();
+			}
+
 			// Иконка
 			ic.beginPath();
 			setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.icons[u.state()] || config.canvas.ufos.icons["default"]));
@@ -294,11 +332,23 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			ic.lineTo(u.iconCenter.x,u.iconCenter.y);
 			ic.fill();
 			ic.stroke();
+
 			// Имя пилота
 			if (self.namesVisualMode() == "on" || (self.namesVisualMode() == "auto" && self.zoom() >= config.namesVisualModeAutoMinZoom)) {
 				setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.titles));
-				ic.strokeText(u.name()+"("+u.id()+")",u.iconCenter.x,u.iconCenter.y-config.canvas.ufos.nameOffset);
-				ic.fillText(u.name()+"("+u.id()+")",u.iconCenter.x,u.iconCenter.y-config.canvas.ufos.nameOffset);
+				ic.strokeText(u.name()+"("+u.id()+")",u.iconCenter.x,u.iconCenter.y-config.canvas.ufos.titleOffset);
+				ic.fillText(u.name()+"("+u.id()+")",u.iconCenter.x,u.iconCenter.y-config.canvas.ufos.titleOffset);
+			}
+
+			// Подпись высоты
+			if (self.heightsVisualMode() == "level+") {
+				var t = u.alt();
+//				if (u.alt() > 1000)
+//					t = Math.floor(u.alt()/1000) + " " + (u.alt()%1000);
+				t += "m";
+				setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.altTitles));
+				ic.strokeText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY);
+				ic.fillText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY);
 			}
 		}
 
@@ -340,22 +390,26 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				u.prepareCoordsRequired = false;
 			}
 			var p = co.abs2rel(u.preparedCoords,self.zoom());
+			if (u.alt() < self._minAlt || self._minAlt == 0) self._minAlt = u.alt();
+			if (u.alt() > self._maxAlt || self._maxAlt == 0) self._maxAlt = u.alt();
 			if (!co.inViewport(p,u.iconSize)) return;
 			var context = co.getContext();
 
-			var height = Math.floor(u.alt()/100);
+			var height = 0;
+			if ((u.state() != "landed") && (self.heightsVisualMode() == "level" || self.heightsVisualMode() == "level+"))
+				height = Math.floor(config.canvas.ufos.minStick + (config.canvas.ufos.maxStick-config.canvas.ufos.minStick)*(u.alt()-self._minAlt)/(self._maxAlt-self._minAlt));
 
 			if (type == "icon") {
 				context.drawImage(u.iconCanvas,p.x-u.iconCenter.x,p.y-u.iconCenter.y-height);
 			}
 
-			if (type == "elev") {
+			if ((type == "elev") && (u.state() != "landed") && (self.heightsVisualMode() == "level" || self.heightsVisualMode() == "level+")) {
 				co.setProperties(config.canvas.ufos.stickDot);
-				_drawEllipse(context,p.x-10,p.y-5,20,10);
+				_drawEllipse(context,p.x-5,p.y-3,10,6);
 				co.setProperties(config.canvas.ufos.stick);
 				context.beginPath();
-				context.fillRect(p.x-2,p.y-height,4,height);
-				context.strokeRect(p.x-2,p.y-height,4,height);
+				context.fillRect(p.x-1.5,p.y-height-4.5,3,height+5);
+				context.strokeRect(p.x-1.5,p.y-height-4.5,3,height+5);
 			}
 
 			if (type == "track" && self.tracksVisualMode() != "off" && u.trackData.length > 0) {
@@ -372,38 +426,6 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			}
 		}
 
-		u.trackSubscribe = u.track.subscribe(function(v) {
-			if (!self.isReady() || !u.visible() || self.tracksVisualMode() == "off") return;
-			// если приходит специальное значение v.dt=null, обнуляем трек
-			if (v.dt == null) {
-				u.trackData = [];
-				return;
-			}
-			if (!v.lat || !v.lng) return;
-			// подготавливаем координаты и добавляем новую точку в trackData
-			var coords = self.prepareCoords(v.lat,v.lng);
-			v.x = coords.x;
-			v.y = coords.y;
-			u.trackData.push(v);
-			// если 10 минут ограничение трека, убираем из начала трека старые точки
-			if (self.tracksVisualMode() == "10min") {
-				while (u.trackData[0] && (self.currentKey() > u.trackData[0].dt + 60000))
-					u.trackData.splice(0,1);
-			}
-		});
-
-		u.visibleSubscribe = u.visible.subscribe(function() {
-			self.update();
-		});
-		u.stateSubscribe = u.state.subscribe(function() {
-			u.updateIconRequired = true;
-			self.update();
-		});
-		u.nameSubscribe = u.name.subscribe(function() {
-			u.updateIconRequired = true;
-			self.update();
-		});
-
 		return u;
 	}
 
@@ -412,6 +434,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		u.visibleSubscribe.dispose();
 		u.stateSubscribe.dispose();
 		u.nameSubscribe.dispose();
+		u.altSubscribe.dispose();
+		u.positionSubscribe.dispose();
 	}
 
 	GoogleMap.prototype.createShortWay = function(data) {

@@ -34,12 +34,12 @@ define({
 				lineWidth: 1
 			},
 			stick: {
-				fillStyle: "#909090",
+				fillStyle: "#333333",
 				strokeStyle: "#1a1a1a",
-				lineWidth: 0.2
+				lineWidth: 0.9
 			},
 			stickDot: {
-				fillStyle: "#909090",
+				fillStyle: "rgba(51,51,51,0.4)",
 				strokeStyle: "#1a1a1a",
 				lineWidth: 1
 			},
@@ -64,6 +64,12 @@ define({
 				lineWidth: 3,
 				fillStyle: "#000000"
 			},
+			altTitles: {
+				font: "10px verdana",
+				strokeStyle: "#ffffff",
+				lineWidth: 3,
+				fillStyle: "#ff0000"
+			},
 			titlesBg: {
 				fillStyle: "rgba(255,255,255,0.75)"
 			},
@@ -75,7 +81,11 @@ define({
 			shadow: {
 				fillStyle: "rgba(0,0,0,0.2)"
 			},
-			nameOffset: 4
+			titleOffset: 4,
+			altTitleOffsetY: 5,
+			altTitleOffsetX: 2,
+			minStick: 0,
+			maxStick: 30
 		},
 		waypoints: {
 			basic: {
@@ -264,6 +274,7 @@ define({
 	tracksVisualModeReplay: "10min",
 	tracksVisualModeOnline: "off",
 	cylindersVisualMode: "full",
+	heightsVisualMode: "level",
 	modelsVisualMode: "small",
 	shortWayVisualMode: "wide",
 	namesVisualMode: "on",

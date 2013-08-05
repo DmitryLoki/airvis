@@ -146,6 +146,7 @@ define([
 		this.debug = ko.observable(this.options.debug);
 		this.tracksVisualMode = ko.observable(this.options.tracksVisualMode);
 		this.cylindersVisualMode = ko.observable(this.options.cylindersVisualMode);
+		this.heightsVisualMode = ko.observable(this.options.heightsVisualMode);
 		this.modelsVisualMode = ko.observable(this.options.modelsVisualMode);
 		this.shortWayVisualMode = ko.observable(this.options.shortWayVisualMode);
 		this.namesVisualMode = ko.observable(this.options.namesVisualMode);
@@ -187,6 +188,7 @@ define([
 
 		this.tracksVisualMode.subscribe(function() { if (self.map) self.map.update(); });
 		this.cylindersVisualMode.subscribe(function() { if (self.map) self.map.update("static"); });
+		this.heightsVisualMode.subscribe(function() { if (self.map) { self.map.updateIcons(); self.map.update(); } });
 		this.modelsVisualMode.subscribe(function() { if (self.map) { self.map.updateIcons(); self.map.update(); } });
 		this.shortWayVisualMode.subscribe(function() { if (self.map) self.map.update("static"); });
 		this.namesVisualMode.subscribe(function() { if (self.map) { self.map.updateIcons(); self.map.update(); } });
@@ -225,6 +227,7 @@ define([
 						shortWay: self.shortWay,
 						tracksVisualMode: self.tracksVisualMode,
 						cylindersVisualMode: self.cylindersVisualMode,
+						heightsVisualMode: self.heightsVisualMode,
 						modelsVisualMode: self.modelsVisualMode,
 						shortWayVisualMode: self.shortWayVisualMode,
 						namesVisualMode: self.namesVisualMode,
@@ -237,7 +240,6 @@ define([
 						raceType: self.raceType,
 						raceTypeOptions: self.raceTypeOptions
 				};
-				console.log("set",self.raceType(),self.raceTypeOptions());
 				if (self.mapWidget() == "2d-old") {
 					self.map = new GoogleMap(mapOptions);
 					self.mapType = "GoogleMap";
@@ -257,8 +259,6 @@ define([
 			}
 		});
 
-//		this.server = new TestServer(this.options);
-//		this.server.generateData();
 		this.server = new RealServer(this.options);
 		this.dataSource = new DataSource({
 			server: this.server
@@ -284,6 +284,7 @@ define([
 				timeoffset: this.timeoffset,
 				tracksVisualMode: this.tracksVisualMode,
 				cylindersVisualMode: this.cylindersVisualMode,
+				heightsVisualMode: this.heightsVisualMode,
 				modelsVisualMode: this.modelsVisualMode,
 				shortWayVisualMode: this.shortWayVisualMode,
 				namesVisualMode: this.namesVisualMode,
@@ -341,14 +342,14 @@ define([
 				self.retrieveRun();
 			});
 
-      this.retrieveDistanceMeasurer = new RetrieveDistanceMeasurer({map:this.map});
-      this.retrieveDistanceMeasurerWindow = new Window(this.options.windows.retrieveDistanceMeasurer);
-      this.retrieveDistanceMeasurerWindow.on('showed', function(){
-        self.retrieveDistanceMeasurer.enable(self.map.map);
-      });
-      this.retrieveDistanceMeasurerWindow.on('hided', function(){
-        self.retrieveDistanceMeasurer.disable();
-      });
+		    this.retrieveDistanceMeasurer = new RetrieveDistanceMeasurer({map:this.map});
+		    this.retrieveDistanceMeasurerWindow = new Window(this.options.windows.retrieveDistanceMeasurer);
+		    this.retrieveDistanceMeasurerWindow.on('showed', function(){
+		      self.retrieveDistanceMeasurer.enable(self.map.map);
+		    });
+		    this.retrieveDistanceMeasurerWindow.on('hided', function(){
+		      self.retrieveDistanceMeasurer.disable();
+		    });
 
 			this.retrieveRawForm = new RetrieveRawForm({server:this.server});
 			this.retrieveRawFormWindow = new Window(this.options.windows.retrieveRawForm);
