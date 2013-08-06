@@ -29,7 +29,7 @@
 							mainTitle: result.contest_title,
 							placeTitle: result.country + ", " + result.place,
 							dateTitle: "",
-							taskTitle: result.race_title
+							taskTitle: result.race_title + (result.optdistance ? " - " + result.optdistance + "km" : "")
 						},
 						waypoints: [],
 						serverKey: (new Date(request.getResponseHeader("Date"))).getTime()

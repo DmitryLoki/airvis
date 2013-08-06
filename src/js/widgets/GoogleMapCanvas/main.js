@@ -350,6 +350,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				ic.strokeText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY);
 				ic.fillText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY);
 			}
+
 		}
 
 		u._prepareCoords = function() {
@@ -403,6 +404,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				context.drawImage(u.iconCanvas,p.x-u.iconCenter.x,p.y-u.iconCenter.y-height);
 			}
 
+
 			if ((type == "elev") && (u.state() != "landed") && (self.heightsVisualMode() == "level" || self.heightsVisualMode() == "level+")) {
 				co.setProperties(config.canvas.ufos.stickDot);
 				_drawEllipse(context,p.x-5,p.y-3,10,6);
@@ -411,6 +413,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				context.fillRect(p.x-1.5,p.y-height-4.5,3,height+5);
 				context.strokeRect(p.x-1.5,p.y-height-4.5,3,height+5);
 			}
+
 
 			if (type == "track" && self.tracksVisualMode() != "off" && u.trackData.length > 0) {
 				co.setProperties(config.canvas.ufos.basic);
