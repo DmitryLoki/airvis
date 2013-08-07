@@ -144,7 +144,7 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 			return self.getTimeStr(Math.floor(d/3600),Math.floor(d%3600/60),d%60);
 		});
 		w.speed = ko.computed(function() {
-			if (!w.tableData.gSpd()) return "";
+			if (!(w.tableData.gSpd()>=0)) return "";
 			return Math.floor(w.tableData.gSpd()*36)/10;
 		});
 		w.country3 = ko.computed(function() {
