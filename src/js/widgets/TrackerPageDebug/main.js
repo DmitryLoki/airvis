@@ -270,7 +270,8 @@ define([
 			this.ufosTable = new UfosTable({
 				ufos: this.ufos,
 				raceKey: this.raceKey,
-				optdistance: this.optdistance
+				optdistance: this.optdistance,
+				raceType: this.raceType
 			});
 			this.ufosTableWindow = new Window(this.options.windows.ufosTable);
 

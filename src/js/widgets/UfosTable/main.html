@@ -10,7 +10,14 @@
 					<td class="airvis-pilot-number">#</td>
 					<td class="airvis-pilot-name">Pilot</td>
 					<td class="airvis-pilot-country" data-bind="visible:mode()=='full'">Country</td>
-					<td class="airvis-dist-to-goal">Dist, <!--to<br>goal, -->km</td>
+					<td class="airvis-dist-to-goal">
+						<!-- ko if: raceType() == "opendistance" -->
+							Dist, km
+						<!-- /ko -->
+						<!-- ko ifnot: raceType() == "opendistance" -->
+							Dist to<br>goal, km
+						<!-- /ko -->
+					</td>
 					<td class="airvis-alt">Alt,<br>m</td>
 					<td class="airvis-gspd">Speed,<br>km/h</td>
 					<td class="airvis-vspd" data-bind="visible:mode()=='full'">Vario,<br>m/s</td>

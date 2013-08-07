@@ -4,6 +4,7 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 
 		this.ufos = options.ufos;
 		this.raceKey = options.raceKey;
+		this.raceType = options.raceType;
 		this.optdistance = options.optdistance;
 		this.inModalWindow = ko.observable(false);
 		this.mode = ko.observable(config.ufosTable.mode);
@@ -52,6 +53,7 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 	}
 
 	UfosTable.prototype.sortTableRows = function() {
+		var self = this;
 		this.tableUfos.sort(function(a,b) {
 			var undef1 = !a || !a.tableData || a.noData();
 			var undef2 = !b || !b.tableData || b.noData();
@@ -84,8 +86,10 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 			if (d1 != null && d2 != null) {
 				d1 = Math.floor(d1*10);
 				d2 = Math.floor(d2*10);
-//				return d1 == d2 ? 0 : (d1 < d2 ? -1 : 1);
-				return d1 == d2 ? 0 : (d1 < d2 ? 1 : -1);
+				if (self.raceType() == "opendistance")
+					return d1 == d2 ? 0 : (d1 < d2 ? 1 : -1);
+				else
+					return d1 == d2 ? 0 : (d1 < d2 ? -1 : 1);
 			}
 			if (d2 != null) return 1;
 			if (d1 != null) return -1;
