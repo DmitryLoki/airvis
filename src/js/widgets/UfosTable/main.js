@@ -84,7 +84,8 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 			if (d1 != null && d2 != null) {
 				d1 = Math.floor(d1*10);
 				d2 = Math.floor(d2*10);
-				return d1 == d2 ? 0 : (d1 < d2 ? -1 : 1);
+//				return d1 == d2 ? 0 : (d1 < d2 ? -1 : 1);
+				return d1 == d2 ? 0 : (d1 < d2 ? 1 : -1);
 			}
 			if (d2 != null) return 1;
 			if (d1 != null) return -1;
