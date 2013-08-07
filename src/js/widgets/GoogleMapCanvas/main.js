@@ -724,13 +724,19 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
             self.updateIcons();
             self.updateAll();
 
+
+//	        var mapType = self.map.mapTypes[self.map.getMapTypeId()];
+//	        console.log("zoom=",self.zoom(),"mapType.maxZoom=",mapType.maxZoom,"type=",self.map.getMapTypeId());
             // на максимальном зуме переключаем режим карты чтобы были еще зумы
+            /*
             if (self.map.getMapTypeId() == "terrain") {
-	            var mapType = self.map.mapTypes[self.map.getMapTypeId()];
+		        var mapType = self.map.mapTypes[self.map.getMapTypeId()];
 	            if (mapType && mapType.maxZoom > 0 && mapType.maxZoom == self.map.getZoom()) {
 	            	self.map.setMapTypeId("hybrid");
 	            }
             }
+			*/
+
 		});
         gmaps.event.addListener(this.map,"idle",function() {
         	_mapIsReady = true;
