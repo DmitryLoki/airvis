@@ -39,7 +39,9 @@ define(function() {
 
 	ShortWay.prototype.calculateEndPoint = function(curr,next) {
 		var d = this.distanceBetween(curr.lat,curr.lng,next.lat,next.lng);
-		return {lat:curr.lat+(next.lat-curr.lat)*curr.radius/d,lng:curr.lng+(next.lng-curr.lng)*curr.radius/d};
+		if (d > 0)
+			return {lat:curr.lat+(next.lat-curr.lat)*curr.radius/d,lng:curr.lng+(next.lng-curr.lng)*curr.radius/d};
+		return {lat:curr.lat,lng:curr.lng};
 	}
 
 	ShortWay.prototype.deg2rad = function(deg) {
