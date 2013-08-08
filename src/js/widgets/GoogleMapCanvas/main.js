@@ -391,14 +391,15 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				u.prepareCoordsRequired = false;
 			}
 			var p = co.abs2rel(u.preparedCoords,self.zoom());
-			if (u.alt() < self._minAlt || self._minAlt == 0) self._minAlt = u.alt();
-			if (u.alt() > self._maxAlt || self._maxAlt == 0) self._maxAlt = u.alt();
+//			if (u.alt() < self._minAlt || self._minAlt == 0) self._minAlt = u.alt();
+//			if (u.alt() > self._maxAlt || self._maxAlt == 0) self._maxAlt = u.alt();
 			if (!co.inViewport(p,u.iconSize)) return;
 			var context = co.getContext();
 
 			var height = 0;
-			if ((u.state() != "landed") && (self.heightsVisualMode() == "level" || self.heightsVisualMode() == "level+"))
-				height = Math.floor(config.canvas.ufos.minStick + (config.canvas.ufos.maxStick-config.canvas.ufos.minStick)*(u.alt()-self._minAlt)/(self._maxAlt-self._minAlt));
+			if ((u.state() != "landed") && (u.alt() > 0) && (self.heightsVisualMode() == "level" || self.heightsVisualMode() == "level+"))
+				height = Math.floor(u.alt()/100);
+//				height = Math.floor(config.canvas.ufos.minStick + (config.canvas.ufos.maxStick-config.canvas.ufos.minStick)*(u.alt()-self._minAlt)/(self._maxAlt-self._minAlt));
 
 			if (type == "icon") {
 				context.drawImage(u.iconCanvas,p.x-u.iconCenter.x,p.y-u.iconCenter.y-height);
@@ -725,8 +726,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
             self.updateAll();
 
 
-//	        var mapType = self.map.mapTypes[self.map.getMapTypeId()];
-//	        console.log("zoom=",self.zoom(),"mapType.maxZoom=",mapType.maxZoom,"type=",self.map.getMapTypeId());
+	        var mapType = self.map.mapTypes[self.map.getMapTypeId()];
+	        console.log("zoom=",self.zoom(),"mapType.maxZoom=",mapType.maxZoom,"type=",self.map.getMapTypeId());
             // на максимальном зуме переключаем режим карты чтобы были еще зумы
             /*
             if (self.map.getMapTypeId() == "terrain") {
