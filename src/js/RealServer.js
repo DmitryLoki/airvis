@@ -31,8 +31,7 @@
 							dateTitle: "",
 							taskTitle: result.race_title + (result.optdistance ? " - " + result.optdistance + "km" : "")
 						},
-						waypoints: [],
-						serverKey: (new Date(request.getResponseHeader("Date"))).getTime() || (new Date).getTime()
+						waypoints: []
 					}
 					if (data.raceType == "opendistance")
 						data.raceTypeOptions.bearing = result.bearing;
