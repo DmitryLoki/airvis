@@ -49,11 +49,18 @@ define(['module'], function (module) {
                 .replace(/[\t]/g, "\\t")
                 .replace(/[\r]/g, "\\r");
         },
+        qualifyURL: function(url){
+            var a = document.createElement('a');
+            a.href = url;
+            return a.href;
+        },
+        createXhr: function (url) {
+          if(!url) return true;
+          //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
+          var xhr, i, progId;
 
-        createXhr: function () {
-            //Would love to dump the ActiveX crap in here. Need IE 6 to die first.
-            var xhr, i, progId;
-            if (typeof XDomainRequest !== "undefined") {
+          var isXHR = !this.useXhr(this.qualifyURL(url), defaultProtocol, defaultHostName, defaultPort);
+            if (isXHR && typeof XDomainRequest !== "undefined") {
                 return new XDomainRequest();
             } else if(typeof XMLHttpRequest !== "undefined") {
               return new XMLHttpRequest();}
@@ -236,15 +243,18 @@ define(['module'], function (module) {
         };
     } else if (text.createXhr()) {
         text.get = function (url, callback, errback) {
-            var xhr = text.createXhr();
-            xhr.open('get', url);
+            var xhr = text.createXhr(url);
+
 
             //Allow overrides specified in config
             if (masterConfig.onXhr) {
                 masterConfig.onXhr(xhr, url);
             }
 
-            xhr.onload = function (evt) {
+          xhr.ontimeout = function(){};
+
+          xhr.onprogress = function(){};
+          xhr.onload = function (evt) {
                 var status, err;
                 //Do not explicitly handle errors, those should be
                 //visible via console output in the browser.
@@ -260,6 +270,10 @@ define(['module'], function (module) {
                     }
                 //}
             };
+          xhr.onerror = function(err){
+            debugger;
+          }
+          xhr.open('get', url);
             xhr.send(null);
           /*jQuery.ajax({url:url,success: function(data){
             xhr.readyState = 4;
@@ -308,44 +322,3 @@ define(['module'], function (module) {
 
     return text;
 });
-
-if ( window.XDomainRequest ) {
-  jQuery.ajaxTransport(function( s ) {
-    if ( s.crossDomain && s.async ) {
-      if ( s.timeout ) {
-        s.xdrTimeout = s.timeout;
-        delete s.timeout;
-      }
-      var xdr;
-      return {
-        send: function( _, complete ) {
-          function callback( status, statusText, responses, responseHeaders ) {
-            xdr.onload = xdr.onerror = xdr.ontimeout = jQuery.noop;
-            xdr = undefined;
-            complete( status, statusText, responses, responseHeaders );
-          }
-          xdr = new XDomainRequest();
-          xdr.onload = function() {
-            callback( 200, "OK", { text: xdr.responseText }, "Content-Type: " + xdr.contentType );
-          };
-          xdr.onerror = function() {
-            callback( 404, "Not Found" );
-          };
-          xdr.onprogress = jQuery.noop;
-          xdr.ontimeout = function() {
-            callback( 0, "timeout" );
-          };
-          xdr.timeout = s.xdrTimeout || Number.MAX_VALUE;
-          xdr.open( s.type, s.url );
-          xdr.send( ( s.hasContent && s.data ) || null );
-        },
-        abort: function() {
-          if ( xdr ) {
-            xdr.onerror = jQuery.noop;
-            xdr.abort();
-          }
-        }
-      };
-    }
-  });
-}

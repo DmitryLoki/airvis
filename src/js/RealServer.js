@@ -32,7 +32,7 @@
 							taskTitle: result.race_title + (result.optdistance ? " - " + result.optdistance + "km" : "")
 						},
 						waypoints: [],
-						serverKey: (new Date(request.getResponseHeader("Date"))).getTime()
+						serverKey: (new Date(request.getResponseHeader("Date"))).getTime() || (new Date).getTime()
 					}
 					if (data.raceType == "opendistance")
 						data.raceTypeOptions.bearing = result.bearing;
@@ -208,6 +208,17 @@
 				}
 			});
 		}
+    else if (query.type == "serverTime") {
+      $.ajax({
+        url: this.options.apiDomain + "/" + this.options.apiVersion + "/time/unixtime",
+        dataType: "json",
+        data: data,
+        success: function(serverTime) {
+          if (query.callback)
+            query.callback(serverTime);
+        }
+      });
+    }
 	}
 
 	RealServer.prototype.post = function(query) {

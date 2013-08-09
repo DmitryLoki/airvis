@@ -470,41 +470,55 @@ define([
 		this.waypoints([]);
 	}
 
+  TrackerPageDebug.prototype.loadServerTime = function(callback) {
+    var self = this;
+    this.dataSource.get({
+      type:'serverTime',
+      callback:function(data){
+        self.serverKey(data.time * 1000);
+        if (callback && typeof callback == "function")
+          callback();
+      }
+    })
+  };
+
 	TrackerPageDebug.prototype.loadRaceData = function(callback) {
 		var self = this;
 		self.loading(true);
-		this.dataSource.get({
-			type: "race",
-			callback: function(data) {
-				self.loading(false);
-				self.startKey(data.startKey);
-				self.endKey(data.endKey);
-				self.currentKey(data.startKey);
-				self.raceKey(data.raceKey||data.startKey);
-				self.serverKey(data.serverKey);
-				self.timeoffset(data.timeoffset);
-				self.optdistance(data.optdistance);
-				self.raceType(data.raceType);
-				self.raceTypeOptions(data.raceTypeOptions);
-				if (self.mainMenu && data.titles)
-					self.mainMenu.setTitles(data.titles);
-				var waypoints2load = [];
-				if (data.waypoints) {
-					for (var i = 0; i < data.waypoints.length; i++) {
-						var w = new Waypoint(data.waypoints[i]);
-						waypoints2load.push(w);
-					}
-				}
-				self.waypoints(waypoints2load);
-				if (self.map)
-					self.map.calculateAndSetDefaultPosition();
-				if (callback && typeof callback == "function")
-					callback(data);
-			},
-			error: function(jqXHR,textStatus,errorThrown) {
-				self.emit("loadingError");
-			}
-		});
+    self.loadServerTime(function(){
+      self.dataSource.get({
+        type: "race",
+        callback: function(data) {
+          self.loading(false);
+          self.startKey(data.startKey);
+          self.endKey(data.endKey);
+          self.currentKey(data.startKey);
+          self.raceKey(data.raceKey||data.startKey);
+          self.timeoffset(data.timeoffset);
+          self.optdistance(data.optdistance);
+          self.raceType(data.raceType);
+          self.raceTypeOptions(data.raceTypeOptions);
+          if (self.mainMenu && data.titles)
+            self.mainMenu.setTitles(data.titles);
+          var waypoints2load = [];
+          if (data.waypoints) {
+            for (var i = 0; i < data.waypoints.length; i++) {
+              var w = new Waypoint(data.waypoints[i]);
+              waypoints2load.push(w);
+            }
+          }
+          self.waypoints(waypoints2load);
+          if (self.map)
+            self.map.calculateAndSetDefaultPosition();
+          if (callback && typeof callback == "function")
+            callback(data);
+        },
+        error: function(jqXHR,textStatus,errorThrown) {
+          self.emit("loadingError");
+        }
+      });
+    })
+
 	}
 
 	TrackerPageDebug.prototype.loadUfosData = function(callback) {
