@@ -676,8 +676,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		var hybridMapType = this.map.mapTypes.get("hybrid");
 		var terrainZoom = terrainMapType.maxZoom<hybridMapType.maxZoom?1:0;
 		var hybridZoom = terrainMapType.maxZoom<hybridMapType.maxZoom?0:1;
-		this.map.mapTypes.set("terrainPlus",$.extend({},terrainMapType,{maxZoom:terrainMapType.maxZoom + terrainZoom,maxZoomIncreased:terrainZoom>0}));
-		this.map.mapTypes.set("hybridPlus",$.extend({},hybridMapType,{maxZoom:hybridMapType.maxZoom + hybridZoom,maxZoomIncreased:hybridZoom>0}));
+		this.map.mapTypes.set("terrainPlus",$.extend({},terrainMapType,{maxZoom:terrainMapType.maxZoom+terrainZoom,originalMaxZoom:terrainMapType.maxZoom,maxZoomIncreased:terrainZoom>0}));
+		this.map.mapTypes.set("hybridPlus",$.extend({},hybridMapType,{maxZoom:hybridMapType.maxZoom+hybridZoom,originalMaxZoom:hybridMapType.maxZoom,maxZoomIncreased:hybridZoom>0}));
 	}
 
 
@@ -749,8 +749,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		});
 		gmaps.event.addListener(this.map,"maptypeid_changed",function() {
 			var mapType = self.map.mapTypes.get(self.map.getMapTypeId());
-			if (mapType.maxZoomIncreased && self.zoom() >= mapType.maxZoom) 
-				self.map.setZoom(mapType.maxZoom-1);
+			if (mapType.maxZoomIncreased && self.zoom() > mapType.originalMaxZoom) 
+				self.map.setZoom(mapType.originalMaxZoom);
 		});
         gmaps.event.addListener(this.map,"idle",function() {
         	_mapIsReady = true;
