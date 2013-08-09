@@ -295,6 +295,7 @@ define({
 	namesVisualModeAutoMinZoom: 14,
 	namesVisualAutoMinZoom: 14,
 	waypointsVisualAutoMinZoom: 8,
+	openDistanceDefaultZoom: 11,
 	waypoint: {
 		color: "#000000",
 		strokeOpacity: 0.8,
@@ -329,7 +330,7 @@ define({
 	map: {
 		zoom: 9,
 		center: {lat: 55.748758, lng: 37.6174},
-		type: "ROADMAP"
+		type: "TERRAIN"
 	},
 	// Настройки тестового сервера
 	testServerOptions: {

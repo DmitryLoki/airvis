@@ -159,6 +159,7 @@ define([
 		this.playerState = ko.observable(this.options.playerState);
 		this.playerSpeed = ko.observable(this.options.playerSpeed);
 		this.isReady = ko.observable(false);
+		this.isLoaded = ko.observable(false);
 		this.isOnline = ko.observable(false);
 		this.isCurrentlyOnline = ko.observable(false);
 		this.disableLiveButton = ko.observable(false);
@@ -170,6 +171,16 @@ define([
 		this.ufos = ko.observableArray();
 		this.waypoints = ko.observableArray();
 		this.shortWay = ko.observable(null);
+
+		this.isLoadedWithDelay = ko.observable(false);
+		this.isLoaded.subscribe(function(v) {
+			if (v) {
+				setTimeout(function() {
+					self.isLoadedWithDelay(true);
+				},2000);
+			}
+		});
+
 
 		// Йоу! Клевый код!
 		this._serverKey = ko.observable(0);
@@ -435,17 +446,21 @@ define([
 				if (self.mode() == "full") {
 					self.loadUfosData(function() {
 						self.playerInit();
+						self.isLoaded(true);
 						self.emit("loaded",raceData);
 					});
 				}
 				else if (self.mode() == "retrieve") {
 					self.loadUfosData(function() {
 						self.retrieveInit();
+						self.isLoaded(true);
 						self.emit("loaded",raceData);
 					});
 				}
-				else
+				else {
+					self.isLoaded(true);
 					self.emit("loaded",raceData);
+				}
 			});
 		}
 	}

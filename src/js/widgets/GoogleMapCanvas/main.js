@@ -557,6 +557,13 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 
 	GoogleMap.prototype.calculateAndSetDefaultPosition = function() {
 		if (!this.map || !this.shortWay()) return;
+
+		if (this.raceType() == "opendistance") {
+			this.map.setCenter(new gmaps.LatLng(this.shortWay()[0].lat,this.shortWay()[0].lng));
+			this.map.setZoom(config.openDistanceDefaultZoom);
+			return;
+		}
+
 		var bounds = new gmaps.LatLngBounds();
 		for (var i = 0, l = this.shortWay().length; i < l; i++) {
 			w = this.shortWay()[i];
@@ -594,9 +601,6 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 
 	GoogleMap.prototype._updateStaticCanvas = function(canvas) {
 		var drawOrder = {}, drawOrderKeys = [];
-//		var context = canvas.getContext();
-//		context.fillStyle = "#ffffff";
-//		context.fillRect(0,0,canvas.getWidth(),canvas.getHeight());
 		this.mapWaypoints.forEach(function(waypoint,i) {
 			var order = config.waypointsDrawOrder[waypoint.type()] || 0;
 			if (!drawOrder[order]) {
@@ -612,9 +616,6 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				for (var j = 0; j < drawOrder[order].length; j++)
 					this.mapWaypoints[drawOrder[order][j]].render(canvas,"waypoint");
 		}
-//		this.mapWaypoints.forEach(function(waypoint) {
-//			waypoint.render(canvas);
-//		},this);
 		if (this.mapShortWay) {
 			this.mapShortWay.render(canvas,"line");
 			this.mapShortWay.render(canvas,"arrows");
@@ -655,10 +656,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 	}
 
 	GoogleMap.prototype.updateAll = function() {
-//		console.log("updateAll1");
         this.staticCanvasOverlay.relayout();
         this.canvasOverlay.relayout();
-//      console.log("updateAll2");
         this.update("static",true);
         this.update("dynamic",true);
 	}
@@ -672,17 +671,33 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 	}
 */
 
+	GoogleMap.prototype.addCustomMapType = function() {
+		var terrainMapType = this.map.mapTypes.get("terrain");
+		var hybridMapType = this.map.mapTypes.get("hybrid");
+		var terrainZoom = terrainMapType.maxZoom<hybridMapType.maxZoom?1:0;
+		var hybridZoom = terrainMapType.maxZoom<hybridMapType.maxZoom?0:1;
+		this.map.mapTypes.set("terrainPlus",$.extend({},terrainMapType,{maxZoom:terrainMapType.maxZoom + terrainZoom,maxZoomIncreased:terrainZoom>0}));
+		this.map.mapTypes.set("hybridPlus",$.extend({},hybridMapType,{maxZoom:hybridMapType.maxZoom + hybridZoom,maxZoomIncreased:hybridZoom>0}));
+	}
+
+
 	GoogleMap.prototype.domInit = function(elem,params) {
 		var self = this;
 		var div = ko.virtualElements.firstChild(elem);
 		while(div && div.nodeType != 1)
 			div = ko.virtualElements.nextSibling(div);
 		ko.virtualElements.prepend(elem,div);
+
 		this.map = new gmaps.Map(div,{
 			zoom: config.map.zoom,
 			center: new gmaps.LatLng(config.map.center.lat,config.map.center.lng),
-			mapTypeId: gmaps.MapTypeId[config.map.type]
+			mapTypeId: "terrainPlus",
+			mapTypeControlOptions: {
+				mapTypeIds: ["terrainPlus","hybridPlus",gmaps.MapTypeId.ROADMAP,gmaps.MapTypeId.SATELLITE],
+				 style: gmaps.MapTypeControlStyle.DROPDOWN_MENU
+			}
 		});
+
 		gmaps.event.addListenerOnce(this.map,"mousedown",function() {
 			self.activateMapScroll(true);
 		});
@@ -692,8 +707,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 
 		var _staticCanvasOverlayIsReady = false, _canvasOverlayIsReady = false, _mapIsReady = false;
 		var readyCallback = function() {
-//			console.log("readyCallback");
 			gmaps.event.clearListeners(self.map,"idle");
+			self.addCustomMapType();
 			self.isReady(true);
 			self.calculateAndSetDefaultPosition();
 			self.updateIcons();
@@ -725,19 +740,17 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
             self.updateIcons();
             self.updateAll();
 
-
-	        var mapType = self.map.mapTypes[self.map.getMapTypeId()];
-	        console.log("zoom=",self.zoom(),"mapType.maxZoom=",mapType.maxZoom,"type=",self.map.getMapTypeId());
-            // на максимальном зуме переключаем режим карты чтобы были еще зумы
-            /*
-            if (self.map.getMapTypeId() == "terrain") {
-		        var mapType = self.map.mapTypes[self.map.getMapTypeId()];
-	            if (mapType && mapType.maxZoom > 0 && mapType.maxZoom == self.map.getZoom()) {
-	            	self.map.setMapTypeId("hybrid");
-	            }
-            }
-			*/
-
+            var maxZoomTerrain = self.map.mapTypes.get("terrainPlus") ? self.map.mapTypes.get("terrainPlus").maxZoom : 0;
+            var maxZoomHybrid = self.map.mapTypes.get("hybridPlus") ? self.map.mapTypes.get("hybridPlus").maxZoom : 0;
+            if (self.map.getMapTypeId() == "terrainPlus" && self.zoom() == maxZoomTerrain && maxZoomTerrain < maxZoomHybrid)
+            	self.map.setMapTypeId("hybridPlus");
+            if (self.map.getMapTypeId() == "hybridPlus" && self.zoom() == maxZoomHybrid && maxZoomHybrid < maxZoomTerrain)
+            	self.map.setMapTypeId("terrainPlus");
+		});
+		gmaps.event.addListener(this.map,"maptypeid_changed",function() {
+			var mapType = self.map.mapTypes.get(self.map.getMapTypeId());
+			if (mapType.maxZoomIncreased && self.zoom() >= mapType.maxZoom) 
+				self.map.setZoom(mapType.maxZoom-1);
 		});
         gmaps.event.addListener(this.map,"idle",function() {
         	_mapIsReady = true;

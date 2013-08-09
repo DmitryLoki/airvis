@@ -3,6 +3,10 @@
 document,body { height: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif;}
 body { min-width: 1000px; width: 100%; min-height: 100%}
 .airvis-container { margin: 0; padding: 0; position: absolute; top: 0; left: 0; right: 0; bottom: 0; /*position: relative; width: 100%; height: 100%;*/}
+.airvis-content-container {
+  opacity: 0;
+  transition: opacity 2s ease;
+}
 
 * { -webkit-font-smoothing: antialiased}
 
@@ -27,6 +31,25 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 .airvis-document-overwrite-cursor-e-resize { cursor: e-resize !important;}
 .airvis-document-overwrite-cursor-se-resize { cursor: se-resize !important;}
 .airvis-document-overwrite-cursor-s-resize { cursor: s-resize !important;}
+
+/* Loading page */
+.airvis-loading-container {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  opacity: 1;
+  transition: opacity 2s ease;
+}
+.airvis-loading {
+  margin: 0 auto;
+  margin-top: -32px;
+  background: transparent url("../img/clock.gif") 0 0 no-repeat;
+  width: 64px;
+  height: 64px;
+}
+
 
 /* common window widget styles */
 .airvis-window { color: #333333; display: block;  font-size: 14px; line-height: 20px; position: absolute; font-weight: normal; /*left: 0 !important;*/}
@@ -439,7 +462,7 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 }
 .airvisVisualMode_full {
   top: 60px;
-  right: 150px;
+  right: 130px;
 }
 
 

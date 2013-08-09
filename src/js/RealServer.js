@@ -129,7 +129,7 @@
 					if (!result.start) result.start = {};
 					var data = {start:{},timeline:{}};
 //					var tmp = {};
-					data.serverKey = (new Date(request.getResponseHeader("Date"))).getTime();
+//					data.serverKey = (new Date(request.getResponseHeader("Date"))).getTime();
 					$.each(result.start,function(pilot_id,rw) {
 						if (testPilotOn && pilot_id!=testPilotCut) return;
 						data.start[pilot_id] = {
