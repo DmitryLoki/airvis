@@ -474,8 +474,8 @@ define([
     var self = this;
     this.dataSource.get({
       type:'serverTime',
-      callback:function(data){
-        self.serverKey(data.time * 1000);
+      callback:function(time){
+        self.serverKey(time * 1000);
         if (callback && typeof callback == "function")
           callback();
       }
