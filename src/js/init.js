@@ -11,6 +11,7 @@ require.config({
 		"es5-shim": "lib/es5-shim",
 		"jquery.tinyscrollbar": "lib/jquery.tinyscrollbar",
 		"jquery.color": "lib/jquery.color",
+		"jquery.cookie": "lib/jquery.cookie",
 		"async": "lib/async",
 		"text": "lib/require.text",
     	"ie-fix": "wild-libs/ie-fix",
