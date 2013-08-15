@@ -116,7 +116,6 @@ define(["jquery","knockout"],function($,ko) {
 				}
 				w.top(top);
 				w.left(left);
-				w.emit("drag");
 			}
 			$("body").addClass("airvis-document-overwrite-cursor-move");
 			$(document).on("mousemove touchmove",mouseMove).one("mouseup mouseleave touchend touchcancel",function(e) {
