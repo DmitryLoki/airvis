@@ -146,14 +146,20 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		return this;
 	}
 	
+	PlayerControl.prototype.windowClose = function() {
+		if (this.modalWindow)
+			this.modalWindow.visible(false);
+	}
+
+	PlayerControl.prototype.windowDrag = function(self,e) {
+		if (this.modalWindow)
+			this.modalWindow.emit("dragStart",this.modalWindow,e);
+	}
+	
 	PlayerControl.prototype.domInit = function(elem,params) {
 		this.modalWindow = params.modalWindow;
 	}
 
-	PlayerControl.prototype.proxyDrag = function(self,e) {
-		if (this.modalWindow)
-			this.modalWindow.dragStart(this.modalWindow,e);
-	}
 
 	PlayerControl.prototype.templates = ["main"];
 

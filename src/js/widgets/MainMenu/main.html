@@ -1,4 +1,4 @@
-<div class="airvis-title" data-bind="event:{mousedown:proxyDrag,touchstart:proxyDrag}">
+<div class="airvis-title" data-bind="event:{mousedown:windowDrag,touchstart:windowDrag}">
 	<!-- ko if: titleUrl() && titleUrl().length > 0 -->
 		<h1><a href="#" data-bind="attr:{href:titleUrl},text:titles().mainTitle"></a></h1>
 	<!-- /ko -->
@@ -10,4 +10,5 @@
 		<div class="airvis-title-date" data-bind="text:titles().dateTitle"></div>
 		<div class="airvis-title-task" data-bind="text:titles().taskTitle"></div>
 	</div>
+	<a class="airvis-window-close" href="#" data-bind="click:windowClose"></a>
 </div>

@@ -4,15 +4,7 @@ define(["jquery","knockout"],function($,ko) {
 		var self = this;
 
 		var defaults = {
-			showHeader: true,
-			absoluteCloseIcon: false,
 			visible: true,
-			resizable: true,
-			resizableY: false,
-			resizableX: false,
-			contentCss: "",
-			title: "",
-			menuTitlePosition: "left",
 			nodes: [],
 			width: 300,
 			height: "auto",
@@ -20,202 +12,103 @@ define(["jquery","knockout"],function($,ko) {
 			left: 0,
 			right: 0,
 			bottom: 0,
-			minWidth: 0,
-			minHeight: 0,
-			xPosition: "left",
-			yPosition: "top"
+			xPosition: "left",	// допускается left, center, right
+			yPosition: "top",	// допускается top, middle, bottom
+			contentCss: "",
+			menuTitle: "",
+			menuTitlePosition: "left",
+			touched: false // проставляется при первом драге, если драгов не было и xPosition=center, при ресайзе окна ставится опять посередине
 		}
 
 		if (!options) options = {};
 
-		self.showHeader = this.asObservable(options.showHeader,defaults.showHeader);
-		self.absoluteCloseIcon = this.asObservable(options.absoluteCloseIcon,defaults.absoluteCloseIcon);
 		self.visible = this.asObservable(options.visible,defaults.visible);
-		self.resizable = this.asObservable(options.resizable,defaults.resizable);
-		self.resizableY = this.asObservable(options.resizableY,defaults.resizableY);
-		self.resizableX = this.asObservable(options.resizableX,defaults.resizableX);
-		self.contentCss = this.asObservable(options.contentCss,defaults.contentCss);
-		self.title = this.asObservable(options.title,defaults.title);
-		self.menuTitlePosition = this.asObservable(options.menuTitlePosition,defaults.menuTitlePosition);
+		self.touched = this.asObservable(options.touched,defaults.touched);
 		self.width = this.asObservable(options.width,defaults.width);
 		self.height = this.asObservable(options.height,defaults.height);
 		self.top = this.asObservable(options.top,defaults.top);
 		self.left = this.asObservable(options.left,defaults.left);
 		self.right = this.asObservable(options.right,defaults.right);
 		self.bottom = this.asObservable(options.bottom,defaults.bottom);
-		self.minWidth = this.asObservable(options.minWidth,defaults.minWidth);
-		self.minHeight = this.asObservable(options.minHeight,defaults.minHeight);
 		self.xPosition = this.asObservable(options.xPosition,defaults.xPosition);
 		self.yPosition = this.asObservable(options.yPosition,defaults.yPosition);
-
-		self.buttonOn = ko.observable(this.visible());
+		self.contentCss = this.asObservable(options.contentCss,defaults.contentCss);
+		self.menuTitlePosition = this.asObservable(options.menuTitlePosition,defaults.menuTitlePosition);
+		self.menuTitle = this.asObservable(options.menuTitle,defaults.menuTitle);
 
 		self.nodes = ko.observableArray(defaults.nodes);
-		self.css = ko.observable({});
+
+		self._visible = ko.observable(self.visible());
+		self._opacity = ko.observable(1);
 
 		self.cssPosition = ko.computed(function() {
-			var out = {};
-			if (self.width()) 
-				out.width = self.width() + (self.width()=="auto"?"":"px");
-			if (self.height()) 
-				out.height = self.height() + (self.height()=="auto"?"":"px");
-			if (self.top()) 
-				out.top = self.top() + (self.top()=="auto"?"":"px");
-			if (self.left()) 
-				out.left = self.left() + (self.left()=="auto"?"":"px");
+			var out = {opacity:self._opacity()};
+			if (self.width() && self.width()!="auto") 
+				out.width = self.width() + "px";
+			if (self.top() && self.top()!="auto")
+				out.top = self.top() + "px";
+			if (self.left() && self.left()!="auto")
+				out.left = self.left() + "px";
 			return out;
 		});
 
+		// Хак для transition у display, порядок проставления свойств имеет значение, 0 у opacity - в кавычках
+		self._visTimeout = null;
 		self.visible.subscribe(function(v) {
-			if (v) self.setAbsoluteContentPosition();
-			self.emit(v?"open":"close");
+			if (v) {
+				self._visible(true);
+				clearTimeout(self._visTimeout);
+				self._visTimeout = setTimeout(function() {
+					self._opacity(1);
+				},50);
+			}
+			else {
+				self._opacity("0");
+				clearTimeout(self._visTimeout);
+				self._visTimeout = setTimeout(function() {
+					self._visible(false);
+				},1000);
+			}
+			self._visible(v);
 		});
 	}
 
-	Window.prototype.hide = function(self,e) {
-		this.slideUp(e);
-	}
-
-	Window.prototype.show = function(self,e) {
-		this.slideDown(e);
+	Window.prototype.recomputePosition = function() {
+		if (this.touched()) return;
+		var wW = $(window).width();
+		var wH = $(window).height();
+		if (this.xPosition() == "right" && this.right() && this.right()!="auto" && this.width()>0) this.left(wW-this.right()-this.width());
+		if (this.xPosition() == "center" && this.width()>0) this.left(Math.floor((wW-this.width())/2));
+		if (this.yPosition() == "bottom" && this.bottom() && this.bottom()!="auto" && this.height()>0) this.top(wH-this.bottom()-this.height());
+		if (this.yPosition() == "middle" && this.height()>0) this.top(Math.floor((wH-this.height())/2));
 	}
 
 	Window.prototype.domInit = function(element,params,parentElement) {
+		var self = this;
 		if (params.data.savedNodes)
 			this.nodes(params.data.savedNodes);
 		if (params.contentCss)
 			this.contentCss(params.contentCss);
+		this.recomputePosition();
+		this.on("dragStart",function() {
+			self.touched(true);
+		});
 
-		var div = ko.virtualElements.firstChild(element);
-		while (div && div.nodeType != 1)
-			div = ko.virtualElements.nextSibling(div);
-
-		this.container = $(div);
-
-		if (div) {
-			var obj = $(div);
-			this.width(obj.width());
-			this.height(obj.height());
-
-			var windowWidth = $(window).width();
-			if (this.width() >= windowWidth && this.minWidth() > 0) {
-				if (windowWidth > this.minWidth() + 10)
-					this.width(windowWidth - 10);
-				else
-					this.width(this.minWidth());
-			}
-
-			if (this.xPosition() == "center") {
-				var x = Math.floor(($(window).width()-this.width())/2);
-				this.left(x);
-			}
-			if (this.xPosition() == "right") {
-				var x = $(window).width() - this.width() - this.right();
-				this.left(x);
-			}
-			if (this.yPosition() == "middle") {
-				var y = Math.floor(($(window).height()-this.height())/2);
-				this.top(y);
-			}
-			if (this.yPosition() == "bottom") {
-				var y = $(window).height() - this.height() - this.bottom();
-				this.top(y);
-			}
-			this.setAbsoluteContentPosition();
+		this.windowResize = function() {
+			if (!self.touched())
+				self.recomputePosition();
 		}
+
+		$(window).on("resize",this.windowResize);
 	}
 
-	Window.prototype.setAbsoluteContentPosition = function() {
-		if (!this.container || !this.visible()) return;
-		var content = this.container.find(".airvis-window-content");
-		var position = content.position();
-		content.addClass("airvis-window-content-absolute").css({top:position.top+"px",left:position.left+"px"});		
+	Window.prototype.domDestroy = function() {
+		$(window).off("resize",this.windowResize);
 	}
 
 	Window.prototype.asObservable = function(v,defaultV) {
 		if (ko.isObservable(v) || ko.isComputed(v)) return v;
 		return ko.observable(typeof v == "function" ? v() : (typeof v == "undefined" ? defaultV : v));
-	}
-
-	Window.prototype.dragStart = function(self,e) {
-		this.emit("dragStart",self,e);
-	}
-
-	Window.prototype.resizeStart = function(dir,self,e) {
-		this.emit("resizeStart",dir,self,e);
-	}
-
-	Window.prototype.registerSwitch = function(node) {
-		this.switchNode = node;
-	}
-
-	Window.prototype.unregisterSwitch = function() {
-		delete this.switchNode;
-	}
-
-	Window.prototype.slideSwitch = function() {
-		if (this.visible()) this.slideUp();
-		else this.slideDown();
-	}
-
-	Window.prototype.slideUp = function() {
-		var self = this;
-		this.buttonOn(false);
-		this.container.fadeOut("fast",function() {
-			self.visible(false);
-      self.emit('hided');
-		});
-/*
-		this.visible(false);
-		if (this.switchNode) {
-			var target = $(this.switchNode);
-			var sq = $("<div class='airvis-slideSq'></div>").appendTo("body");
-			sq.css({
-				top: this.top() + "px",
-				left: this.left() + "px",
-				width: this.width() + "px",
-				height: this.height() + "px"
-			}).animate({
-				top: target.offset().top + "px",
-				left: target.offset().left + "px",
-				width: target.outerWidth() + "px",
-				height: target.outerHeight() + "px"
-			},400,function() {
-				sq.remove();
-			});
-		}
-*/
-	}
-
-	Window.prototype.slideDown = function() {
-		var self = this;
-		this.buttonOn(true);
-		this.container.fadeIn("fast",function() {
-			self.visible(true);
-      self.emit('showed');
-		});
-/*		
-		if (this.switchNode) {
-			var target = $(this.switchNode);
-			var sq = $("<div class='airvis-slideSq'></div>").appendTo("body");
-			sq.css({
-				top: target.offset().top + "px",
-				left: target.offset().left + "px",
-				width: target.outerWidth() + "px",
-				height: target.outerHeight() + "px"
-			}).animate({
-				top: this.top() + "px",
-				left: this.left() + "px",
-				width: this.width() + "px",
-				height: this.height() + "px"
-			},400,function() {
-				sq.remove();
-				self.visible(true);
-			});
-		}
-		else
-			self.visible(true);
-*/
 	}
 
 	Window.prototype.templates = ["main"];

@@ -1,10 +1,10 @@
 <div>
-	<div class="airvis-player-online-notification" data-bind="visible:offlineNotificationIsVisible">
+	<div class="airvis-player-online-notification" data-bind="style:{opacity:offlineNotificationIsVisible()?'1':'0'}">
 		<span class="airvis-player-online-notification-text">This replay is based on Live tracking data! Tracking replay will be available soon.</span>
 		<a class="airvis-window-close airvis-window-close-cross" href="#" data-bind="click:turnOffOfflineNotification"></a>
 	</div>
 	<div class="airvis-clearfix">
-		<div data-bind="event:{mousedown:proxyDrag,touchstart:proxyDrag}">
+		<div class="airvis-player-drag" data-bind="event:{mousedown:windowDrag,touchstart:windowDrag}">
 			<div class="airvis-player-timeWindow" data-bind="css:raceTimeCss">
 				<div class="airvis-player-time-status" data-bind="text:isCurrentlyOnline()?'Live':'Replay'"></div>
 				<div class="airvis-player-time" data-bind="text:raceTime"></div>
@@ -48,4 +48,5 @@
 		<!-- /ko -->
 		<div class="airvis-slider-container" data-bind="css:{'airvis-slider-container-online':isOnline},widget:{data:slider,type:'Slider'}"></div>
 	</div>
+	<a class="airvis-window-close" href="#" data-bind="click:windowClose"></a>
 </div>

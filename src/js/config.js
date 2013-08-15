@@ -64,6 +64,9 @@ define({
 				lineWidth: 3,
 				fillStyle: "#000000"
 			},
+			checkedTitles: {
+				lineWidth: 5
+			},
 			altTitles: {
 				font: "10px verdana",
 				strokeStyle: "#ffffff",
@@ -81,11 +84,16 @@ define({
 			shadow: {
 				fillStyle: "rgba(0,0,0,0.2)"
 			},
+			highlight: {
+				fillStyle: "rgba(255,255,255,0.6)",
+				strokeStyle: "rgba(255,255,255,0.5)"
+			},
 			titleOffset: 4,
 			altTitleOffsetY: 5,
 			altTitleOffsetX: 2,
 			minStick: 0,
-			maxStick: 30
+			maxStick: 30,
+			checkedCircleSize: 5
 		},
 		waypoints: {
 			basic: {
@@ -180,21 +188,20 @@ define({
 	windows: {
 		ufosTable: {
 			visible: true,
-			title: "Leaderboard",
-			resizable: false,
-			resizableY: true,
-			absoluteCloseIcon: true,
-			height: 300,
+			menuTitle: "Leaderboard",
 			width: 400,
-			wideWidth: 500,
+			wideWidth: 513,
 			top: 180,
-			left: 90
+			left: 90,
+			tableHeight: 300,
+			tableMinHeight: 100,
+			checkedTableHeight: 220,
+			checkedTableMinHeight: 44,
+			tableRowHeight: 22
 		},
 		retrieveTable: {
 			visible: true,
-			title: "Pilots",
-			resizable: false,
-			resizableY: true,
+			menuTitle: "Pilots",
 			height: 500,
 			width: 500,
 			top: 180,
@@ -202,9 +209,7 @@ define({
 		},
 		retrieveChat: {
 			visible: false,
-			title: "Chat",
-			resizable: false,
-			resizableY: true,
+			menuTitle: "Chat",
 			height: 600,
 			width: 400,
 			top: 180,
@@ -212,8 +217,7 @@ define({
 		},
 		retrieveRawForm: {
 			visible: false,
-			title: "SMS sender",
-			resizable: false,
+			menuTitle: "SMS sender",
 			height: 220,
 			width: 400,
 			top: 180,
@@ -222,24 +226,17 @@ define({
 		},
 		playerControl: {
 			visible: true,
-			showHeader: false,
-			resizable: false,
-			absoluteCloseIcon: true,
-			title: "Player",
+			menuTitle: "Player",
 			width: 940,
+			height: 110,
 			minWidth: 800,
-			top: 160,
-			left: 90,
 			xPosition: "center",
 			yPosition: "bottom",
 			bottom: 20
 		},
 		mainMenu: {
 			visible: true,
-			title: "Title",
-			showHeader: false,
-			resizable: false,
-			absoluteCloseIcon: true,
+			menuTitle: "Title",
 			width: 940,
 			minWidth: 800,
 			height: 110,
@@ -248,10 +245,8 @@ define({
 		},
 		facebook: {
 			visible: false,
-			title: "Facebook",
+			menuTitle: "Facebook",
 			menuTitlePosition: "right",
-			resizable: false,
-			absoluteCloseIcon: true,
 			width: 292,
 			height: 298,
 			xPosition: "right",
