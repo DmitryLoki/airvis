@@ -95,6 +95,11 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		}
 	}
 
+	GoogleMap.prototype.centerMap = function(position) {
+		if (position.lat && position.lng && this.map)
+			this.map.setCenter(new gmaps.LatLng(position.lat,position.lng));
+	}
+
 	GoogleMap.prototype.prepareCoords = function(lat,lng) {
 		return this.map.getProjection().fromLatLngToPoint(new gmaps.LatLng(lat,lng));
 	}
@@ -242,6 +247,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			position: data.position,
 			track: data.track,
 			visible: data.visible,
+			checked: data.checked,
+			highlighted: data.highlighted,
 			trackVisible: data.trackVisible,
 			noData: data.noData,
 			noPosition: data.noPosition,
@@ -266,7 +273,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			u.trackData.push(v);
 			// если 10 минут ограничение трека, убираем из начала трека старые точки
 			if (self.tracksVisualMode() == "10min") {
-				while (u.trackData[0] && (self.currentKey() > u.trackData[0].dt + 60000))
+				while (u.trackData[0] && (self.currentKey() > u.trackData[0].dt + 600000))
 					u.trackData.splice(0,1);
 			}
 		});
@@ -276,6 +283,13 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		});
 		u.stateSubscribe = u.state.subscribe(function() {
 			u.updateIconRequired = true;
+			self.update();
+		});
+		u.checkedSubscribe = u.checked.subscribe(function() {
+			u.updateIconRequired = true;
+			self.update();
+		});
+		u.highlightedSubscribe = u.highlighted.subscribe(function(v) {
 			self.update();
 		});
 		u.nameSubscribe = u.name.subscribe(function() {
@@ -298,12 +312,11 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		}
 
 		u._prepareIcon = function(co) {
-//			console.log("prepareIcon id=",u.id(),"state=",u.state());
 			u.iconSize = config.canvas.ufos.sizes[self.modelsVisualMode()] || config.canvas.ufos.sizes["default"];
-			u.iconCenter = {x:u.iconSize,y:u.iconSize};
+			u.iconCenter = {x:u.iconSize,y:u.iconSize*2};
 			u.iconCanvas = document.createElement("canvas");
 			u.iconCanvas.width = 200;
-			u.iconCanvas.height = u.iconSize*2;
+			u.iconCanvas.height = u.iconSize*3;
 			var ic = u.iconCanvas.getContext("2d");
 
 			// Тень от иконки
@@ -333,24 +346,31 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			ic.fill();
 			ic.stroke();
 
+			// Кружок на выбранных пилотах
+			if (u.checked()) {
+				ic.beginPath();
+				setProperties(ic,$.extend({},config.canvas.ufos.basic,{fillStyle:u.color()}));
+				ic.arc(u.iconCenter.x,u.iconCenter.y-u.iconSize+2,config.canvas.ufos.checkedCircleSize,0,Math.PI*2);
+				ic.fill();
+				ic.stroke();
+			}
+
 			// Имя пилота
 			if (self.namesVisualMode() == "on" || (self.namesVisualMode() == "auto" && self.zoom() >= config.namesVisualModeAutoMinZoom)) {
 				setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.titles));
+				if (u.checked()) 
+					setProperties(ic,config.canvas.ufos.checkedTitles);
 				ic.strokeText(u.name()+"("+u.id()+")",u.iconCenter.x,u.iconCenter.y-config.canvas.ufos.titleOffset);
 				ic.fillText(u.name()+"("+u.id()+")",u.iconCenter.x,u.iconCenter.y-config.canvas.ufos.titleOffset);
 			}
 
 			// Подпись высоты
 			if (self.heightsVisualMode() == "level+") {
-				var t = u.alt();
-//				if (u.alt() > 1000)
-//					t = Math.floor(u.alt()/1000) + " " + (u.alt()%1000);
-				t += "m";
+				var t = u.alt() + "m";
 				setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.altTitles));
 				ic.strokeText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY);
 				ic.fillText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY);
 			}
-
 		}
 
 		u._prepareCoords = function() {
@@ -401,23 +421,54 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 				height = Math.floor(u.alt()/100);
 //				height = Math.floor(config.canvas.ufos.minStick + (config.canvas.ufos.maxStick-config.canvas.ufos.minStick)*(u.alt()-self._minAlt)/(self._maxAlt-self._minAlt));
 
+			// Подсветка
+			// TODO: укоротить копипастный код
+			if (type == "highlight" && u.highlighted()) {
+				co.setProperties(config.canvas.ufos.highlight);
+				// Подсветка иконки
+				context.beginPath();
+				context.moveTo(p.x-u.iconCenter.x+u.iconCenter.x,p.y-u.iconCenter.y-height+u.iconCenter.y+8);
+				if (u.state() == "landed") {
+					context.lineTo(p.x-u.iconCenter.x+u.iconCenter.x-(u.iconSize+10)/2,p.y-u.iconCenter.y-height+u.iconCenter.y-(u.iconSize+10)*Math.sqrt(3)/2);
+					context.lineTo(p.x-u.iconCenter.x+u.iconCenter.x+(u.iconSize+10)/2,p.y-u.iconCenter.y-height+u.iconCenter.y-(u.iconSize+10)*Math.sqrt(3)/2);
+				}
+				else {
+					context.arc(p.x-u.iconCenter.x+u.iconCenter.x,p.y-u.iconCenter.y-height+u.iconCenter.y+8,u.iconSize+10,Math.PI*4/3,Math.PI*5/3);
+				}
+				context.moveTo(p.x-u.iconCenter.x+u.iconCenter.x,p.y-u.iconCenter.y-height+u.iconCenter.y+8);
+				context.fill();
+				// Подсветка кружка на выбранных
+				if (u.checked()) {
+					context.beginPath();
+					context.arc(p.x-u.iconCenter.x+u.iconCenter.x,p.y-u.iconCenter.y-height+u.iconCenter.y-u.iconSize+2,config.canvas.ufos.checkedCircleSize+4,0,Math.PI*2);
+					context.fill();
+				}
+				// Подсветка ножки элевации
+				if (u.state() != "landed" && (self.heightsVisualMode() == "level" || self.heightsVisualMode() == "level+")) {
+					_drawEllipse(context,p.x-5-3,p.y-3-3,10+6,6+6);
+					context.beginPath();
+					context.fillRect(p.x-1.5-3,p.y-height-4.5,3+6,height+5);					
+				}
+			}
+
 			if (type == "icon") {
 				context.drawImage(u.iconCanvas,p.x-u.iconCenter.x,p.y-u.iconCenter.y-height);
 			}
 
-
 			if ((type == "elev") && (u.state() != "landed") && (self.heightsVisualMode() == "level" || self.heightsVisualMode() == "level+")) {
 				co.setProperties(config.canvas.ufos.stickDot);
+				if (u.checked()) co.setProperties({fillStyle:u.color()});
 				_drawEllipse(context,p.x-5,p.y-3,10,6);
 				co.setProperties(config.canvas.ufos.stick);
+				if (u.checked()) co.setProperties({fillStyle:u.color()});
 				context.beginPath();
 				context.fillRect(p.x-1.5,p.y-height-4.5,3,height+5);
 				context.strokeRect(p.x-1.5,p.y-height-4.5,3,height+5);
 			}
 
-
 			if (type == "track" && self.tracksVisualMode() != "off" && u.trackData.length > 0) {
 				co.setProperties(config.canvas.ufos.basic);
+				if (u.checked()) co.setProperties({strokeStyle:u.color()});
 				context.beginPath();
 				for (var i = 0; i < u.trackData.length; i++) {
 					if (u.trackData[i].dt == null) continue;
@@ -436,6 +487,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 	GoogleMap.prototype.destroyUfo = function(u) {
 		u.trackSubscribe.dispose();
 		u.visibleSubscribe.dispose();
+		u.checkedSubscribe.dispose();
 		u.stateSubscribe.dispose();
 		u.nameSubscribe.dispose();
 		u.altSubscribe.dispose();
@@ -586,17 +638,52 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 	}
 
 	GoogleMap.prototype._updateDynamicCanvas = function(canvas) {
+		// В самом низу рисуются треки
 		if (this.tracksVisualMode() != "off") {
 			this.mapUfos.forEach(function(ufo) {
 				ufo.render(canvas,"track");
 			},this);
 		}
+		// Затем - ножки не подсвеченных и не выбранных пилотов
+		var highlightedUfos = [];
+		var checkedUfos = [];
 		this.mapUfos.forEach(function(ufo) {
-			ufo.render(canvas,"elev");
+			if (ufo.highlighted())
+				highlightedUfos.push(ufo);
+			else if (ufo.checked())
+				checkedUfos.push(ufo);
+			else
+				ufo.render(canvas,"elev");
 		},this);
+		// Затем иконки не подсвеченных и не выбранных пилотов
 		this.mapUfos.forEach(function(ufo) {
-			ufo.render(canvas,"icon");
+			if (!ufo.highlighted() && !ufo.checked())
+				ufo.render(canvas,"icon");
 		},this);
+		if (checkedUfos.length > 0) {
+			// Затем ножки выбранных пилотов
+			checkedUfos.forEach(function(ufo) {
+				ufo.render(canvas,"elev");
+			});
+			// Затем иконки выбранных пилотов
+			checkedUfos.forEach(function(ufo) {
+				ufo.render(canvas,"icon");
+			});
+		}
+		if (highlightedUfos.length > 0) {
+			// Затем подсветки подсвеченных пилотов
+			highlightedUfos.forEach(function(ufo) {
+				ufo.render(canvas,"highlight");
+			});
+			// Затем ножки подсвеченных пилотов
+			highlightedUfos.forEach(function(ufo) {
+				ufo.render(canvas,"elev");
+			});
+			// Затем иконки подсвеченных пилотов
+			highlightedUfos.forEach(function(ufo) {
+				ufo.render(canvas,"icon");
+			});
+		}
 	}
 
 	GoogleMap.prototype._updateStaticCanvas = function(canvas) {
