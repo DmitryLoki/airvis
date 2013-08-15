@@ -23,6 +23,7 @@
       ,   lockscroll : true   // return scrollwheel to browser if there is no more content.
       ,   size     : 'auto' // set the size of the scrollbar to auto or a fixed number.
       ,   sizethumb  : 'auto' // set the size of the thumb to auto or a fixed number.
+      ,   margin : 0 // set margin of the scrollbar
     }
   };
 
@@ -78,6 +79,7 @@
       oScrollbar.obj.toggleClass( 'disable', oContent.ratio >= 1 );
 
       oTrack[ options.axis ] = options.size === 'auto' ? oViewport[ options.axis ] : options.size;
+      oTrack[ options.axis ] -= 2 * options.margin;
       oThumb[ options.axis ] = Math.min( oTrack[ options.axis ], Math.max( 0, ( options.sizethumb === 'auto' ? ( oTrack[ options.axis ] * oContent.ratio ) : options.sizethumb ) ) );
 
       oScrollbar.ratio = options.sizethumb === 'auto' ? ( oContent[ options.axis ] / oTrack[ options.axis ] ) : ( oContent[ options.axis ] - oViewport[ options.axis ] ) / ( oTrack[ options.axis ] - oThumb[ options.axis ] );
@@ -99,6 +101,9 @@
       oScrollbar.obj.css( sCssSize, oTrack[ options.axis ] );
       oTrack.obj.css( sCssSize, oTrack[ options.axis ] );
       oThumb.obj.css( sCssSize, oThumb[ options.axis ] );
+
+      if (options.margin !== 0)
+        oScrollbar.obj.css("margin-"+sDirection,options.margin+"px");
     }
 
     function setEvents()
