@@ -299,6 +299,9 @@ define([
 			this.ufosTable.on("centerMap",function(position) {
 				if (self.map) self.map.centerMap(position);
 			});
+			this.ufosTable.on("zoominMap",function(zoom) {
+				if (self.map) self.map.zoominMap(zoom);
+			});
 			this.ufosTableWindow = new Window(this.options.windows.ufosTable);
 
 			this.playerControl = new PlayerControl({

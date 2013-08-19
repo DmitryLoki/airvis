@@ -26,15 +26,15 @@
 					<table class="airvis-ptable">
 						<tbody data-bind="foreach:tableUfos">
 							<!-- ko if: checked -->
-								<tr data-bind="click:switchCheck,event:{mouseover:highlightOn,mouseout:highlightOff}">
+								<tr data-bind="click:centerMap,event:{mouseover:highlightOn,mouseout:highlightOff}">
 									<td class="airvis-ptable-checkbox">
 						                <!-- ko widget: { data: visibleCheckbox, type: 'Checkbox'} --><!-- /ko -->
 									</td>
 									<td class="airvis-ptable-number" data-bind="text:i"></td>
 									<td class="airvis-ptable-name">
 										<span class="airvis-ptable-onover">
-											<span class="airvis-ptable-check" data-bind="text:checked()?'U':'C'"></span>
-											<a class="airvis-ptable-centerMap" href="#javascript:void(0);" data-bind="click:centerMap,clickBubble:false">X</a>
+											<a class="airvis-ptable-check" href="#" data-bind="css:{'airvis-ptable-checked':checked()},click:switchCheck,clickBubble:false"></a>
+											<a class="airvis-ptable-track" href="#" data-bind="click:switchTracking,clickBubble:false"></a>
 										</span>
 										<span data-bind="text:name() + ' (' + id() + ')'"></span>
 										<span class="countryicon-sprite iconset-shiny" data-bind="css:'countrycode-'+country().toLowerCase(),visible:$parent.mode()=='short'"></span>
@@ -92,15 +92,15 @@
 				<table class="airvis-ptable">
 					<tbody data-bind="foreach:tableUfos">
 						<!-- ko ifnot: checked -->
-							<tr data-bind="click:switchCheck,event:{mouseover:highlightOn,mouseout:highlightOff}">
+							<tr data-bind="click:centerMap,event:{mouseover:highlightOn,mouseout:highlightOff}">
 								<td class="airvis-ptable-checkbox">
 					                <!-- ko widget: { data: visibleCheckbox, type: 'Checkbox'} --><!-- /ko -->
 								</td>
 								<td class="airvis-ptable-number" data-bind="text:i"></td>
 								<td class="airvis-ptable-name">
 									<span class="airvis-ptable-onover">
-										<span class="airvis-ptable-check" data-bind="text:checked()?'U':'C'"></span>
-										<a class="airvis-ptable-centerMap" href="#javascript:void(0);" data-bind="click:centerMap,clickBubble:false">X</a>
+										<a class="airvis-ptable-check" href="#" data-bind="css:{'airvis-ptable-checked':checked()},click:switchCheck,clickBubble:false"></a>
+										<a class="airvis-ptable-track" href="#" data-bind="click:switchTracking,clickBubble:false"></a>
 									</span>
 									<span data-bind="text:name() + ' (' + id() + ')'"></span>
 									<span class="countryicon-sprite iconset-shiny" data-bind="css:'countrycode-'+country().toLowerCase(),visible:$parent.mode()=='short'"></span>

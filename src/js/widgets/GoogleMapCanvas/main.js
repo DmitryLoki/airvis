@@ -100,6 +100,11 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			this.map.setCenter(new gmaps.LatLng(position.lat,position.lng));
 	}
 
+	GoogleMap.prototype.zoominMap = function(zoom) {
+		if (zoom > 0 && this.map && this.zoom() < zoom)
+			this.map.setZoom(zoom);
+	}
+
 	GoogleMap.prototype.prepareCoords = function(lat,lng) {
 		return this.map.getProjection().fromLatLngToPoint(new gmaps.LatLng(lat,lng));
 	}

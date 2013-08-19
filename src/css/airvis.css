@@ -179,7 +179,7 @@ body {
   transition: width 0.2s ease; 
 }
 .airvis-ptable tr:hover td.airvis-ptable-name .airvis-ptable-onover { 
-  width: 25px; 
+  width: 28px;
 }
 .airvis-ptable tbody tr:hover { 
   background-color: rgba(50,50,50,.70); 
@@ -194,6 +194,33 @@ body {
 .airvis-ptable-gspd { width: 49px; }
 .airvis-ptable-vspd { width: 49px; }
 .airvis-ptable-status { width: 59px; }
+.airvis-ptable-check {
+  display: block;
+  float: left;
+  background: transparent url("../img/star_disable.png") 0 4px no-repeat;
+  height: 20px;
+  width: 14px;
+}
+.airvis-ptable-check:hover,.airvis-ptable-checked {
+  background-image: url("../img/star_enable.png");
+}
+.airvis-ptable-checked:hover {
+  background-image: url("../img/star_disable.png");
+}
+.airvis-ptable-track {
+  display: block;
+  float: left;
+  background: transparent url("../img/track_disable.png") 0 5px no-repeat;
+  height: 20px;
+  width: 14px;  
+}
+.airvis-ptable-track:hover,.airvis-ptable-tracked {
+  background-image: url("../img/track_enable.png");
+}
+.airvis-ptable-tracked:hover {
+  background-image: url("../img/track_disable.png");
+}
+
 
 
 /* pilots table scrollbar */

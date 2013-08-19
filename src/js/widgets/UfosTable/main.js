@@ -202,6 +202,9 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 			// при перемещении пилотов из одной таблицы в другую не срабатывает событие mouseout (поскольку до этого перестраивается дом)
 			w.highlighted(false);
 		}
+		w.switchTracking = function() {
+
+		}
 		w.highlightOn = function() {
 			w.highlighted(true);
 		}
@@ -209,8 +212,10 @@ define(["jquery","knockout","widget!Checkbox","config","CountryCodes","jquery.ti
 			w.highlighted(false);
 		}
 		w.centerMap = function() {
-			if (w.position() && w.position().lat && w.position().lng)
+			if (w.position() && w.position().lat && w.position().lng) {
 				self.emit("centerMap",w.position());
+				self.emit("zoominMap",config.trackingZoom);
+			}
 		}
 		w.checkedSubscribe = w.checked.subscribe(function(v) {
 			if (v && self.allCheckedVisible() == 1) w.visible(true);
