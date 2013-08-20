@@ -327,7 +327,8 @@ define({
 		center: {lat: 55.748758, lng: 37.6174},
 		type: "TERRAIN"
 	},
-	trackingZoom: 16,
+	trackingZoom: 15,
+	trackingTimeout: 2000,
 	// Настройки тестового сервера
 	testServerOptions: {
 		mainTitle: "52th FAI european paragliding championship",

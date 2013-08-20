@@ -24,6 +24,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		this.activateMapScroll = ko.observable(false);
 		this.raceType = options.raceType;
 		this.raceTypeOptions = options.raceTypeOptions;
+		this.trackedUfoId = options.trackedUfoId;
 
 		this.mapWaypoints = [];
 		this.waypoints.subscribe(function(waypoints) {
@@ -93,6 +94,10 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		this.setUserVisualMode = function() {
 			self.profVisualMode("user");
 		}
+
+		this.trackedUfoId.subscribe(function() {
+			self.startUfoTracking();
+		});
 	}
 
 	GoogleMap.prototype.centerMap = function(position) {
@@ -772,6 +777,30 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		this.map.mapTypes.set("hybridPlus",$.extend({},hybridMapType,{maxZoom:hybridMapType.maxZoom+hybridZoom,originalMaxZoom:hybridMapType.maxZoom,maxZoomIncreased:hybridZoom>0}));
 	}
 
+	GoogleMap.prototype.centerMapOnUfoPosition = function(id) {
+		var self = this;
+		if (!id) return false;
+		var centered = false;
+		this.mapUfos.forEach(function(ufo) {
+			if (ufo.id() == id) {
+				self.centerMap(ufo.position());
+				centered = true;
+			}
+		});
+		return centered;
+	}
+
+	GoogleMap.prototype.startUfoTracking = function() {
+		var self = this;
+		if (this._trackingTimeout) {
+			clearTimeout(this._trackingTimeout);
+		}
+		if (this.centerMapOnUfoPosition(self.trackedUfoId())) {
+			this._trackingTimeout = setTimeout(function() {
+				self.startUfoTracking();
+			},config.trackingTimeout);
+		}
+	}
 
 	GoogleMap.prototype.domInit = function(elem,params) {
 		var self = this;
@@ -826,6 +855,9 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 		gmaps.event.addListener(this.map,"center_changed",function() {
 			// событие center_changed возникает когда меняется размер карты (так же поступает bounds_changed, но он с глючной задержкой)
 			self.updateAll();
+		});
+		gmaps.event.addListener(this.map,"dragend",function() {
+			self.trackedUfoId(null);
 		});
 		gmaps.event.addListener(this.map,"zoom_changed",function() {
             self.zoom(self.map.getZoom());

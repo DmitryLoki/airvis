@@ -179,6 +179,7 @@ define([
 		this.optdistance = ko.observable(0);
 		this.raceType = ko.observable("");
 		this.raceTypeOptions = ko.observable({});
+		this.trackedUfoId = ko.observable(null);
 
 		this.ufos = ko.observableArray();
 		this.waypoints = ko.observableArray();
@@ -260,7 +261,8 @@ define([
 						mapOptions: self.mapOptions,
 						mode: self.mode,
 						raceType: self.raceType,
-						raceTypeOptions: self.raceTypeOptions
+						raceTypeOptions: self.raceTypeOptions,
+						trackedUfoId: self.trackedUfoId
 				};
 				if (self.mapWidget() == "2d-old") {
 					self.map = new GoogleMap(mapOptions);
@@ -294,7 +296,8 @@ define([
 				ufos: this.ufos,
 				raceKey: this.raceKey,
 				optdistance: this.optdistance,
-				raceType: this.raceType
+				raceType: this.raceType,
+				trackedUfoId: this.trackedUfoId
 			});
 			this.ufosTable.on("centerMap",function(position) {
 				if (self.map) self.map.centerMap(position);

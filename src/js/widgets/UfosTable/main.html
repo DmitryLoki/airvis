@@ -32,9 +32,9 @@
 									</td>
 									<td class="airvis-ptable-number" data-bind="text:i"></td>
 									<td class="airvis-ptable-name">
-										<span class="airvis-ptable-onover">
+										<span class="airvis-ptable-onover" data-bind="css:{'airvis-ptable-tracked-container':$parent.trackedUfoId()==id()}">
 											<a class="airvis-ptable-check" href="#" data-bind="css:{'airvis-ptable-checked':checked()},click:switchCheck,clickBubble:false"></a>
-											<a class="airvis-ptable-track" href="#" data-bind="click:switchTracking,clickBubble:false"></a>
+											<a class="airvis-ptable-track" href="#" data-bind="css:{'airvis-ptable-tracked':$parent.trackedUfoId()==id()},click:switchTracking,clickBubble:false"></a>
 										</span>
 										<span data-bind="text:name() + ' (' + id() + ')'"></span>
 										<span class="countryicon-sprite iconset-shiny" data-bind="css:'countrycode-'+country().toLowerCase(),visible:$parent.mode()=='short'"></span>
@@ -71,6 +71,9 @@
 		</div>
 		<div class="airvis-resizebar" data-bind="event:{mousedown:resizeTable.bind($data,'checked'),touchstart:resizeTable.bind($data,'checked')}"></div>
 	</div>
+	<div class="airvis-pform">
+		<input type="text" data-bind="value:_q,valueUpdate:'afterkeydown'" placeholder="Example: Tommy Ray">
+	</div>
 	<table class="airvis-ptable">
 		<thead>
 			<tr>
@@ -90,7 +93,7 @@
 		<div class="viewport" data-bind="style:{height:tableHeight()+'px'}">
 			<div class="overview">
 				<table class="airvis-ptable">
-					<tbody data-bind="foreach:tableUfos">
+					<tbody data-bind="foreach:qTableUfos">
 						<!-- ko ifnot: checked -->
 							<tr data-bind="click:centerMap,event:{mouseover:highlightOn,mouseout:highlightOff}">
 								<td class="airvis-ptable-checkbox">
@@ -98,9 +101,9 @@
 								</td>
 								<td class="airvis-ptable-number" data-bind="text:i"></td>
 								<td class="airvis-ptable-name">
-									<span class="airvis-ptable-onover">
+									<span class="airvis-ptable-onover" data-bind="css:{'airvis-ptable-tracked-container':$parent.trackedUfoId()==id()}">
 										<a class="airvis-ptable-check" href="#" data-bind="css:{'airvis-ptable-checked':checked()},click:switchCheck,clickBubble:false"></a>
-										<a class="airvis-ptable-track" href="#" data-bind="click:switchTracking,clickBubble:false"></a>
+										<a class="airvis-ptable-track" href="#" data-bind="css:{'airvis-ptable-tracked':$parent.trackedUfoId()==id()},click:switchTracking,clickBubble:false"></a>
 									</span>
 									<span data-bind="text:name() + ' (' + id() + ')'"></span>
 									<span class="countryicon-sprite iconset-shiny" data-bind="css:'countrycode-'+country().toLowerCase(),visible:$parent.mode()=='short'"></span>

@@ -176,13 +176,19 @@ body {
   overflow: hidden; 
   width: 0; 
   height: 20px;
-  transition: width 0.2s ease; 
+  transition: all 0.2s ease; 
+}
+.airvis-ptable tr td.airvis-ptable-name .airvis-ptable-tracked-container {
+  width: 28px;
+  margin-left: -14px;  
 }
 .airvis-ptable tr:hover td.airvis-ptable-name .airvis-ptable-onover { 
+  margin-left: 0;
   width: 28px;
 }
+
 .airvis-ptable tbody tr:hover { 
-  background-color: rgba(50,50,50,.70); 
+  background-color: rgba(83,43,0,.75); 
   cursor: pointer; 
 }
 .airvis-ptable-checkbox { width: 28px; }
@@ -220,7 +226,6 @@ body {
 .airvis-ptable-tracked:hover {
   background-image: url("../img/track_disable.png");
 }
-
 
 
 /* pilots table scrollbar */
@@ -272,7 +277,19 @@ body {
 
 
 
-
+/* Pilots table search form */
+.airvis-pform {
+  margin: 7px 9px;
+}
+.airvis-pform input {
+  background-color: #323426;
+  border: 1px solid #09242d;
+  border-radius: 2px;
+  width: 210px;
+  text-align: right;
+  color: #e8b981;
+  padding: 2px 10px;
+}
 
 
 
@@ -637,16 +654,14 @@ body {
 	white-space: nowrap;
 }
 
-/*
-.gmap {}
-.gmap > div > .gmnoprint:nth-child(3n+1),
-.gmap > div > .gmnoprint:last-child { top: 40px !important;}
-*/
 .gmap > div > .gmnoprint:nth-child(3n+1) {
   top: 47px !important;
 }
-/*.gmap > div > .gmnoprint:last-child {*/
 .gmap > div > .gmnoprint:nth-child(3n+2) {
+  top: 55px !important;
+  right: 20px !important;
+}
+.gmap > div > div.gm-style-mtc {
   top: 55px !important;
   right: 20px !important;
 }
