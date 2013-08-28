@@ -75,6 +75,7 @@ define([
 		this.center = ko.observable({lat:options.center.lat,lng:options.center.lng});
 		this.radius = ko.observable(options.radius);
 		this.openKey = ko.observable(options.openKey);
+		this.checkedOn = ko.observable(options.checkedOn);
 	}
 
 	var Ufo = function(options) {

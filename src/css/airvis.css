@@ -1,56 +1,36 @@
 
 /* overall container */
-document,body { 
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  font-family: Arial, Helvetica, sans-serif;
-}
-body { 
-  min-width: 1000px;
-  width: 100%;
-  min-height: 100%;
-}
-.airvis-container { 
-  margin: 0;
-  padding: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
+document,body { height: 100%; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif;}
+body { min-width: 1000px; width: 100%; min-height: 100%}
+.airvis-container { margin: 0; padding: 0; position: absolute; top: 0; left: 0; right: 0; bottom: 0; /*position: relative; width: 100%; height: 100%;*/}
 .airvis-content-container {
   opacity: 0;
   transition: opacity 2s ease;
 }
-* { 
-  -webkit-font-smoothing: antialiased;
-}
 
+* { -webkit-font-smoothing: antialiased}
 
 /* clearfix */
 .airvis-clearfix {
-  *zoom: 1;
-}
+    *zoom: 1;}
 .airvis-clearfix:before,
 .airvis-clearfix:after {
-  content: "";
-  display: table;
-  line-height: 0;
-}
+    content: "";
+    display: table;
+    line-height: 0;}
 .airvis-clearfix:after {
-  clear: both;
-}
+    clear: both;}
 
+/* columns */
+.airvis-row { margin-left: -20px;}
+.airvis-span120 { display: block; float: left; width: 100px; margin-left: 20px;}
 
 /* setCapture does not work in some browsers, so instead of using it we overwrite cursor over the whole body while dragging an object */
-.airvis-document-overwrite-cursor-pointer { cursor: pointer !important; }
-.airvis-document-overwrite-cursor-move { cursor: move !important; }
-.airvis-document-overwrite-cursor-e-resize { cursor: e-resize !important; }
-.airvis-document-overwrite-cursor-se-resize { cursor: se-resize !important; }
-.airvis-document-overwrite-cursor-s-resize { cursor: s-resize !important; }
-
+.airvis-document-overwrite-cursor-pointer { cursor: pointer !important;}
+.airvis-document-overwrite-cursor-move { cursor: move !important;}
+.airvis-document-overwrite-cursor-e-resize { cursor: e-resize !important;}
+.airvis-document-overwrite-cursor-se-resize { cursor: se-resize !important;}
+.airvis-document-overwrite-cursor-s-resize { cursor: s-resize !important;}
 
 /* Loading page */
 .airvis-loading-container {
@@ -71,318 +51,25 @@ body {
 }
 
 
-/* common window widget styles, common window title and close icon */
+/* common window widget styles */
+.airvis-window { color: #333333; display: block;  font-size: 14px; line-height: 20px; position: absolute; font-weight: normal; /*left: 0 !important;*/}
+/*.airvis-window:nth-child(4n+1) { top: 180px !important;} */
 .airvis-window {
-  background-color: rgba(0,47,64,.75);
-  color: #333333; 
-  display: block;
-  font-size: 14px;
-  font-weight: normal;
-  position: absolute;
-  transition: width 0.5s ease, opacity 0.5s ease;
-  opacity: 1;
+  transition: width 0.5s ease;
 }
-.airvis-window-header { 
-  background-color: rgba(0,47,64,.50);
-  padding: 0 10px; 
-  height: 40px;
-}
-.airvis-window-title { 
-  color: #ffffff;
-  display: block; 
-  margin-right: 60px;
-  font-size: 18px;
-  font-weight: bold;
-  line-height: 40px;
-  padding: 0;
-  text-rendering: optimizelegibility;
-}
-.airvis-window-close { 
-  position: absolute; 
-  outline: 0 none; 
-  display: block; 
-  top: 8px; 
-  right: 8px; 
-  width: 24px; 
-  height: 24px; 
-  background: url("../img/widget_control2.png") -48px 0 no-repeat; 
-  opacity: 0.3; 
-  transition: opacity 0.2s; 
-}
-.airvis-window-close-cross { 
-  background-position: -72px 0; 
-}
-.airvis-window-close:hover { 
-  opacity: 1; 
-}
-.airvis-window-ec {
-  right: 38px;
-  background-position: 0 0;
-}
-.airvis-window-ec-expand {
-  background-position: 0 0;
-}
-.airvis-window-ec-collapse {
-  background-position: -24px 0;
-}
-.airvis-resizebar {
-  height: 10px;
-  background: rgba(0,47,64,0.5) url("../img/corner.png") bottom right no-repeat;
-  cursor: s-resize;
-}
+.airvis-window-header { background-color: rgba(0,47,64,.93); padding: 0 10px; height: 40px;}
+.airvis-window-title { color: #ffffff; display: block; float: left; font-size: 18px; font-weight: bold; line-height: 40px; padding: 0; text-rendering: optimizelegibility;}
 
+.airvis-window-close { float: right; outline: 0 none; display: block; width: 24px; height: 24px; background: url(../img/widget_control2.png) -48px 0 no-repeat; margin-top: 8px; margin-right: -2px; opacity: 0.3; transition: opacity 0.2s; -webkit-transition: opacity 0.2s; }
+.airvis-window-close-absolute { position: absolute; outline: 0 none; display: block; top: 8px; right: 8px; width: 24px; height: 24px; background: url(../img/widget_control2.png) -48px 0 no-repeat; opacity: 0.3; transition: opacity 0.2s; -webkit-transition: opacity 0.2s; }
+.airvis-window-close-cross { background-position: -72px 0; }
+.airvis-window-close:hover,
+.airvis-window-close-absolute:hover { opacity: 1; }
 
-/* pilots table */
-.airvis-ptable {
-  border: 0;
-  border-collapse: collapse;
-  font-size: 12px;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-}
-.airvis-ptable tbody tr {
-  background-color: rgba(0,47,64,0.5);
-  color: #ffffff;  
-}
-.airvis-ptable tbody tr:nth-child(2n+2) { 
-  background-color: rgba(0,47,64,0.35);
-}
-.airvis-ptable td,
-.airvis-ptable th {
-  text-align: center;
-  vertical-align: middle;
-  color: #ffffff;
-}
-.airvis-ptable th {
-  height: 37px;
-  padding-bottom: 4px;
-  vertical-align: bottom;
-  font-weight: normal;
-  background-color: rgba(0,47,64,0.3);
-}
-.airvis-ptable tbody td + td { 
-  border-left: 1px solid rgba(0,47,64,.15);
-}
-.airvis-ptable td > span { 
-  display: inline-block;
-  vertical-align: middle;
-  line-height: 20px;
-}
-/*
-.airvis-ptable td.airvis-ptable-name {
-*/
-.airvis-ptable .airvis-ptable-name {
-  text-align: left;
-  overflow: hidden;
-  white-space: nowrap;
-}
-.airvis-ptable td.airvis-ptable-name .countryicon-sprite { 
-  margin-left: 10px; 
-}
-.airvis-ptable td.airvis-ptable-countryname .countryicon-sprite {
-  margin-left: 0;
-}
-.airvis-ptable tr td.airvis-ptable-name .airvis-ptable-onover { 
-  display: inline-block; 
-  float: left; 
-  overflow: hidden;
-  white-space: nowrap;
-  width: 0; 
-  height: 20px;
-  transition: all 0.2s ease; 
-}
-.airvis-ptable tr td.airvis-ptable-name .airvis-ptable-tracked-container {
-  width: 36px;
-  margin-left: -18px;  
-}
-.airvis-ptable tr td.airvis-ptable-name .airvis-ptable-checked-container {
-  width: 18px;
-  margin-left: 0;
-}
-.airvis-ptable tr td.airvis-ptable-name .airvis-ptable-tracked-container.airvis-ptable-checked-container {
-  width: 36px;
-  margin-left: 0;
-}
-.airvis-ptable tr:hover td.airvis-ptable-name .airvis-ptable-onover { 
-  margin-left: 0;
-  width: 36px;
-}
-.airvis-ptable tr:hover td.airvis-ptable-countryname .airvis-ptable-onover {
-  margin-left: 0;
-  width: 18px;
-}
-
-.airvis-ptable tbody tr:hover,.airvis-ptable tbody tr.highlighted { 
-  background-color: rgba(83,43,0,.75); 
-  cursor: pointer; 
-}
-.airvis-ptable-checkbox { width: 28px; }
-.airvis-ptable-number { width: 29px; }
-.airvis-ptable-name { width: 153px; }
-.airvis-ptable-country { width: 69px; }
-.airvis-ptable-dist-to-goal { width: 59px; }
-.airvis-ptable-alt { width: 39px; }
-.airvis-ptable-gspd { width: 49px; }
-.airvis-ptable-vspd { width: 49px; }
-.airvis-ptable-status { width: 59px; }
-.airvis-ptable-country a {
-  color: #ffffff;
-  text-decoration: none;
-}
-.airvis-ptable-check {
-  display: block;
-  float: left;
-  background: transparent url("../img/star_disable.png") 0 4px no-repeat;
-  height: 20px;
-  width: 17px;
-}
-.airvis-ptable-check:hover,.airvis-ptable-checked {
-  background-image: url("../img/star_enable.png");
-}
-.airvis-ptable-checked:hover {
-  background-image: url("../img/star_disable.png");
-}
-.airvis-ptable th .airvis-ptable-check {
-  background-position: 1px 0;
-  height: 11px;
-}
-
-.airvis-ptable-track {
-  display: block;
-  float: left;
-  background: transparent url("../img/track_disable.png") 0 5px no-repeat;
-  height: 20px;
-  width: 19px;  
-}
-.airvis-ptable-track:hover,.airvis-ptable-tracked {
-  background-image: url("../img/track_enable.png");
-}
-.airvis-ptable-tracked:hover {
-  background-image: url("../img/track_disable.png");
-}
-
-
-/* pilots table scrollbar */
-.airvis-scrollbar {
-  overflow: hidden;
-  position: relative;
-}
-.airvis-scrollbar .scrollbar {
-  position: absolute;
-  right: 11px;
-  z-index: 100;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.airvis-scrollbar:hover .scrollbar {
-  opacity: 1;
-}
-.airvis-scrollbar .scrollbar.disable {
-  opacity: 0;
-}
-.airvis-scrollbar .viewport {
-  overflow: hidden;
-  position: relative;
-}
-.airvis-scrollbar .overview {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-}
-.airvis-scrollbar .scrollbar .track {
-  background: rgba(0,47,64,.50); 
-  border: 1px solid rgba(0, 35, 48, 0.53); 
-  position: absolute; 
-  border-radius: 2px;
-}
-.airvis-scrollbar .scrollbar .thumb {
-  background-color: rgba(255,255,255,.5); 
-  width: 6px; 
-  cursor: pointer; 
-  position: relative; 
-  margin: -1px -2px 0;
-  border-radius: 3px;
-  transition: background-color 0.2s ease; 
-}
-.airvis-scrollbar .scrollbar .thumb:hover {
-  background-color: #ffffff;
-}
-
-
-/* Pilots table search form */
-.airvis-pform {
-  margin: 7px 9px;
-}
-.airvis-pform input {
-  background-color: #323426;
-  border: 1px solid #09242d;
-  border-radius: 2px;
-  width: 210px;
-  text-align: right;
-  color: #e8b981;
-  padding: 2px 10px;
-}
-
-
-/* Pilot popup */
-#airvis-ufo-popup {
-  border: 1px solid #001814;
-  color: #ffffff;
-  width: 160px;
-}
-/* Stupid gmaps overwrites styles with it's own gm-style so here's by-id stylesheet */
-#airvis-ufo-popup * {
-  font: normal 12px/20px Arial;
-}
-
-#airvis-ufo-popup .airvis-ufo-popup-title {
-  background-color: #023040;
-  padding: 5px 8px;
-  position: relative;
-}
-#airvis-ufo-popup .airvis-ufo-popup-content {
-  background-color: rgba(0,47,64,0.75);
-}
-#airvis-ufo-popup .airvis-popup-check {
-  background: transparent url("../img/star_disable.png") 4px 8px no-repeat;
-  color: #ffffff;
-  display: block;
-  height: 20px;
-  padding: 5px;
-  padding-left: 20px;
-  text-decoration: none;
-}
-#airvis-ufo-popup .airvis-popup-check:hover {
-  background: rgba(83,43,0,0.5) url("../img/star_enable.png") 4px 8px no-repeat;
-}
-#airvis-ufo-popup .airvis-popup-checked:hover {
-  background: transparent url("../img/star_enable.png") 4px 8px no-repeat;
-}
-#airvis-ufo-popup .airvis-popup-checked:hover {
-  background: rgba(83,43,0,0.5) url("../img/star_disable.png") 4px 8px no-repeat;
-}
-#airvis-ufo-popup .airvis-ufo-popup-list {
-  padding: 5px 8px;
-}
-#airvis-ufo-popup .airvis-ufo-popup-arrow {
-  position: absolute;
-  height: 0;
-  left: -6px;
-  width: 0;
-  top: 10px;
-  border-top: 6px solid transparent;
-  border-bottom: 6px solid transparent;
-  border-right: 6px solid #023040;
-}
-
-
-
-
-
-
-
+.airvis-window-ec-absolute { position: absolute; outline: 0 none; display: block; top: -32px; right: 38px; width: 24px; height: 24px; background: url(../img/widget_control2.png) 0 0 no-repeat; opacity: 0.3; transition: opacity 0.2s; -webkit-transition: opacity 0.2s; }
+.airvis-window-ec-absolute-status { position: absolute; display: block; top: -30px; right: 70px; color: #ffffff; }
+.airvis-window-ec-absolute:hover { opacity: 1; }
+.airvis-collapse { background-position: -24px 0; }
 .airvis-play { background: #ffffff url(../img/player_but.png) 0 -24px no-repeat; border-radius: 2px; }
 .airvis-pause { background: #ffffff url(../img/player_but.png) 0 0 no-repeat; border-radius: 2px; }
 
@@ -395,10 +82,10 @@ body {
 .airvis-resize-bottom-right { bottom: -18px; cursor: se-resize; height: 20px; right: -18px; width: 20px;}
 
 /* css for markers on google map */
-/*
 .airvis-marker-title { font-size: 12px; white-space: nowrap; }
 .airvis-waypoint-title { white-space: nowrap; font-weight: bold; padding: 3px; }
-*/
+
+
 
 /* table with fixed header in ufosTable widget */
 /*
@@ -412,50 +99,28 @@ body {
 .airvis-table-header-1 tr { background-color: rgba(0,47,64,.50);}
 
 /* redefine font sizes in airvis tables */
-/*
 .airvis-window table { margin: 0; width: 100%; font-size: 12px; color: #ffffff; border-collapse: separate; }
 .airvis-window table tbody tr:nth-child(2n+2) { background-color: rgba(0,47,64,.35);}
-.airvis-window table tbody td { padding: 0; text-align: center; vertical-align: top;}
-*/
+.airvis-window table tbody td { line-height: 20px; padding: 0; text-align: center; vertical-align: top;}
 /*.airvis-window .airvis-scrollbar table tbody tr:first-child td { padding-top: 8px;}*/
-/*
 .airvis-window table tbody td + td { border-left: 1px solid rgba(0,47,64,.15)}
-*/
-
-.airvis-window .airvis-pilot-table td span { vertical-align: middle; }
-.airvis-window .airvis-pilot-table td a { color: #6699CC; text-decoration: none; }
-.airvis-window .airvis-pilot-checkbox { width: 28px; }
-.airvis-window .airvis-pilot-number { width: 29px; }
-.airvis-window .airvis-pilot-name { text-align: left; }
-.airvis-window .airvis-pilot-name .countryicon-sprite { margin-left: 10px; }
-.airvis-window .airvis-pilot-country { width: 69px; }
-.airvis-window .airvis-pilot-dist-to-goal { width: 59px; }
-.airvis-window .airvis-pilot-alt { width: 39px; }
-.airvis-window .airvis-pilot-gspd { width: 49px; }
-.airvis-window .airvis-pilot-vspd { width: 49px; }
-.airvis-window .airvis-pilot-nodata { width: 150px; }
-
-.airvis-window tr .airvis-onover { display: inline-block; float: left; overflow: hidden; width: 0; height: 20px; transition: width 0.2s ease; }
-.airvis-window table.airvis-pilot-table tbody tr:hover { background-color: rgba(50,50,50,.70); cursor: pointer; }
-.airvis-window tr:hover .airvis-onover { width: 25px; }
 
 
-/*
 .airvis-window td.airvis-checkbox { text-align: center; width: 28px;}
 .airvis-window tr td.airvis-checkbox:first-child { width: 28px;}
+/*
 .airvis-window .airvis-table-header-1 td.airvis-checkbox span.checkbox { background-color: #ffffff !important; background-position: 0 -12px;}
 .airvis-window .airvis-table-header-1 td.airvis-checkbox span.unchecked { background-position: 0 -100px;}
+*/
 .airvis-window td.airvis-checkbox .checkbox { top: 1px; position: relative;}
 
 .airvis-window table .airvis-pilot-number { width: 29px;}
 .airvis-window table .airvis-pilot-name { width: 139px; text-align: center; padding: 0 10px;}
 .airvis-window table .airvis-pilot-name { text-align: left;}
-.airvis-window table .airvis-pilot-name { text-align: left; padding: 0 10px;}
 .airvis-window table .airvis-pilot-name .countryicon-sprite { margin-left: 10px; }
 .airvis-window table .airvis-pilot-country .countryicon-sprite { margin-right: 5px; }
 .airvis-window table .airvis-pilot-person-id { width: 180px;}
 .airvis-window table .airvis-pilot-sms { width: 40px;}
-.airvis-window table .airvis-table-nodata {}
 
 .airvis-window table .airvis-dist-to-goal { width: 59px;}
 .airvis-window table .airvis-alt { width: 39px;}
@@ -467,7 +132,7 @@ body {
 .airvis-window table .pilot-name .countryicon-sprite { margin-left: 10px;}
 
 .airvis-window table .pilot-nation .countryicon-sprite { margin-right: 10px;}
-*/
+
 
 .airvis-tbl {
   position: absolute;
@@ -616,11 +281,6 @@ body {
   width: auto;
 }
 
-.airvis-player-drag {
-  height: 70px;
-  float: left;
-}
-
 
 
 /* Radio */
@@ -650,7 +310,7 @@ body {
 .airvis-player-selects  { width: 270px; float: right; }
 .airvis-selectContainer { float: left; position: relative; width: 125px; margin: 5px;}
 .airvis-select { text-decoration: none;}
-.airvis-value { color: #002a3a; display: block; float: right; font-size: 12px; font-weight: bold; background-color: rgba(255,255,255, 0.75); padding: 0; text-align: center; width: 50px; min-height: 20px; line-height: 20px;
+.airvis-value { color: #002a3a; display: block; float: right; font-size: 12px; font-weight: bold; background-color: rgba(255,255,255, 0.75); padding: 0; text-align: center; width: 50px; min-height: 20px;
 
   -webkit-border-radius: 2px; 
   -moz-border-radius: 2px; 
@@ -688,36 +348,24 @@ body {
 .airvis-topbar-container { margin: 0 auto; max-width: 940px;}
 .airvis-topbar-logo { background: transparent url("../img/logo.png") 0 0 no-repeat; display: block; float: left; height: 24px; margin: 8px 0 0 0; width: 216px;}
 .airvis-topbar-items { display: block; float: left; margin: 0; padding: 0; margin-left: 86px;}
-.airvis-topbar-items-right { float: right; margin-left: 0; margin-right: 1px; }
 .airvis-topbar-items li { display: block; float: left; list-style: none outside none; position: relative; }
-.airvis-topbar-items a { 
-  display: block; 
-  outline: 0 none; 
-  margin-top: 8px; 
-  margin-left: 8px; 
-  padding: 0 11px; 
-  height: 24px; 
-  text-decoration: none; 
-  font-size: 14px; 
-  font-weight: bold; 
-  line-height: 24px; 
-  background-color: rgba(255,255,255,0.75);
-  color: #002a3a;
+.airvis-topbar-items a { display: block; outline: 0 none; margin-top: 8px; margin-left: 8px; padding: 0 11px; height: 24px;   text-decoration: none; font-size: 14px; font-weight: bold; line-height: 24px; color: #ffffff; background-color: transparent;
   -webkit-border-radius: 2px; 
   -moz-border-radius: 2px; 
   border-radius: 2px;
-  transition: all 0.2s ease;
 }
-.airvis-topbar-items a.sel {
-  color: #ffffff;
-  background-color: transparent;
-}
-.airvis-topbar-items a:hover {
-  background-color: #ffffff;
-  color: #002a3a;
-}
+.airvis-topbar-items-right { float: right; margin-left: 0; margin-right: 1px; }
 
 
+/* TopBar menu */
+.airvis-topbar-items a.airvis-hover { position: absolute; top: 0; left: 0; color: #ffffff; }
+.airvis-topbar-items a.airvis-on { position: absolute; top: 0; left: 0; background-color: rgba(255,255,255,0.75); color: #002a3a; }
+.airvis-topbar-items a.airvis-on-hover { position: absolute; top: 0; left: 0; background-color: #ffffff; color: #002a3a; }
+
+/*
+.airvis-topbar-items a.airvis-checked { background-color: rgba(255,255,255, 0.75); color: #002a3a; }
+.airvis-topbar-items a:hover { background-color: #ffffff; color: #002a3a; }
+*/
 
 
 /* Title */
@@ -736,9 +384,15 @@ body {
   white-space: nowrap;
 }
 
+/*
+.gmap {}
+.gmap > div > .gmnoprint:nth-child(3n+1),
+.gmap > div > .gmnoprint:last-child { top: 40px !important;}
+*/
 .gmap > div > .gmnoprint:nth-child(3n+1) {
   top: 47px !important;
 }
+/*.gmap > div > .gmnoprint:last-child {*/
 .gmap > div > .gmnoprint:nth-child(3n+2) {
   top: 55px !important;
   right: 20px !important;
@@ -748,6 +402,49 @@ body {
   right: 20px !important;
 }
 
+
+.airvis-scrollbar .overview { position: absolute; left: 0; top: 0; }
+.airvis-scrollbar .thumb .end,.airvis-scrollbar .thumb { background-color: #003D5D; }
+.airvis-scrollbar .scrollbar { position:absolute; right:11px; z-index: 100;
+  
+  -webkit-opacity: 0;
+   -moz-opacity: 0;
+   -ms-opacity: 0;
+   -o-opacity: 0;
+   opacity: 0; 
+
+  transition: opacity 0.2s; 
+  -webkit-transition: opacity 0.2s;
+}
+.airvis-scrollbar:hover .scrollbar { 
+
+  -webkit-opacity: 1;
+   -moz-opacity: 1;
+   -ms-opacity: 1;
+   -o-opacity: 1;
+   opacity: 1; 
+
+}
+.airvis-scrollbar .track {  background: rgba(0,47,64,.50); border: 1px solid rgba(0, 35, 48, 0.53); position: absolute; top: 4px; bottom: 2px; height: auto !important;
+
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+
+ }
+.airvis-scrollbar .thumb { background-color: rgba(255,255,255,.5); width:6px; cursor:pointer; position:relative; margin: -1px -2px 0;
+
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+
+  transition: background-color 0.2s; 
+  -webkit-transition: background-color 0.2s;
+
+}
+.airvis-scrollbar .thumb .end { display: none;}
+.airvis-scrollbar .disable{ display: none; }
+.airvis-scrollbar .thumb:hover { background-color:#ffffff;}
 .noSelect { user-select: none; -o-user-select: none; -moz-user-select: none; -khtml-user-select: none; -webkit-user-select: none; }
 
 
@@ -899,15 +596,20 @@ body {
 
 .airvis-player-online-notification {
   position: absolute;
-  top: -45px;
+  top: -40px;
   background-color: rgba(253, 63, 63, 0.8);
   color: #ffffff;
   font-weight: bold;
   width: 100%;
-  line-height: 40px;
-  opacity: 1;
-  transition: opacity 0.5s ease;
+  line-height: 35px;
 }
+
 .airvis-player-online-notification .airvis-player-online-notification-text {
     padding-left: 5px;
+}
+
+.airvis-player-online-notification .airvis-window-close {
+  position: absolute;
+  right: 10px;
+  top: -2px;
 }

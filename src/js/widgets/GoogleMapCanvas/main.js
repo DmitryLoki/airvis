@@ -109,6 +109,7 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 			radius: data.radius,
 			openKey: data.openKey,
 			shortWay: data.shortWay,
+			checkedOn: data.checkedOn,
 			prepareCoordsRequired: true,
 			preparedCoords: null,
 			preparedSpCoords: null
@@ -202,6 +203,8 @@ define(["jquery","knockout","utils","EventEmitter","google.maps","./CanvasOverla
 					if (r >= 1000) r = Math.floor(r/100)/10 + "km";
 					else r = r + "m";
 					title += (title.length>0?" / ":"") + "R " + r;
+					if (w.checkedOn().length > 0)
+						title += " / " + w.checkedOn().toUpperCase();
 				}
 
 				context.beginPath();

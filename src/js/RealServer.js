@@ -52,7 +52,8 @@
 									lng: rw.geometry.coordinates[1]
 								},
 								radius: rw.properties.radius,
-								openKey: rw.properties.open_time*mult
+								openKey: rw.properties.open_time*mult,
+								checkedOn: rw.properties.checked_on
 							});
 							if (rw.properties && rw.properties.checkpoint_type == "ss")
 								data.raceKey = rw.properties.open_time*mult;
