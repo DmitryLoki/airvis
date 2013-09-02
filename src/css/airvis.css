@@ -613,3 +613,31 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
   right: 10px;
   top: -2px;
 }
+
+.airvis-waypoints-table .airvis-waypoint-number {
+  width: 30px;
+}
+
+.airvis-waypoints-table .airvis-waypoint-name {
+  width: 30px;
+}
+
+.airvis-waypoints-table .airvis-waypoint-radius {
+  width: 45px;
+}
+
+.airvis-waypoints-table .airvis-waypoint-type {
+    width: 45px;
+}
+
+.airvis-waypoints-table .airvis-waypoint-leg {
+    width: 40px;
+}
+
+.airvis-waypoints-table .airvis-waypoint-dist {
+    width: 40px;
+}
+
+.airvis-waypoints-table .airvis-time{
+    width: 50px;
+}

@@ -47,13 +47,14 @@
 								id: i,
 								name: rw.properties.name,
 								type: rw.properties.checkpoint_type,
+								checkedOn: rw.properties.checked_on,
 								center: {
 									lat: rw.geometry.coordinates[0],
 									lng: rw.geometry.coordinates[1]
 								},
 								radius: rw.properties.radius,
 								openKey: rw.properties.open_time*mult,
-								checkedOn: rw.properties.checked_on
+                                closeKey: rw.properties.close_time*mult
 							});
 							if (rw.properties && rw.properties.checkpoint_type == "ss")
 								data.raceKey = rw.properties.open_time*mult;

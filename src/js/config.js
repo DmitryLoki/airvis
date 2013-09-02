@@ -258,6 +258,16 @@ define({
 			top: 180,
 			right: 90
 		},
+        waypointsTable: {
+            visible: false,
+            absoluteCloseIcon: true,
+            title:"Task",
+            width:360,
+            height: 250,
+            xPosition:"right",
+            top:480,
+            right:30
+        },
     retrieveDistanceMeasurer: {
       visible: false,
       title: "Distance",

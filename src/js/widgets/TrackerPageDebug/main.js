@@ -10,6 +10,7 @@ define([
     'widget!GoogleMapCanvas',
     'widget!PlayerControl',
     'widget!UfosTable',
+    'widget!WaypointsTable',
     'widget!RetrieveTable',
     'widget!RetrieveRawForm',
     'widget!RetrieveChat',
@@ -36,6 +37,7 @@ define([
 	GoogleMapCanvas,
 	PlayerControl,
 	UfosTable,
+	WaypointsTable,
 	RetrieveTable,
 	RetrieveRawForm,
 	RetrieveChat,
@@ -75,6 +77,7 @@ define([
 		this.center = ko.observable({lat:options.center.lat,lng:options.center.lng});
 		this.radius = ko.observable(options.radius);
 		this.openKey = ko.observable(options.openKey);
+		this.closeKey = ko.observable(options.closeKey);
 		this.checkedOn = ko.observable(options.checkedOn);
 	}
 
@@ -320,11 +323,14 @@ define([
 			this.facebook = new Facebook();
 			this.facebookWindow = new Window(this.options.windows.facebook);
 
+            this.waypointsTable = new WaypointsTable({waypoints:this.waypoints,shortWays:this.shortWay});
+            this.waypointsTableWindow = new Window(this.options.windows.waypointsTable);
+
 			this.topBar = new TopBar();
-			this.topBar.items.push(this.mainMenuWindow,this.ufosTableWindow,this.playerControlWindow,this.facebookWindow);
+			this.topBar.items.push(this.mainMenuWindow,this.ufosTableWindow,this.playerControlWindow,this.facebookWindow, this.waypointsTableWindow);
 
 			this.windowManager = new WindowManager();
-			this.windowManager.items.push(this.ufosTableWindow,this.playerControlWindow,this.mainMenuWindow,this.facebookWindow);
+			this.windowManager.items.push(this.ufosTableWindow,this.playerControlWindow,this.mainMenuWindow,this.facebookWindow,this.waypointsTableWindow);
 		}
 		else if (this.mode() == "retrieve") {
 			this.retrieveStatus = ko.observable("");
