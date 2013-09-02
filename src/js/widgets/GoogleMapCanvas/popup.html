@@ -1,0 +1,19 @@
+<div id="airvis-ufo-popup">
+	<div class="airvis-ufo-popup-title" style="font-size: 12px;">
+		<div class="airvis-ufo-popup-arrow"></div>
+		<div data-bind="text:name() + ' (' + id() + ')'"></div>
+		<div>
+			<span class="countryicon-sprite iconset-shiny" data-bind="css:'countrycode-'+country().toLowerCase()"></span>
+			<span data-bind="text:country3"></span>
+		</div>
+	</div>
+	<div class="airvis-ufo-popup-content">
+		<a class="airvis-popup-check" href="#" data-bind="css:{'airvis-popup-checked':checked()},click:switchCheck,clickBubble:false,text:checked()?'Deselect':'Select'"></a>
+		<div class="airvis-ufo-popup-list">
+			<div>Rank#: <span data-bind="text:i"></span></div>
+			<div data-bind="visible:dist()>0">Dist to goal: <span data-bind="text:dist"></span> km</div>
+			<div data-bind="visible:alt()>0">Alt: <span data-bind="text:alt"></span> m</div>
+			<div data-bind="visible:speed()>0">Speed: <span data-bind="text:speed"></span> km/h</div>
+		</div>
+	</div>
+</div>

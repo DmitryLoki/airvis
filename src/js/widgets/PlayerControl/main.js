@@ -158,6 +158,8 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 	
 	PlayerControl.prototype.domInit = function(elem,params) {
 		this.modalWindow = params.modalWindow;
+		this.isReady = true;
+		this.emit("ready");
 	}
 
 

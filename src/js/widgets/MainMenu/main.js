@@ -1,12 +1,7 @@
 define(["utils","knockout"],function(utils,ko) {
 	var MainMenu = function(options) {
-		this.titles = ko.observable({});
+		this.titles = options.titles;
 		this.titleUrl = options.titleUrl;
-	}
-
-	MainMenu.prototype.setTitles = function(titles) {
-		this.titles(titles);
-		this.titles.valueHasMutated();
 	}
 
 	MainMenu.prototype.windowDrag = function(self,e) {
@@ -22,7 +17,6 @@ define(["utils","knockout"],function(utils,ko) {
 	MainMenu.prototype.domInit = function(elem,params) {
 		this.modalWindow = params.modalWindow;
 	}
-
 
 	MainMenu.prototype.templates = ["main"];
 

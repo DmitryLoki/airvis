@@ -56,22 +56,24 @@ define(["jquery","knockout"],function($,ko) {
 		self._visTimeout = null;
 		self.visible.subscribe(function(v) {
 			if (v) {
+				self._opacity("0");
 				self._visible(true);
 				clearTimeout(self._visTimeout);
 				self._visTimeout = setTimeout(function() {
-					self._opacity(1);
+					self._opacity("1");
 				},50);
 			}
 			else {
+				self._visible(true);
 				self._opacity("0");
 				clearTimeout(self._visTimeout);
 				self._visTimeout = setTimeout(function() {
 					self._visible(false);
 				},1000);
 			}
-			self._visible(v);
 		});
 	}
+
 
 	Window.prototype.recomputePosition = function() {
 		if (this.touched()) return;

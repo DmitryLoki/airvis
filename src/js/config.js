@@ -1,28 +1,31 @@
 define({
-	width: "100%",
-	height: "100%",
-	mode: "full",
-	mapWidget: "2d",
-	imgRootUrl: "/img/",
-	apiVersion: "v0.2",
-	apiDomain: "http://api.airtribune.com",
-	icons: {
-		"default_medium": {url: "ufo_default_medium.png", width: 32, height: 35, x: 16, y: 35},
-		"default_small": {url: "ufo_default_small.png", width: 16, height: 17, x: 8, y: 8},
-		"default_large": {url: "ufo_default_large.png", width: 64, height: 70, x: 32, y: 70},
-//		"not started_medium": {url: "ufo_not_started_medium.png", width: 32, height: 35, x: 16, y: 35},
-//		"not started_small": {url: "ufo_not_started_small.png", width: 16, height: 17, x: 8, y: 8},
-//		"not started_large": {url: "ufo_not_started_large.png", width: 64, height: 70, x: 32, y: 70},
-		"landed_medium": {url: "ufo_landed_medium.png", width: 32, height: 35, x: 16, y: 35},
-		"landed_small": {url: "ufo_landed_small.png", width: 16, height: 17, x: 8, y: 8},
-		"landed_large": {url: "ufo_landed_large.png", width: 64, height: 70, x: 32, y: 70},
-		"finished_medium": {url: "ufo_finished_medium.png", width: 32, height: 35, x: 16, y: 35},
-		"finished_small": {url: "ufo_finished_small.png", width: 16, height: 17, x: 8, y: 8},
-		"finished_large": {url: "ufo_finished_large.png", width: 64, height: 70, x: 32, y: 70},
-		"finished_landed_medium": {url: "ufo_finished_landed_medium.png", width: 32, height: 28, x: 16, y: 28},
-		"finished_landed_small": {url: "ufo_finished_landed_small.png", width: 16, height: 17, x: 8, y: 8},
-		"finished_landed_large": {url: "ufo_finished_landed_large.png", width: 64, height: 70, x: 32, y: 70}
+	// Настройки, которые могут быть переопределены через код подключения виджета
+	defaults: {
+		width: "100%",
+		height: "100%",
+		mapWidget: "2d",
+		mapOptions: {},
+		mode: "full",
+		titleUrl: "",
+		debug: false,
+		tracksVisualMode: "10min",
+		cylindersVisualMode: "full",
+		heightsVisualMode: "level+",
+		modelsVisualMode: "small",
+		shortWayVisualMode: "wide",
+		namesVisualMode: "on",
+		profVisualMode: "user",
+		playerState: "pause",
+		playerSpeed: 1,
+		isOnline: false,
+		retrieveState: "pause",
+		imgRootUrl: "/img/",
+		contestId: "",
+		raceId: "",
+		apiDomain: "http://api.airtribune.com",
+		apiVersion: "v0.2"
 	},
+	// Настройки GoogleMapCanvas
 	canvas: {
 		ufos: {
 			basic: {
@@ -53,8 +56,6 @@ define({
 					strokeStyle: "#005e80"
 				},
 				finished: {
-//					fillStyle: "#fc20e8",
-//					strokeStyle: "#651b80"
 					fillStyle: "#fc4cff",
 					strokeStyle: "#7e21a0"
 				}
@@ -88,12 +89,15 @@ define({
 				fillStyle: "rgba(255,255,255,0.6)",
 				strokeStyle: "rgba(255,255,255,0.5)"
 			},
+			highlightSize: 8,
+			highlightDelay: 500,
 			titleOffset: 4,
 			altTitleOffsetY: 5,
 			altTitleOffsetX: 2,
 			minStick: 0,
 			maxStick: 30,
-			checkedCircleSize: 5
+			checkedCircleSize: 5,
+			visibleCheckboxColor: "rgba(0,47,64,0.75)"
 		},
 		waypoints: {
 			basic: {
@@ -147,6 +151,11 @@ define({
 				15: 30,
 				16: 20,
 				17: 10
+			},
+			drawOrder: {
+				goal: 2,
+				es: 1,
+				ss: 3
 			}
 		},
 		shortWay: {
@@ -163,8 +172,17 @@ define({
 			},
 			arrowSize: 50,
 			circleSize: 10
-		}
+		},
+		// Минимальный зум карты, при котором показывается переключатель prof/user режима подписи цилиндров
+		waypointsVisualAutoMinZoom: 8,
+		// Зум, который ставится для гонки типа open distance по умолчанию при загрузке карты
+		openDistanceDefaultZoom: 11,
+		// Зум, к которому приближается карта при начале слежения за пилотом
+		trackingZoom: 15,
+		// Интервал синхронизации центра карты в положение пилота
+		trackingTimeout: 2000
 	},
+	// Настройки модели TrackerPageDebug/ufo
 	ufo: {
 		color: "#000000",
 		visible: true,
@@ -173,18 +191,11 @@ define({
 		trackStrokeWeight: 1,
 		flat: true
 	},
-	ufosTable: {
-		mode: "short",
-		allVisibleCheckboxColor: "#ffffff"
+	// Настройки таблицы пилотов
+	table: {
+		sortingTimeout: 1000
 	},
-	serverDelay: 120000,	// 2 минуты
-	serverFake: 0,		
-	dtDiffReply: 60000,		// 1 минута разницы между реальным временем и данными с сервера - включается reply mode, < минуты - isCurrentlyOnline
-	retrieveState: "pause",
-	retrieveInterval: 10000,
-	playerState: "pause",
-	playerSpeed: 1,
-	renderTableDataInterval: 5000,
+	// Настройки размеров и положений окон с виджетами
 	windows: {
 		ufosTable: {
 			visible: true,
@@ -253,27 +264,48 @@ define({
 			top: 180,
 			right: 90
 		},
-    retrieveDistanceMeasurer: {
-      visible: false,
-      title: "Distance",
-      menuTitlePosition: "right",
-      resizable: false,
-      width: 180,
-      height: 100,
-      xPosition: "right",
-      top: 410,
-      right: 90
-    }
+	    retrieveDistanceMeasurer: {
+	      visible: false,
+	      title: "Distance",
+	      menuTitlePosition: "right",
+	      resizable: false,
+	      width: 180,
+	      height: 100,
+	      xPosition: "right",
+	      top: 410,
+	      right: 90
+	    }
 	},
-	tracksVisualMode: "10min",
-	tracksVisualModeReplay: "10min",
-	tracksVisualModeOnline: "10min",
-	cylindersVisualMode: "full",
-	heightsVisualMode: "level+",
-	modelsVisualMode: "small",
-	shortWayVisualMode: "wide",
-	namesVisualMode: "on",
-	profVisualMode: "user",
+	// В онлайне время отстает от реального серверного на 2 минуты
+	serverDelay: 120000,
+	// 1 минута разницы между реальным временем и данными с сервера в онлайне - включается онлайновый reply mode, < минуты - считается что онлайн (isCurrentlyOnline)
+	dtDiffReply: 60000,
+	// Сопоставление настройки mapWidget <-> mapType
+	mapTypes: {
+		"2d": "GoogleMapCanvas",
+		"2d-old": "GoogleMap",
+		"3d": "OwgMap"
+	},
+	// Сопоставление типам цилиндров их названий
+	waypointsNames: {
+		ss: "START",
+		es: "END OF SPEED SECTION",
+		goal: "GOAL",
+		to: "TAKE OFF"
+	},
+
+
+
+
+	// Говно какое-то
+
+	ufosTable: {
+		mode: "short",
+		allVisibleCheckboxColor: "#ffffff"
+	},
+	serverFake: 0,		
+	retrieveInterval: 10000,
+	renderTableDataInterval: 5000,
 	shortWay: {
 		wide: {
 			strokeColor: "#002244",
@@ -289,8 +321,6 @@ define({
 	shortWayMinSegmentLengthToShowArrow: 100,
 	namesVisualModeAutoMinZoom: 14,
 	namesVisualAutoMinZoom: 14,
-	waypointsVisualAutoMinZoom: 8,
-	openDistanceDefaultZoom: 11,
 	waypoint: {
 		color: "#000000",
 		strokeOpacity: 0.8,
@@ -311,60 +341,9 @@ define({
 			opened: "#505050"
 		}
 	},
-	waypointsNames: {
-		ss: "START",
-		es: "END OF SPEED SECTION",
-		goal: "GOAL",
-		to: "TAKE OFF"
-	},
-	waypointsDrawOrder: {
-		goal: 2,
-		es: 1,
-		ss: 3
-	},
 	map: {
 		zoom: 9,
 		center: {lat: 55.748758, lng: 37.6174},
 		type: "TERRAIN"
-	},
-	trackingZoom: 15,
-	trackingTimeout: 2000,
-	// Настройки тестового сервера
-	testServerOptions: {
-		mainTitle: "52th FAI european paragliding championship",
-		taskTitle: "Task1 - 130km",
-		dateTitle: "22 Sep, 2012",
-		placeTitle: "France, Saint Andre les Alpes",
-		pilotsCnt: 15,
-		waypointsCnt: 5,
-		startKey: (new Date).getTime() - 120000,
-		endKey: (new Date).getTime() - 60000,
-		dtStep: 1000,
-		// Данные для генератора координат
-		coords: {
-			center: {
-				lat: 55.75,
-				lng: 37.61,
-				elevation: 500
-			},
-			// Разброс стартового положения пилотов
-			dispersion: 0.02,
-			elevationDispersion: 100,
-			// Максимальная дистанция, на которую пилот может улететь за 1 шаг
-			maxStep: 0.005,
-			elevationMaxStep: 100,
-			// Вероятность того, что пилот не будет двигаться на текущем шаге
-			holdProbability: 0,
-			// угол в градусах, на который максимум может повернуться параплан
-			directionMaxStep: 30
-		},
-		waypoints: {
-			dispersion: 0.1,
-			maxRadius: 1600,
-			minRadius: 600,
-			height: 500,
-		},
-		// Задержка, с которой тестовый сервер отдает ответ
-		testDelay: 1000,
 	}
 });

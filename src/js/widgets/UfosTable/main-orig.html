@@ -77,12 +77,8 @@
 		<div class="airvis-resizebar" data-bind="event:{mousedown:resizeTable.bind($data,'checked'),touchstart:resizeTable.bind($data,'checked')}"></div>
 	</div>
 	<div class="airvis-pform">
-		<a class="airvis-pform-clearSearch" href="#" data-bind="click:clearSearch,css:{'airvis-pform-clearSearchActive':_q().length>0}"></a>
-		<input type="text" data-bind="value:_q,valueUpdate:'afterkeydown'" placeholder="Example: Maurer">
-		<a class="airvis-pform-showCountries" href="#" data-bind="click:showCountries"></a>
-		<a class="airvis-pform-showTop" href="#" data-bind="click:showTop"></a>
+		<input type="text" data-bind="value:_q,valueUpdate:'afterkeydown'" placeholder="Example: Tommy Ray">
 	</div>
-	<a class="airvis-pform-info" href="#" data-bind="click:showInfo"></a>
 	<table class="airvis-ptable">
 		<thead>
 			<tr>

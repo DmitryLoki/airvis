@@ -1,13 +1,14 @@
-define(['utils', 'filters', 'knockout', 'knockout.mapping', 'jquery'], function(utils, filters, ko, komap, $){
-	function koWidgetBindingInit(){ // <!-- ko widget: { data: btn1, type: "Button", title: "button #1" } --><!-- /ko -->
-		function init(elem, valueAccessor, allBindingsAccessor, viewModel, bindingContext){
+define(["utils","filters","knockout","knockout.mapping","jquery"], function(utils,filters,ko,komap,$) {
+	function koWidgetBindingInit() { // <!-- ko widget: { data: btn1, type: "Button", title: "button #1" } --><!-- /ko -->
+		function init(elem, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 	    	var val = valueAccessor();
 	    	var widget = ko.utils.unwrapObservable(val.data);
+	    	var type = ko.utils.unwrapObservable(val.type);
 
 	    	if(!utils.isWidget(widget))
 	    		throw new TypeError('Model property is not widget!');
-	    	if(val.type && val.type != widget._widgetName)
-	    		throw new TypeError('Widget type is not equal to declaration! (' + val.type + ' != ' + widget._widgetName + ')');
+	    	if(type && type != widget._widgetName)
+	    		throw new TypeError('Widget type is not equal to declaration! (' + type + ' != ' + widget._widgetName + ')');
 
 	    	if (!widget.savedNodes)
 		    	widget.savedNodes = ko.utils.cloneNodes(ko.virtualElements.childNodes(elem),true);
@@ -22,26 +23,26 @@ define(['utils', 'filters', 'knockout', 'knockout.mapping', 'jquery'], function(
 	    		templates: widget.templates
 	    	}), {}, elem, 'replaceChildren');
 	    	if(widget.domDestroy)
-	    		ko.utils.domNodeDisposal.addDisposeCallback(elem, function(){
+	    		ko.utils.domNodeDisposal.addDisposeCallback(elem,function() {
 	    			widget.domDestroy(elem, val);
 	    			delete elem._widget;
 	    		});
 	    	if(widget.domInit)
 	    		widget.domInit(elem, val);
-	    	return { controlsDescendantBindings: true };
+	    	return {controlsDescendantBindings:true};
 		}
 
-		function update(elem, valueAccessor, allBindingsAccessor, viewModel, bindingContext){
+		function update(elem,valueAccessor,allBindingsAccessor,viewModel,bindingContext) {
 	    	var val = valueAccessor();
 	    	var widget = ko.utils.unwrapObservable(val.data);
 
 	    	if(elem._widget !== widget){
 	    		elem._widget.domDestroy(elem, val);
-	    		init(elem, valueAccessor, allBindingsAccessor, viewModel);
+	    		init(elem,valueAccessor,allBindingsAccessor,viewModel);
 	    	}
 		}
 
-		ko.bindingHandlers.widget = { init: init, update: update };
+		ko.bindingHandlers.widget = {init:init,update:update};
 		ko.virtualElements.allowedBindings.widget = true;
 	}
 
@@ -59,22 +60,68 @@ define(['utils', 'filters', 'knockout', 'knockout.mapping', 'jquery'], function(
 		ko.virtualElements.allowedBindings.domNodes = true;
 	}
 
-	function koTemplateEngineInit(){
-		var WidgetTemplate = function(template){
+	// TODO: Test it and pull to github!
+	function koSyncInit() {
+		ko.utils.sync = function(options) {
+			if (typeof options !== "object" || !options.source || !options.target || !options.onAdd) {
+				throw new Error("ko.utils.sync requires object with source and target (observable)Arrays and onAdd method");
+			}
+			if (!options.propName) {
+				options.propName = "id";
+			}
+			return options.source.subscribe(function(items) {
+ 	    	    var rev1 = {}, rev2 = {}, values2push = [];
+            	for (var i = 0, l = items.length; i < l; i++) {
+            		var propValue = ko.utils.unwrapObservable(items[i][options.propName]);
+            		rev1[propValue] = i;
+            	}
+            	var targetItems = ko.utils.unwrapObservable(options.target);
+            	for (var i = 0, l = targetItems.length; i < l; i++) {
+            		var propValue = ko.utils.unwrapObservable(targetItems[i][options.propName]);
+            		rev2[propValue] = i;
+            	}
+            	for (var i = 0, l = items.length; i < l; i++) {
+            		var propValue = ko.utils.unwrapObservable(items[i][options.propName]);
+            		if (rev2[propValue] === undefined) {
+            			values2push.push(options.onAdd(items[i]));
+            			rev2[propValue] = targetItems.length;
+            		}
+            	}
+            	if (values2push.length > 0) {
+            		ko.utils.arrayPushAll(options.target,values2push);
+            		if (typeof options.afterAdd === "function") {
+            			options.afterAdd();
+            		}
+            	}
+            	for (var l = targetItems.length, i = l-1; i > 0; i--) {
+            		var propValue = ko.utils.unwrapObservable(targetItems[i][options.propName]);
+            		if (rev1[propValue] === undefined) {
+            			if (typeof options.onRemove === "function") {
+            				options.onRemove(targetItems[i]);
+            			}
+            			options.target.splice(i,1);
+            		}
+            	}
+			});
+		}
+	}
+
+	function koTemplateEngineInit() {
+		var WidgetTemplate = function(template) {
 			this.name = template;
 		};
-		WidgetTemplate.prototype.text = function(){
+		WidgetTemplate.prototype.text = function() {
 			return this.templates ? this.templates[this.name] : '';
 		};
-		var WidgetTemplateEngine = function(){
+		var WidgetTemplateEngine = function() {
 			WidgetTemplateEngine.super_.apply(this);
 		};
 		utils.inherits(WidgetTemplateEngine, ko.nativeTemplateEngine);
-		WidgetTemplateEngine.prototype.makeTemplateSource = function(template){
+		WidgetTemplateEngine.prototype.makeTemplateSource = function(template) {
 			return new WidgetTemplate(template);
 		};
 		WidgetTemplateEngine.prototype._origRenderTemplateSource = WidgetTemplateEngine.prototype.renderTemplateSource;
-		WidgetTemplateEngine.prototype.renderTemplateSource = function(templateSource, bindingContext, options){
+		WidgetTemplateEngine.prototype.renderTemplateSource = function(templateSource, bindingContext, options) {
 			templateSource.templates = bindingContext.templates;
 			return this._origRenderTemplateSource(templateSource, bindingContext, options);
 		};
@@ -82,10 +129,11 @@ define(['utils', 'filters', 'knockout', 'knockout.mapping', 'jquery'], function(
 		ko.setTemplateEngine(new WidgetTemplateEngine);
 	}
 
-	function appInit(widget, doc){
+	function appInit(widget, doc) {
 		koWidgetBindingInit();
 		koDomNodesBindingInit();
 		koTemplateEngineInit();
+		koSyncInit();
 		ko.applyBindings(widget, doc.documentElement);
 		if(widget.domInit)
 			widget.domInit(doc.documentElement);

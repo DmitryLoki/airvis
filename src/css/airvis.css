@@ -79,7 +79,7 @@ body {
   font-size: 14px;
   font-weight: normal;
   position: absolute;
-  transition: width 0.5s ease, opacity 0.5s ease;
+  transition: width 1s ease, opacity 1s ease;
   opacity: 1;
 }
 .airvis-window-header { 
@@ -313,18 +313,75 @@ body {
 
 /* Pilots table search form */
 .airvis-pform {
-  margin: 7px 9px;
-}
-.airvis-pform input {
   background-color: #323426;
   border: 1px solid #09242d;
   border-radius: 2px;
-  width: 210px;
-  text-align: right;
-  color: #e8b981;
-  padding: 2px 10px;
+  float: left;
+  height: 24px;
+  margin: 5px 8px;
+  width: 320px;
+}
+.airvis-pform-clearSearch {
+  background: transparent url("../img/search.png") 4px 4px no-repeat;
+  display: block;
+  float: left;
+  height: 24px;  
+  width: 24px;
+}
+.airvis-pform-clearSearchActive {
+  background-image: url("../img/b_deleteSearch_normal.png");
+}
+.airvis-pform-clearSearchActive:hover {
+  background-image: url("../img/b_deleteSearch_hover.png");
+}
+.airvis-pform-showCountries {
+  background: transparent url("../img/b_country_normal.png") 3px 3px no-repeat;
+  border-left: 1px solid #000000;
+  display: block;
+  float: left;
+  height: 24px;
+  width: 24px;
+}
+.airvis-pform-showCountries:hover {
+  background-image: url("../img/b_country_hover.png");
+}
+.airvis-pform-showTop {
+  background: transparent url("../img/b_top_normal.png") 3px 3px no-repeat;
+  display: block;
+  float: left;
+  height: 24px;
+  width: 24px;
+}
+.airvis-pform-showTop:hover {
+  background-image: url("../img/b_top_hover.png");
+}
+.airvis-pform-info {
+  background: #323426 url("../img/b_info_normal.png") 8px 3px no-repeat;
+  border: 1px solid #09242d;
+  border-radius: 2px;
+  display: block;
+  float: left;
+  height: 24px;
+  margin: 5px 0px;
+  width: 24px;
+}
+.airvis-pform-info:hover {
+  background-image: url("../img/b_info_hover.png");
 }
 
+
+
+.airvis-pform input {
+  background-color: #323426;
+  border: 0;
+  color: #ffb667;
+  display: block;
+  float: left;
+  font: normal 14px/20px Arial;
+  padding: 2px 10px;
+  width: 210px;
+  text-align: right;
+}
 
 /* Pilot popup */
 #airvis-ufo-popup {
@@ -346,8 +403,9 @@ body {
   background-color: rgba(0,47,64,0.75);
 }
 #airvis-ufo-popup .airvis-popup-check {
-  background: transparent url("../img/star_disable.png") 4px 8px no-repeat;
-  color: #ffffff;
+/*  background: transparent url("../img/star_disable.png") 4px 8px no-repeat; */
+  background: rgba(83,43,0,0.5) url("../img/star_disable.png") 4px 8px no-repeat;
+  color: #ffb667;
   display: block;
   height: 20px;
   padding: 5px;
@@ -357,8 +415,9 @@ body {
 #airvis-ufo-popup .airvis-popup-check:hover {
   background: rgba(83,43,0,0.5) url("../img/star_enable.png") 4px 8px no-repeat;
 }
-#airvis-ufo-popup .airvis-popup-checked:hover {
-  background: transparent url("../img/star_enable.png") 4px 8px no-repeat;
+#airvis-ufo-popup .airvis-popup-checked {
+/*  background: transparent url("../img/star_enable.png") 4px 8px no-repeat; */
+  background: rgba(83,43,0,0.5) url("../img/star_enable.png") 4px 8px no-repeat;
 }
 #airvis-ufo-popup .airvis-popup-checked:hover {
   background: rgba(83,43,0,0.5) url("../img/star_disable.png") 4px 8px no-repeat;
@@ -376,6 +435,20 @@ body {
   border-bottom: 6px solid transparent;
   border-right: 6px solid #023040;
 }
+
+
+/* Facebook window */
+.airvis-facebook-container {
+  background-color: #333333;
+  position: relative;
+}
+.airvis-facebook-hover {
+  left: 0;
+  position: absolute;
+  top: 0;
+  z-index: 2;
+}
+
 
 
 

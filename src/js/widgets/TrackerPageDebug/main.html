@@ -1,5 +1,5 @@
 <!-- ko if: isReady -->
-	<div class="airvis-content-container" data-bind="style:{width:width,height:height,opacity:isLoadedWithDelay()?'1':'0'}">
+	<div class="airvis-content-container" data-bind="style:{width:width,height:height,opacity:isLoaded()?'1':'0'}">
 		<div data-bind="style:{width:width,height:height}">
 			<!-- ko widget: { data: map, type: mapType } --><!-- /ko -->
 		</div>
