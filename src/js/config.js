@@ -200,15 +200,18 @@ define({
 		ufosTable: {
 			visible: true,
 			menuTitle: "Leaderboard",
+//			width: 363,
+//			wideWidth: 483,
 			width: 400,
-			wideWidth: 513,
+			wideWidth: 520,
 			top: 180,
 			left: 90,
 			tableHeight: 288,
 			tableMinHeight: 100,
 			checkedTableHeight: 220,
-			checkedTableMinHeight: 44,
-			tableRowHeight: 22
+			checkedTableMinHeight: 52,
+			tableRowHeight: 22,
+			firstTableRowOffset: 8
 		},
 		retrieveTable: {
 			visible: true,

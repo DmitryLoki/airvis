@@ -90,7 +90,7 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 			else return "Dist to<br>goal, km";
 		});
 		this.checkedTableTotalHeight = ko.computed(function() {
-			return self.checkedLength() * config.windows.ufosTable.tableRowHeight;
+			return self.checkedLength() * config.windows.ufosTable.tableRowHeight + config.windows.ufosTable.firstTableRowOffset;
 		});
 		this.checkedTableTotalHeight.subscribe(function(h) {
 			if (self._manuallyResized) {

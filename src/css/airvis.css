@@ -188,15 +188,16 @@ body {
 .airvis-ptable .airvis-ptable-name-wrapper {
   overflow: hidden;
   white-space: nowrap;
-  width: 144px;
+  width: 181px;
 }
 .airvis-ptable td.airvis-ptable-name .countryicon-sprite { 
   margin-left: 10px;
   position: relative; 
-  top: 1px;
+  top: 2px;
 }
 .airvis-ptable td.airvis-ptable-countryname .countryicon-sprite {
   margin-left: 0;
+  top: 0;
 }
 .airvis-ptable tr td.airvis-ptable-name .airvis-ptable-onover { 
   display: inline-block; 
@@ -234,7 +235,7 @@ body {
 }
 .airvis-ptable-checkbox { width: 28px; }
 .airvis-ptable-number { width: 29px; }
-.airvis-ptable-name { width: 144px; padding-left: 10px;}
+.airvis-ptable-name { width: 181px; padding-left: 10px;}
 .airvis-ptable-country { width: 69px; }
 .airvis-ptable-dist-to-goal { width: 59px; }
 .airvis-ptable-alt { width: 39px; }
@@ -246,39 +247,39 @@ body {
   text-decoration: none;
 }
 .airvis-ptable-checkbox .checkbox { top: 2px; position: relative;}
-.airvis-ptable .airvis-pilot-name { padding-top: 2px; display: inline-block;}
+.airvis-ptable .airvis-pilot-name { padding-top: 3px; display: inline-block;}
 .airvis-ptable-check {
   display: block;
   float: left;
-  background: transparent url("../img/controls_pic.png") 50% -240px no-repeat;
+  background: transparent url("../img/controls_pic.png") -5px -240px no-repeat;
   height: 20px;
-  width: 12px;
-  margin: 0 5px 0 2px;
+  width: 18px;
 }
 .airvis-ptable-check:hover,.airvis-ptable-checked {
-  background-position: 50% -260px
+  background-position: -5px -260px;
 }
 .airvis-ptable-checked:hover {
-  background-position: 50% -240px
+  background-position: -5px -240px;
 }
+
 .airvis-ptable th .airvis-ptable-check {
-  background-position: 1px 0;
-  height: 11px;
+/*  background-position: 1px 0; */
+  background-position: -5px -263px;
+  height: 12px;
 }
 
 .airvis-ptable-track {
   display: block;
   float: left;
-  background: transparent url("../img/controls_pic.png") 50% -280px no-repeat;
+  background: transparent url("../img/controls_pic.png") -7px -280px no-repeat;
   height: 20px;
-  width: 10px;
-  margin-right: 9px;
+  width: 18px;
 }
 .airvis-ptable-track:hover,.airvis-ptable-tracked {
-  background-position: 50% -300px
+  background-position: -7px -300px;
 }
 .airvis-ptable-tracked:hover {
-  background-position: 50% -280px
+  background-position: -7px -280px;
 }
 
 
@@ -345,7 +346,7 @@ body {
   float: left;
   height: 24px;
   margin: 5px 5px 5px 9px;
-  width: 284px;
+  width: 300px;
 }
 .airvis-pform-clearSearch {
   background: transparent url("../img/controls_pic.png") 50% 0 no-repeat;
@@ -406,7 +407,7 @@ body {
   float: left;
   font: normal 14px/18px Arial;
   padding: 3px 10px 3px;
-  width: 180px;
+  width: 196px;
   text-align: right;
   border-right: 1px solid #09242d;
   letter-spacing: 0.14px;

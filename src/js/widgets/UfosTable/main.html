@@ -37,10 +37,10 @@
 									<td class="airvis-ptable-name">
 										<div class="airvis-ptable-name-wrapper">
 											<span class="airvis-ptable-onover" data-bind="css:{'airvis-ptable-tracked-container':$parent.trackedUfoId()==id(),'airvis-ptable-checked-container':checked()}">
-												<a class="airvis-ptable-check" href="#" data-bind="css:{'airvis-ptable-checked':checked()},click:switchCheck,clickBubble:false"></a>
+												<a class="airvis-ptable-check airvis-ptable-checked" href="#" data-bind="click:switchCheck,clickBubble:false"></a>
 												<a class="airvis-ptable-track" href="#" data-bind="css:{'airvis-ptable-tracked':$parent.trackedUfoId()==id()},click:switchTracking,clickBubble:false"></a>
 											</span>
-											<span data-bind="text:name() + ' (' + id() + ')'"></span>
+											<span class="airvis-pilot-name" data-bind="text:name() + ' (' + id() + ')'"></span>
 											<a href="#" class="countryicon-sprite iconset-shiny" data-bind="css:'countrycode-'+country().toLowerCase(),visible:$parent.mode()=='short',click:searchCountry,clickBubble:false"></a>
 										</div>
 									</td>
@@ -129,10 +129,10 @@
 								<td class="airvis-ptable-name">
 									<div class="airvis-ptable-name-wrapper">
 										<span class="airvis-ptable-onover" data-bind="css:{'airvis-ptable-tracked-container':$parent.trackedUfoId()==id()}">
-											<a class="airvis-ptable-check" href="#" data-bind="css:{'airvis-ptable-checked':checked()},click:switchCheck,clickBubble:false"></a>
+											<a class="airvis-ptable-check" href="#" data-bind="click:switchCheck,clickBubble:false"></a>
 											<a class="airvis-ptable-track" href="#" data-bind="css:{'airvis-ptable-tracked':$parent.trackedUfoId()==id()},click:switchTracking,clickBubble:false"></a>
 										</span>
-										<span data-bind="text:name() + ' (' + id() + ')'" class="airvis-pilot-name"></span>
+										<span class="airvis-pilot-name" data-bind="text:name() + ' (' + id() + ')'"></span>
 										<a href="#" class="countryicon-sprite iconset-shiny" data-bind="css:'countrycode-'+country().toLowerCase(),visible:$parent.mode()=='short',click:searchCountry,clickBubble:false"></a>
 									</div>
 								</td>
