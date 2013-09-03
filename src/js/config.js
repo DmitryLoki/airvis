@@ -204,7 +204,7 @@ define({
 			wideWidth: 513,
 			top: 180,
 			left: 90,
-			tableHeight: 300,
+			tableHeight: 288,
 			tableMinHeight: 100,
 			checkedTableHeight: 220,
 			checkedTableMinHeight: 44,
