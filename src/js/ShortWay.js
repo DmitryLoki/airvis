@@ -1,6 +1,6 @@
 define(function() {
 	var ShortWay = function() {
-		this.EARTH_RADIUS = 6378137;
+		this.EARTH_RADIUS = 6371000;
 		this.APPROXIMATION_CYCLES = 8;
 		this.METERS_IN_LAT_DEGREE = this.lonCoefficientForLat(0);
 	}

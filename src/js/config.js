@@ -268,17 +268,15 @@ define({
             top:480,
             right:30
         },
-    retrieveDistanceMeasurer: {
-      visible: false,
-      title: "Distance",
-      menuTitlePosition: "right",
-      resizable: false,
-      width: 180,
-      height: 100,
-      xPosition: "right",
-      top: 410,
-      right: 90
-    }
+        distanceMeasurer: {
+            visible: false,
+            title: "Distance",
+            resizable: false,
+            width: 180,
+            height: 100,
+            top: 310,
+            left: 5
+        }
 	},
 	tracksVisualMode: "10min",
 	tracksVisualModeReplay: "10min",

@@ -41,7 +41,7 @@ define(["google.maps"],function(gmaps) {
 		this._proj = this._map.getProjection();
 //		console.log("CanvasOverlay.onAdd",this._canvas);
 
-		this.getPanes().floatPane.appendChild(this._canvas);
+		this.getPanes().overlayLayer.appendChild(this._canvas);
 //		this._map.controls[this._container].push(this._canvas);
 		this.relayout();
 		if (typeof this._onAddCallback == "function")

@@ -19,7 +19,7 @@ define([
     'widget!MainMenu',
     'widget!TopBar',
     'widget!Facebook',
-    'widget!RetrieveDistanceMeasurer',
+    'widget!DistanceMeasurer',
     'TestServer',
     'RealServer',
     'DataSource',
@@ -46,7 +46,7 @@ define([
     MainMenu,
     TopBar,
     Facebook,
-    RetrieveDistanceMeasurer,
+    DistanceMeasurer,
     TestServer,
     RealServer,
     DataSource,
@@ -326,11 +326,20 @@ define([
             this.waypointsTable = new WaypointsTable({waypoints:this.waypoints,shortWays:this.shortWay});
             this.waypointsTableWindow = new Window(this.options.windows.waypointsTable);
 
+            this.isReady.subscribe(function() {
+                self.distanceMeasurer.appendControl(self.map.map);
+            });
+            this.distanceMeasurer = new DistanceMeasurer();
+            this.distanceMeasurer.isEnabled.subscribe(function(isEnabled){
+                self.distanceMeasurerWindow[isEnabled ? 'show' : 'hide']();
+            });
+            this.distanceMeasurerWindow = new Window(this.options.windows.distanceMeasurer);
+
 			this.topBar = new TopBar();
 			this.topBar.items.push(this.mainMenuWindow,this.ufosTableWindow,this.playerControlWindow,this.facebookWindow, this.waypointsTableWindow);
 
 			this.windowManager = new WindowManager();
-			this.windowManager.items.push(this.ufosTableWindow,this.playerControlWindow,this.mainMenuWindow,this.facebookWindow,this.waypointsTableWindow);
+			this.windowManager.items.push(this.ufosTableWindow,this.playerControlWindow,this.mainMenuWindow,this.facebookWindow,this.waypointsTableWindow,this.distanceMeasurerWindow);
 		}
 		else if (this.mode() == "retrieve") {
 			this.retrieveStatus = ko.observable("");
@@ -359,15 +368,6 @@ define([
 			this.retrieveChat.on("newMessage",function() {
 				self.retrieveRun();
 			});
-
-		    this.retrieveDistanceMeasurer = new RetrieveDistanceMeasurer({map:this.map});
-		    this.retrieveDistanceMeasurerWindow = new Window(this.options.windows.retrieveDistanceMeasurer);
-		    this.retrieveDistanceMeasurerWindow.on('showed', function(){
-		      self.retrieveDistanceMeasurer.enable(self.map.map);
-		    });
-		    this.retrieveDistanceMeasurerWindow.on('hided', function(){
-		      self.retrieveDistanceMeasurer.disable();
-		    });
 
 			this.retrieveRawForm = new RetrieveRawForm({server:this.server});
 			this.retrieveRawFormWindow = new Window(this.options.windows.retrieveRawForm);

@@ -393,7 +393,7 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
   top: 47px !important;
 }
 /*.gmap > div > .gmnoprint:last-child {*/
-.gmap > div > .gmnoprint:nth-child(3n+2) {
+.gmap > div > .gmnoprint:nth-child(9),.gmap > div > .gmnoprint:nth-child(10) {
   top: 55px !important;
   right: 20px !important;
 }
@@ -581,6 +581,23 @@ body { min-width: 1000px; width: 100%; min-height: 100%}
 }
 .airvis-distance-measurer h1 {
     color:#FFF;
+}
+.distance-measurer-control {
+    margin-left: 10px;
+    margin-top: 100px;
+    background: url('../img/prof.png') 0 -60px;
+    opacity: 0.8;
+}
+.distance-measurer-control a{
+    width: 30px;
+    height: 30px;
+    display: block;
+}
+.distance-measurer-control:hover {
+
+}
+.distance-measurer-control.enabled{
+    opacity:1;
 }
 .pane-advert-on-visualization-panel-pane-1 { position: absolute; top: 50%; right: 10px;}
 .pane-advert-on-visualization-panel-pane-1 .pane-content { position: relative;}
