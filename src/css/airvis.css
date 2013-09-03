@@ -28,7 +28,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-
 /* clearfix */
 .airvis-clearfix {
   *zoom: 1;
@@ -127,7 +126,7 @@ body {
 }
 .airvis-resizebar {
   height: 10px;
-  background: url("../img/corner.png") bottom right no-repeat;
+  background: rgba(0, 47, 64, 0.35) url("../img/corner.png") bottom right no-repeat;
   cursor: s-resize;
 }
 
@@ -158,6 +157,7 @@ body {
   text-align: center;
   vertical-align: middle;
   color: #ffffff;
+  padding: 0;
 }
 .airvis-ptable th {
   height: 37px;
@@ -369,9 +369,13 @@ body {
   width: 24px;
   margin-left: 5px;
 }
-.airvis-pform-showCountries:hover {
+.airvis-pform-showCountries:hover, .airvis-pform-showCountries-active {
   background-position: 50% -72px;
 }
+.airvis-pform-showCountries-active:hover {
+  background-position: 50% -48px;
+}
+
 .airvis-pform-showTop {
   background: transparent url("../img/controls_pic.png") 50% -96px no-repeat;
   display: block;
@@ -418,17 +422,31 @@ body {
     outline: 0;
 }
 .airvis-pform input::-webkit-input-placeholder { /* WebKit browsers */
-    color:    #684f2f;
+    color:    #674a2a;
 }
 .airvis-pform input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
-    color:    #684f2f;
+    color:    #674a2a;
 }
 .airvis-pform input::-moz-placeholder { /* Mozilla Firefox 19+ */
-    color:    #684f2f;
+    color:    #674a2a;
 }
 .airvis-pform input :-ms-input-placeholder { /* Internet Explorer 10+ */
-    color:    #684f2f;
+    color:    #674a2a;
 }
+
+.airvis-pform input:focus::-webkit-input-placeholder { 
+  color:transparent; 
+}
+.airvis-pform input:focus:-moz-placeholder { 
+  color:transparent; 
+}
+.airvis-pform input:focus::-moz-placeholder { 
+  color:transparent; 
+}
+.airvis-pform input:focus:-ms-input-placeholder { /* Internet Explorer 10+ */
+  color: transparent;
+}
+
 
 /* Pilot popup */
 #airvis-ufo-popup {

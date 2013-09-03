@@ -1,0 +1,61 @@
+<table class="airvis-ptable">
+	<thead>
+		<tr>
+			<th class="airvis-ptable-checkbox"><!-- ko widget: { data: checked?allCheckedVisibleCheckbox:allUncheckedVisibleCheckbox, type: 'Checkbox'} --><!-- /ko --></th>
+			<th class="airvis-ptable-number">#</th>
+			<th class="airvis-ptable-name">
+				<!-- ko if: checked -->
+					<a class="airvis-ptable-check airvis-ptable-checked" href="#" data-bind="click:uncheckAll,clickBubble:false"></a>
+					Selected pilots
+				<!-- /ko -->
+				<!-- ko ifnot: checked -->
+					Pilots
+				<!-- /ko -->
+			</th>
+			<th class="airvis-ptable-country" data-bind="visible:mode()=='full'">Country</th>
+			<th class="airvis-ptable-dist-to-goal" data-bind="html:distToGoalText"></th>
+			<th class="airvis-ptable-alt">Alt,<br>m</th>
+			<th class="airvis-ptable-gspd">Speed,<br>km/h</th>
+			<th class="airvis-ptable-vspd" data-bind="visible:mode()=='full'">Vaio,<br>m/s</th>
+		</tr>
+	</thead>
+</table>	
+<div class="airvis-scrollbar" data-bind="style:{height:(checked?checkedTableHeight():tableHeight())+'px'},attr:{id:checked?'airvis-scrollbar-checked':'airvis-scrollbar-unchecked'}">
+	<div class="scrollbar"><div class="track"><div class="thumb"><div class="end"></div></div></div></div>
+	<div class="viewport" data-bind="style:{height:(checked?checkedTableHeight():tableHeight())+'px'}">
+		<div class="overview">
+			<table class="airvis-ptable">
+				<tbody>
+					<!-- ko foreach: {data:q().length>0&&!checked?qTableUfos:tableUfos,as:'rw'} -->
+						<!-- ko if: rw.checked() == $parent.checked -->
+							<!-- ko template: {templates:templates,name:"row",data:$.extend({},$data,{'$parent':$parent})} --><!-- /ko -->
+						<!-- /ko -->
+					<!-- /ko -->
+					<!-- ko ifnot: checked -->
+						<!-- ko foreach: {data:qTableCountries,as:'rwc'} -->
+							<tr data-bind="click:rwc.switch">
+								<td class="airvis-ptable-checkbox"></td>
+								<td class="airvis-ptable-number"></td>
+								<td class="airvis-ptable-name airvis-ptable-countryname" colspan="6">
+									<span class="airvis-ptable-onover">
+										<a class="airvis-ptable-check" href="#" data-bind="click:rwc.checkAll,clickBubble:false"></a>
+									</span>
+									<span class="countryicon-sprite iconset-shiny" data-bind="css:'countrycode-'+rwc.code.toLowerCase()"></span>
+									<span data-bind="text:rwc.code + ' (' + rwc.ufos.length + ' pilot' + (rwc.ufos.length>1?'s':'') + ')'"></span>
+								</td>
+							</tr>
+							<!-- ko if: rwc.expanded -->
+								<!-- ko foreach: {data:rwc.ufos,as:'rw'} -->
+									<!-- ko if: rw.checked() == $parents[1].checked -->
+										<!-- ko template: {templates:templates,name:"row",data:$.extend({},$data,{'$parent':$parents[1]})} --><!-- /ko -->
+									<!-- /ko -->
+								<!-- /ko -->
+							<!-- /ko -->							
+						<!-- /ko -->
+					<!-- /ko -->
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<div class="airvis-resizebar" data-bind="event:{mousedown:resizeTable.bind($data,checked?'checked':'unchecked'),touchstart:resizeTable.bind($data,checked?'checked':'unchecked')}"></div>

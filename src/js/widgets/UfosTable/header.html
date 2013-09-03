@@ -1,0 +1,17 @@
+		<table class="airvis-ptable">
+			<thead>
+				<tr>
+					<th class="airvis-ptable-checkbox"><!-- ko widget: { data: allCheckedVisibleCheckbox, type: 'Checkbox'} --><!-- /ko --></th>
+					<th class="airvis-ptable-number">#</th>
+					<th class="airvis-ptable-name">
+						<a class="airvis-ptable-check airvis-ptable-checked" href="#" data-bind="click:uncheckAll,clickBubble:false"></a>
+						Selected pilots
+					</th>
+					<th class="airvis-ptable-country" data-bind="visible:mode()=='full'">Country</th>
+					<th class="airvis-ptable-dist-to-goal" data-bind="html:distToGoalText"></th>
+					<th class="airvis-ptable-alt">Alt,<br>m</th>
+					<th class="airvis-ptable-gspd">Speed,<br>km/h</th>
+					<th class="airvis-ptable-vspd" data-bind="visible:mode()=='full'">Vaio,<br>m/s</th>
+				</tr>
+			</thead>
+		</table>	

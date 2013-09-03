@@ -210,7 +210,7 @@ define({
 			tableMinHeight: 100,
 			checkedTableHeight: 220,
 			checkedTableMinHeight: 52,
-			tableRowHeight: 22,
+			tableRowHeight: 20,
 			firstTableRowOffset: 8
 		},
 		retrieveTable: {

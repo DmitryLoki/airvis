@@ -9,11 +9,12 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 		this.trackedUfoId = options.trackedUfoId;
 
 		this.inModalWindow = ko.observable(false);
+		this.inCountriesMode = ko.observable(false);
 		this.mode = ko.observable(config.ufosTable.mode);
 
 		this._q = ko.observable("");
 		this.q = ko.computed({
-			read: this._q,
+			read: self._q,
 			write: function(v) {
 				self._q(v);
 			}
@@ -110,37 +111,71 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 			self.updateScroll();
 		});
 
-		this.qTableUfos = ko.computed(function() {
-			self.updateScroll();
-			self.updateScroll();
-			if (self.q().length == 0) return self.tableUfos();
-			var q_ar = self.q().toLowerCase().split(/ /);
-			var countries = {};
-			var out = $.grep(self.tableUfos(),function(ufo) {
-				if (ufo.checked()) return;
-				var str = (" " + ufo.name() + " #" + ufo.id() + " " + ufo.id()).replace(/\s*\.\s*/," ").toLowerCase();
-				var country_str = (" " + ufo.country3()).toLowerCase();
-				var found = false;
-				q_ar.forEach(function(q) {
-					if (!q || q.length == 0) return;
-					var r = new RegExp(" "+q);
-					if (str.match(r))
-						found = true;
-					if (country_str.match(r)) {
-						if (!countries[ufo.country3()]) countries[ufo.country3()] = [];
-						countries[ufo.country3()].push(ufo);
-					}
-				});
-				return found;
-			});
-			$.each(countries,function(code,ufos) {
-				out.push(self.createCountry(code,ufos));
-				ufos.forEach(function(ufo) {
-					out.push(ufo);
-				});
-			});
-			return out;
+		// Сложный код с qTableCountries обусловлен желанием меньше обновлять дом
+		this._qTableCountries = ko.observableArray([]);
+		this.qTableCountries = ko.observableArray([]);
+		ko.utils.sync({
+			source: this._qTableCountries,
+			target: this.qTableCountries,
+			onAdd: function(w) {
+				return self.createCountry(w.id,w.expand,w.ufos);
+			},
+			afterAdd: function() {
+				self.updateScroll();
+				self.updateScroll();				
+			}
 		});
+
+		this.qTableUfos = ko.computed(function() {
+			if (self.q().length == 0) {
+				self._qTableCountries([]);
+				self.inCountriesMode(false);
+				return [];
+			}
+			self.updateScroll();
+			self.updateScroll();
+			var countries = [], c = {};
+			if (self.q() == "Countries") {
+				self.inCountriesMode(true);
+				self.tableUfos().forEach(function(ufo) {
+					if (ufo.checked()) return;
+					if (!c[ufo.country3()]) c[ufo.country3()] = [];
+					c[ufo.country3()].push(ufo);
+				});
+				$.map(c,function(v,i){return i;}).sort().forEach(function(i) {
+					countries.push({id:i,expand:false,ufos:c[i]});
+				});
+				self._qTableCountries(countries);
+				return [];
+			}
+			else {
+				self.inCountriesMode(false);
+				var q_ar = self.q().toLowerCase().split(/ /);
+				var out = $.grep(self.tableUfos(),function(ufo) {
+					if (ufo.checked()) return;
+					var str = (" " + ufo.name() + " #" + ufo.id() + " " + ufo.id()).replace(/\s*\.\s*/," ").toLowerCase();
+					var country_str = (" " + ufo.country3()).toLowerCase();
+					var found = false;
+					q_ar.forEach(function(q) {
+						if (!q || q.length == 0) return;
+						var r = new RegExp(" "+q);
+						if (str.match(r))
+							found = true;
+						if (country_str.match(r)) {
+							if (!c[ufo.country3()]) c[ufo.country3()] = [];
+							c[ufo.country3()].push(ufo);
+						}
+					});
+					return found;
+				});
+				$.map(c,function(v,i){return i;}).sort().forEach(function(i) {
+					countries.push({id:i,expand:true,ufos:c[i]});
+				});
+				self._qTableCountries(countries);
+				return out;
+			}
+		});
+
 	}
 
 	UfosTable.prototype.uncheckAll = function() {
@@ -210,11 +245,16 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 	}
 
 	UfosTable.prototype.clearSearch = function() {
-		this._q("");
+		this.q("");
 	}
 
-	UfosTable.prototype.showCountries = function() {
-
+	UfosTable.prototype.switchCountriesMode = function() {
+		if (this.inCountriesMode()) {
+			this.clearSearch();
+		}
+		else {
+			this.q("Countries");
+		}
 	}
 
 	UfosTable.prototype.showTop = function() {
@@ -229,17 +269,26 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 		return (h<10?"0":"") + h + ":" + (m<10?"0":"") + m + ":" + (s<10?"0":"") + s;
 	}
 
-	UfosTable.prototype.createCountry = function(code,ufos) {
+	UfosTable.prototype.createCountry = function(id,expanded,ufos) {
 		var self = this;
 		var w = {
-			code: code,
-			length: ufos.length,
+			id: id,
+			code: id,
+			ufos: ufos,
+			expanded: ko.observable(expanded),
 			rowType: "country"
 		}
 		w.checkAll = function() {
 			ufos.forEach(function(ufo) {
 				ufo.checked(true);
 			});
+			self.updateScroll();
+			self.updateScroll();
+		}
+		w.switch = function() {
+			w.expanded(!w.expanded());
+			self.updateScroll();
+			self.updateScroll();
 		}
 		return w;
 	}
@@ -340,7 +389,7 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 		this.emit("ready");
 	};
 
-	UfosTable.prototype.templates = ["main"];
+	UfosTable.prototype.templates = ["main","table","row"];
 
 	return UfosTable;
 });

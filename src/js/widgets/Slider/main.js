@@ -79,8 +79,6 @@ define(["jquery","knockout"], function($,ko) {
 				drag = self.range();
 			drag = Math.floor(drag);
 			self.drag(drag);
-
-			console.log("min",self.min(),"max",self.max(),"p",p,"range",self.range(),"drag",drag);
 		}
 
 		if (!isClick) {

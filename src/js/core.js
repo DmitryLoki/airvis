@@ -71,6 +71,24 @@ define(["utils","filters","knockout","knockout.mapping","jquery"], function(util
 			}
 			return options.source.subscribe(function(items) {
  	    	    var rev1 = {}, rev2 = {}, values2push = [];
+
+ 	    	    if (items.length == 0) {
+ 	    	    	var targetItems = ko.utils.unwrapObservable(options.target);
+ 	    	    	if (targetItems.length == 0) return;
+ 	    	    	if (typeof options.onRemove === "function") {
+	 	    	    	for (var i = 0, l = targetItems.length; i < l; i++) {
+	 	    	    		options.onRemove(targetItems[i]);
+	 	    	    	} 	    	    		
+ 	    	    	}
+		    		if (ko.isObservable(options.target)) {
+    	    			options.target([]);
+    	    		}
+    	    		else {
+    	    			options.target = [];
+    	    		}
+ 	   	    		return;
+ 	    	    }
+
             	for (var i = 0, l = items.length; i < l; i++) {
             		var propValue = ko.utils.unwrapObservable(items[i][options.propName]);
             		rev1[propValue] = i;
@@ -93,7 +111,7 @@ define(["utils","filters","knockout","knockout.mapping","jquery"], function(util
             			options.afterAdd();
             		}
             	}
-            	for (var l = targetItems.length, i = l-1; i > 0; i--) {
+            	for (var l = targetItems.length, i = l-1; i >= 0; i--) {
             		var propValue = ko.utils.unwrapObservable(targetItems[i][options.propName]);
             		if (rev1[propValue] === undefined) {
             			if (typeof options.onRemove === "function") {
