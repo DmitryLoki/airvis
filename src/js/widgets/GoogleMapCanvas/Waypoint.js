@@ -109,9 +109,13 @@ define(["knockout","google.maps","config"],function(ko,gmaps,config) {
 					var r = w.radius();
 					if (r >= 1000) r = Math.floor(r/100)/10 + "km";
 					else r = r + "m";
-					title += (title.length>0?" / ":"") + "R " + r;
+
+					if (w.type() != "to") {
+						title += (title.length>0?" / ":"") + "R " + r;
+					}
+					
 					var s = w.checkedOn().toUpperCase();
-					if (s.length > 0 && (w.type() == "ss" || w.type() == "goal" || w.type() == "ordinal" && s=="EXIT"))
+					if (s.length > 0 && (w.type() == "ss" || w.type() == "ordinal" && s=="EXIT"))
 						title += " / " + s;
 				}
 
