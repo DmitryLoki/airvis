@@ -490,6 +490,9 @@ body {
 #airvis-ufo-popup .airvis-ufo-popup-list {
   padding: 5px 8px;
 }
+#airvis-ufo-popup .airvis-ufo-popup-list span {
+  font-weight: bold;
+}
 #airvis-ufo-popup .airvis-ufo-popup-arrow {
   position: absolute;
   height: 0;
