@@ -159,7 +159,7 @@ body {
   color: #ffffff;
   padding: 0;
 }
-.airvis-ptable th {
+.airvis-ptable th,.airvis-ptable .airvis-ptable-header td {
   height: 37px;
   padding-bottom: 5px;
   vertical-align: bottom;
@@ -181,6 +181,9 @@ body {
 .airvis-ptable .airvis-ptable-name {
   text-align: left;
   padding-left: 10px;
+}
+.airvis-ptable .airvis-ptable-header .airvis-ptable-name {
+  text-align: center;
 }
 .airvis-ptable th.airvis-ptable-name {
   text-align: center;
@@ -236,7 +239,7 @@ body {
 .airvis-ptable-checkbox { width: 28px; }
 .airvis-ptable-number { width: 29px; }
 .airvis-ptable-name { width: 181px; padding-left: 10px;}
-.airvis-ptable-country { width: 69px; }
+.airvis-ptable-country { width: 69px;}
 .airvis-ptable-dist-to-goal { width: 59px; }
 .airvis-ptable-alt { width: 39px; }
 .airvis-ptable-gspd { width: 49px; }
@@ -246,8 +249,10 @@ body {
   color: #ffffff;
   text-decoration: none;
 }
+
 .airvis-ptable-checkbox .checkbox { top: 2px; position: relative;}
 .airvis-ptable .airvis-pilot-name { padding-top: 3px; display: inline-block;}
+.airvis-ptable .airvis-ptable-country { text-align: left; padding-left: 15px; }
 .airvis-ptable-check {
   display: block;
   float: left;
@@ -384,9 +389,13 @@ body {
   width: 24px;
   margin-left: 6px;
 }
-.airvis-pform-showTop:hover {
+.airvis-pform-showTop:hover, .airvis-pform-showTop-active {
   background-position: 50% -120px;
 }
+.airvis-pform-showTop-active:hover {
+  background-position: 50% -96px;
+}
+
 .airvis-pform-info {
   background: rgba(83, 43, 0, .5) url("../img/controls_pic.png") 50% -144px no-repeat;
   border: 1px solid #09242d;
@@ -456,12 +465,12 @@ body {
 }
 /* Stupid gmaps overwrites styles with it's own gm-style so here's by-id stylesheet */
 #airvis-ufo-popup * {
-  font: normal 12px/20px Arial;
+  font: normal 12px/15px Arial;
 }
 
 #airvis-ufo-popup .airvis-ufo-popup-title {
   background-color: #023040;
-  padding: 5px 8px;
+  padding: 2px 4px;
   position: relative;
 }
 #airvis-ufo-popup .airvis-ufo-popup-content {
@@ -469,26 +478,26 @@ body {
 }
 #airvis-ufo-popup .airvis-popup-check {
 /*  background: transparent url("../img/star_disable.png") 4px 8px no-repeat; */
-  background: rgba(83,43,0,0.5) url("../img/star_disable.png") 4px 8px no-repeat;
+  background: rgba(83,43,0,0.5) url("../img/star_disable.png") 4px 4px no-repeat;
+  border: 1px solid #3b270c;
+  border-width: 1px 0;
   color: #ffb667;
   display: block;
-  height: 20px;
-  padding: 5px;
+  padding: 1px 5px 3px 5px;
   padding-left: 20px;
   text-decoration: none;
 }
 #airvis-ufo-popup .airvis-popup-check:hover {
-  background: rgba(83,43,0,0.5) url("../img/star_enable.png") 4px 8px no-repeat;
+  background: rgba(83,43,0,0.5) url("../img/star_enable.png") 4px 4px no-repeat;
 }
 #airvis-ufo-popup .airvis-popup-checked {
-/*  background: transparent url("../img/star_enable.png") 4px 8px no-repeat; */
-  background: rgba(83,43,0,0.5) url("../img/star_enable.png") 4px 8px no-repeat;
+  background: rgba(83,43,0,0.5) url("../img/star_enable.png") 4px 4px no-repeat;
 }
 #airvis-ufo-popup .airvis-popup-checked:hover {
-  background: rgba(83,43,0,0.5) url("../img/star_disable.png") 4px 8px no-repeat;
+  background: rgba(83,43,0,0.5) url("../img/star_disable.png") 4px 4px no-repeat;
 }
 #airvis-ufo-popup .airvis-ufo-popup-list {
-  padding: 5px 8px;
+  padding: 2px 5px 10px 5px;
 }
 #airvis-ufo-popup .airvis-ufo-popup-list span {
   font-weight: bold;

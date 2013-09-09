@@ -22,12 +22,30 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		u.switchCheck = data.switchCheck;
 		u.dist = data.dist;
 		u.gspd = data.gspd;
-		u.speed = data.speed
+		u.speed = data.speed;
+		u.vSpd = data.vSpd;
+		u.distFrom = data.distFrom;
+		u.colored = data.colored;
+		u.resetTrack = data.resetTrack;
+		u.finishedTime = data.finishedTime;
 
 		u.highlightedLevel = ko.observable(0);
 		u.trackData = [];
 		u.preparedCoords = null;
 		u.prepareCoordsRequired = true;
+
+		u.distFrom = ko.computed(function() {
+			return u.dist() > 0 ? Math.floor((mapWidget.optdistance() - u.dist())*10)/10 : Math.floor(mapWidget.optdistance()*10)/10;
+		});
+
+		var getTimeStr = function(h,m,s) {
+			return (h<10?"0":"") + h + ":" + (m<10?"0":"") + m + ":" + (s<10?"0":"") + s;
+		}
+		u.finishedTime = ko.computed(function() {
+			if (u.state()!=="finished" || !u.stateChangedAt()) return null;
+			var d = Math.abs(u.stateChangedAt() - Math.floor(mapWidget.raceKey()/1000));
+			return getTimeStr(Math.floor(d/3600),Math.floor(d%3600/60),d%60);
+		});
 
 		u._overlay = mapWidget.mouseOverlay.createOverlay();
 		u._overlay.on("over",function() {
@@ -39,7 +57,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		});
 
 		u.trackSubscribe = u.track.subscribe(function(v) {
-			if (!mapWidget.isReady() || !u.visible() || mapWidget.tracksVisualMode() == "off") return;
+			if (!mapWidget.isReady() || mapWidget.tracksVisualMode() == "off") return;
 			// если приходит специальное значение v.dt=null, обнуляем трек
 			if (v.dt == null) {
 				u.trackData = [];
@@ -52,20 +70,21 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			v.y = coords.y;
 			u.trackData.push(v);
 			// если 10 минут ограничение трека, убираем из начала трека старые точки
-			if (mapWidget.tracksVisualMode() == "10min") {
-				while (u.trackData[0] && (mapWidget.currentKey() > u.trackData[0].dt + 600000))
+			if (mapWidget.tracksVisualMode() == "5min") {
+				while (u.trackData[0] && (mapWidget.currentKey() > u.trackData[0].dt + 300000))
 					u.trackData.splice(0,1);
 			}
 		});
 
 		u.visibleSubscribe = u.visible.subscribe(function() {
+//			u.resetTrack();
 			mapWidget.update();
 		});
 		u.stateSubscribe = u.state.subscribe(function() {
 			u.updateIconRequired = true;
 			mapWidget.update();
 		});
-		u.checkedSubscribe = u.checked.subscribe(function() {
+		u.coloredSubscribe = u.colored.subscribe(function() {
 			u.updateIconRequired = true;
 			mapWidget.update();
 		});
@@ -136,7 +155,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			ic.stroke();
 
 			// Кружок на выбранных пилотах
-			if (u.checked()) {
+			if (u.colored()) {
 				ic.beginPath();
 				setProperties(ic,$.extend({},config.canvas.ufos.basic,{fillStyle:u.color()}));
 				ic.arc(u.iconCenter.x,u.iconCenter.y-u.iconSize+2,config.canvas.ufos.checkedCircleSize,0,Math.PI*2);
@@ -148,16 +167,20 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 				// Имя пилота
 				if (mapWidget.namesVisualMode() == "on" || (mapWidget.namesVisualMode() == "auto" && mapWidget.zoom() >= config.namesVisualModeAutoMinZoom)) {
 					setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.titles));
-					if (u.checked()) 
+					if (u.colored()) 
 						setProperties(ic,config.canvas.ufos.checkedTitles);
-					ic.strokeText(u.name()+"("+u.id()+")",u.iconCenter.x,u.iconCenter.y-config.canvas.ufos.titleOffset);
-					ic.fillText(u.name()+"("+u.id()+")",u.iconCenter.x,u.iconCenter.y-config.canvas.ufos.titleOffset);
+//					ic.strokeText(u.name()+"("+u.id()+")",u.iconCenter.x+config.canvas.ufos.titleOffsetX,u.iconCenter.y-u.iconSize*Math.sqrt(3)/2+config.canvas.ufos.titleOffsetY);
+//					ic.fillText(u.name()+"("+u.id()+")",u.iconCenter.x+config.canvas.ufos.titleOffsetX,u.iconCenter.y-u.iconSize*Math.sqrt(3)/2+config.canvas.ufos.titleOffsetY);
+					ic.strokeText(u.name()+"("+u.id()+")",u.iconCenter.x+config.canvas.ufos.titleOffsetX,u.iconCenter.y+config.canvas.ufos.titleOffsetY);
+					ic.fillText(u.name()+"("+u.id()+")",u.iconCenter.x+config.canvas.ufos.titleOffsetX,u.iconCenter.y+config.canvas.ufos.titleOffsetY);
 				}
 
 				// Подпись высоты
 				if (mapWidget.heightsVisualMode() == "level+") {
 					var t = u.alt() + "m";
 					setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.altTitles));
+//					ic.strokeText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY-u.iconSize*Math.sqrt(3)/2);
+//					ic.fillText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY-u.iconSize*Math.sqrt(3)/2);
 					ic.strokeText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY);
 					ic.fillText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY);
 				}
@@ -237,27 +260,22 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 				co.setProperties(config.canvas.ufos.highlight);
 				// Подсветка иконки
 				context.beginPath();
-				context.moveTo(p.x-u.iconCenter.x+u.iconCenter.x,p.y-u.iconCenter.y-u._height+u.iconCenter.y+h);
+				context.moveTo(p.x,p.y-u._height+h*2);
+				var hLength = u.iconSize+h*2*Math.sqrt(3);
 				if (u.state() == "landed") {
-					context.lineTo(p.x-u.iconCenter.x+u.iconCenter.x-(u.iconSize+h)/2,p.y-u.iconCenter.y-u._height+u.iconCenter.y-(u.iconSize+h)*Math.sqrt(3)/2);
-					context.lineTo(p.x-u.iconCenter.x+u.iconCenter.x+(u.iconSize+h)/2,p.y-u.iconCenter.y-u._height+u.iconCenter.y-(u.iconSize+h)*Math.sqrt(3)/2);
+					context.lineTo(p.x-hLength/2,p.y-u._height+h*2-hLength*Math.sqrt(3)/2);
+					context.lineTo(p.x+hLength/2,p.y-u._height+h*2-hLength*Math.sqrt(3)/2);
 				}
 				else {
-					context.arc(p.x-u.iconCenter.x+u.iconCenter.x,p.y-u.iconCenter.y-u._height+u.iconCenter.y+h,u.iconSize+h*1.5,Math.PI*4/3,Math.PI*5/3);
+					context.arc(p.x,p.y-u._height+h*2,hLength-1.5,Math.PI*4/3,Math.PI*5/3);
 				}
 				context.moveTo(p.x-u.iconCenter.x+u.iconCenter.x,p.y-u.iconCenter.y-u._height+u.iconCenter.y+h);
 				context.fill();
-				// Подсветка кружка на выбранных
-				if (u.checked()) {
-					context.beginPath();
-					context.arc(p.x-u.iconCenter.x+u.iconCenter.x,p.y-u.iconCenter.y-u._height+u.iconCenter.y-u.iconSize,config.canvas.ufos.checkedCircleSize+h/2,0,Math.PI*2);
-					context.fill();
-				}
 				// Подсветка ножки элевации
 				if (u.state() != "landed" && (mapWidget.heightsVisualMode() == "level" || mapWidget.heightsVisualMode() == "level+")) {
-					_drawEllipse(context,p.x-5-h/2,p.y-3-h/2,10+h,6+h);
+					_drawEllipse(context,p.x-5-h,p.y-3-h,10+h*2,6+h*2);
 					context.beginPath();
-					context.fillRect(p.x-1.5-h/2,p.y-u._height-4.5,3+h,u._height+5);					
+					context.fillRect(p.x-1.5-h,p.y-u._height-4.5,3+h*2,u._height+5);					
 				}
 			}
 
@@ -267,10 +285,10 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 
 			if ((type == "elev") && (u.state() != "landed") && (mapWidget.heightsVisualMode() == "level" || mapWidget.heightsVisualMode() == "level+")) {
 				co.setProperties(config.canvas.ufos.stickDot);
-				if (u.checked()) co.setProperties({fillStyle:u.color()});
+				if (u.colored()) co.setProperties({fillStyle:u.color()});
 				_drawEllipse(context,p.x-5,p.y-3,10,6);
 				co.setProperties(config.canvas.ufos.stick);
-				if (u.checked()) co.setProperties({fillStyle:u.color()});
+				if (u.colored()) co.setProperties({fillStyle:u.color()});
 				context.beginPath();
 				context.fillRect(p.x-1.5,p.y-u._height-4.5,3,u._height+5);
 				context.strokeRect(p.x-1.5,p.y-u._height-4.5,3,u._height+5);
@@ -278,7 +296,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 
 			if (type == "track" && mapWidget.tracksVisualMode() != "off" && u.trackData.length > 0) {
 				co.setProperties(config.canvas.ufos.basic);
-				if (u.checked()) co.setProperties({strokeStyle:u.color()});
+				if (u.colored()) co.setProperties({strokeStyle:u.color()});
 				context.beginPath();
 				for (var i = 0; i < u.trackData.length; i++) {
 					if (u.trackData[i].dt == null) continue;
@@ -303,7 +321,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		u.destroy = function() {
 			u.trackSubscribe.dispose();
 			u.visibleSubscribe.dispose();
-			u.checkedSubscribe.dispose();
+			u.coloredSubscribe.dispose();
 			u.stateSubscribe.dispose();
 			u.nameSubscribe.dispose();
 			u.altSubscribe.dispose();

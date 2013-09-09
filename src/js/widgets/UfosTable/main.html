@@ -2,7 +2,7 @@
 	<div class="airvis-window-header">
 		<div class="airvis-window-title" data-bind="event:{mousedown:windowDrag,touchstart:windowDrag}">Leaderboard</div>
 		<a class="airvis-window-close" href="#" data-bind="click:windowClose"></a>
-		<a class="airvis-window-close airvis-window-ec" href="#"  data-bind="click:windowSwitchMode,css:{'airvis-window-ec-expand':mode()=='short','airvis-window-ec-collapse':mode()=='full'}"></a>
+		<a class="airvis-window-close airvis-window-ec" href="#"  data-bind="click:windowSwitchMode,css:{'airvis-window-ec-expand':windowMode()=='short','airvis-window-ec-collapse':windowMode()=='full'}"></a>
 	</div>
 	<div data-bind="visible:checkedLength()>0">
 		<!-- ko template: {templates:templates,name:"table",data:$.extend({},$data,{checked:true})} --><!-- /ko -->
@@ -11,10 +11,10 @@
 		<div class="airvis-pform">
 			<a class="airvis-pform-clearSearch" href="#" data-bind="click:clearSearch,css:{'airvis-pform-clearSearchActive':_q().length>0}"></a>
 			<input type="text" data-bind="value:_q,valueUpdate:'afterkeydown'" placeholder="Example: Maurer">
-			<a class="airvis-pform-showCountries" href="#" data-bind="click:switchCountriesMode,css:{'airvis-pform-showCountries-active':inCountriesMode}"></a>
-			<a class="airvis-pform-showTop" href="#" data-bind="click:showTop"></a>
+			<a class="airvis-pform-showCountries" href="#" data-bind="click:switchCountriesMode,css:{'airvis-pform-showCountries-active':mode()=='countries'}"></a>
+			<a class="airvis-pform-showTop" href="#" data-bind="click:switchLeadingMode,css:{'airvis-pform-showTop-active':mode()=='leading'||mode()=='checkLeading'}"></a>
 		</div>
-		<a class="airvis-pform-info" href="#" data-bind="click:showInfo"></a>
+		<!--<a class="airvis-pform-info" href="#" data-bind="click:showInfo"></a>-->
 	</div>
 	<!-- ko template: {templates:templates,name:"table",data:$.extend({},$data,{checked:false})} --><!-- /ko -->
 </div>

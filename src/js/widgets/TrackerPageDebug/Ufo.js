@@ -43,6 +43,11 @@ define(["jquery","knockout","CountryCodes","config","jquery.cookie"],function($,
 		this.country3 = ko.computed(function() {
 			return self.country() && countryCodes[self.country()] ? countryCodes[self.country()] : self.country();
 		});
+		
+		this.leading = ko.observable(false);
+		this.colored = ko.computed(function() {
+			return self.checked() || self.leading();
+		});
 
 	}
 

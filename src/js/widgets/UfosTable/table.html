@@ -8,15 +8,25 @@
 					<a class="airvis-ptable-check airvis-ptable-checked" href="#" data-bind="click:uncheckAll,clickBubble:false"></a>
 					Selected pilots
 				<!-- /ko -->
-				<!-- ko ifnot: checked -->
+				<!-- ko if: !checked && mode() == "leading" -->
+					Top <span data-bind="text:leadingCnt"></span> leading pilots
+				<!-- /ko -->
+				<!-- ko if: !checked && mode() != "leading" -->
 					Pilots
 				<!-- /ko -->
 			</th>
-			<th class="airvis-ptable-country" data-bind="visible:mode()=='full'">Country</th>
-			<th class="airvis-ptable-dist-to-goal" data-bind="html:distToGoalText"></th>
+			<th class="airvis-ptable-country" data-bind="visible:windowMode()=='full'">Country</th>
+			<th class="airvis-ptable-dist-to-goal">
+				<!-- ko if: raceType() == "opendistance" -->
+					Dist, km
+				<!-- /ko -->
+				<!-- ko if: raceType() != "opendistance" -->
+					Dist to<br>goal, km
+				<!-- /ko -->
+			</th>
 			<th class="airvis-ptable-alt">Alt,<br>m</th>
 			<th class="airvis-ptable-gspd">Speed,<br>km/h</th>
-			<th class="airvis-ptable-vspd" data-bind="visible:mode()=='full'">Vaio,<br>m/s</th>
+			<th class="airvis-ptable-vspd" data-bind="visible:windowMode()=='full'">Vaio,<br>m/s</th>
 		</tr>
 	</thead>
 </table>	
@@ -26,12 +36,19 @@
 		<div class="overview">
 			<table class="airvis-ptable">
 				<tbody>
-					<!-- ko foreach: {data:q().length>0&&!checked?qTableUfos:tableUfos,as:'rw'} -->
-						<!-- ko if: rw.checked() == $parent.checked -->
-							<!-- ko template: {templates:templates,name:"row",data:$.extend({},$data,{'$parent':$parent})} --><!-- /ko -->
+					<!-- ko if: mode()=="default" || checked -->
+						<!-- ko foreach: {data:tableUfos,as:'rw'} -->
+							<!-- ko if: rw.checked() == $parent.checked -->
+								<!-- ko template: {templates:templates,name:"row",data:$.extend({},$data,{'$parent':$parent})} --><!-- /ko -->
+							<!-- /ko -->
 						<!-- /ko -->
-					<!-- /ko -->
-					<!-- ko ifnot: checked -->
+					<!-- /ko -->					
+					<!-- ko if: (mode()=="search" || mode()=="countries") && !checked -->
+						<!-- ko foreach: {data:qTableUfos,as:'rw'} -->
+							<!-- ko ifnot: rw.checked -->
+								<!-- ko template: {templates:templates,name:"row",data:$.extend({},$data,{'$parent':$parent})} --><!-- /ko -->
+							<!-- /ko -->
+						<!-- /ko -->
 						<!-- ko foreach: {data:qTableCountries,as:'rwc'} -->
 							<tr data-bind="click:rwc.switch">
 								<td class="airvis-ptable-checkbox"></td>
@@ -52,6 +69,53 @@
 								<!-- /ko -->
 							<!-- /ko -->							
 						<!-- /ko -->
+					<!-- /ko -->
+					<!-- ko if: mode()=="checkLeading" && !checked -->
+						<!-- ko foreach: leadingOptions -->
+							<!-- ko if: text == "sep" -->
+								<tr>
+									<td class="airvis-ptable-checkbox"></td>
+									<td class="airvis-ptable-number"></td>
+									<td class="airvis-ptable-name" colspan=6>&nbsp;</td>
+								</tr>
+							<!-- /ko -->
+							<!-- ko if: text != "sep" -->
+								<tr data-bind="click:$parent.setLeading.bind($parent,$data)">
+									<td class="airvis-ptable-checkbox"></td>
+									<td class="airvis-ptable-number"></td>
+									<td class="airvis-ptable-name" colspan=6><span data-bind="text:text"></span></td>
+								</tr>
+							<!-- /ko -->
+						<!-- /ko -->
+					<!-- /ko -->
+					<!-- ko if: mode() == "leading" && !checked -->
+						<!-- ko foreach: {data:tableUfos,as:'rw'} -->
+							<!-- ko if: rw.checked() == $parent.checked && rw.leading() -->
+								<!-- ko template: {templates:templates,name:"row",data:$.extend({},$data,{'$parent':$parent})} --><!-- /ko -->
+							<!-- /ko -->
+						<!-- /ko -->
+						<tr class="airvis-ptable-header">
+							<td class="airvis-ptable-checkbox"><!-- ko widget: { data: allNonLeadingVisibleCheckbox, type: 'Checkbox'} --><!-- /ko --></td>
+							<td class="airvis-ptable-number">#</td>
+							<td class="airvis-ptable-name">Pilots</td>
+							<td class="airvis-ptable-country" data-bind="visible:windowMode()=='full'">Country</td>
+							<td class="airvis-ptable-dist-to-goal">
+				<!-- ko if: raceType() == "opendistance" -->
+					Dist, km
+				<!-- /ko -->
+				<!-- ko if: raceType() != "opendistance" -->
+					Dist to<br>goal, km
+				<!-- /ko -->
+							</td>
+							<td class="airvis-ptable-alt">Alt,<br>m</td>
+							<td class="airvis-ptable-gspd">Speed,<br>km/h</td>
+							<td class="airvis-ptable-vspd" data-bind="visible:windowMode()=='full'">Vaio,<br>m/s</td>
+						</tr>
+						<!-- ko foreach: {data:tableUfos,as:'rw'} -->
+							<!-- ko if: rw.checked() == $parent.checked && !rw.leading()-->
+								<!-- ko template: {templates:templates,name:"row",data:$.extend({},$data,{'$parent':$parent})} --><!-- /ko -->
+							<!-- /ko -->						
+						<!-- /ko -->						
 					<!-- /ko -->
 				</tbody>
 			</table>

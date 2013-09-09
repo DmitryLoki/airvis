@@ -189,7 +189,8 @@ define([
 				mapOptions: this.mapOptions,
 				raceType: this.raceType,
 				raceTypeOptions: this.raceTypeOptions,
-				trackedUfoId: this.trackedUfoId
+				trackedUfoId: this.trackedUfoId,
+				optdistance: this.optdistance
 			}
 			if (this.mapType() == "GoogleMapCanvas") {
 				this.map = new GoogleMapCanvas(mapOptions);
@@ -601,6 +602,7 @@ define([
 		}
 
 		self.playerControl.on("change",function(v) {
+			console.log("playerControl change");
 			self.currentKey(v);
 			self.resetUfosTracks();
 			run(true);
@@ -639,6 +641,7 @@ define([
 			this.playerControl.emit("change",this.serverKey());
 		}
 	}
+
 
 // TODO: Дописать и переделать ретрив
 /*

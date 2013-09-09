@@ -23,20 +23,29 @@ define(["jquery","knockout","CountryCodes","config","widget!Checkbox"],function(
 		u.noPosition = data.noPosition;
 		u.position = data.position;
 		u.switchCheck = data.switchCheck;
+		u.leading = data.leading;
+		u.colored = data.colored;
 		u.rowType = "ufo";
+		u.distFrom = data.distFrom;
+
 
 		u.distFrom = ko.computed(function() {
 			return u.dist() > 0 ? Math.floor((tableWidget.optdistance() - u.dist())*10)/10 : Math.floor(tableWidget.optdistance()*10)/10;
 		});
 		u.visibleCheckboxColor = ko.computed(function() {
-			return u.checked() ? u.color() : config.canvas.ufos.visibleCheckboxColor;
+			return u.colored() ? u.color() : config.canvas.ufos.visibleCheckboxColor;
 		});
 		u.visibleCheckbox = new Checkbox({checked:u.visible,color:u.visibleCheckboxColor});
+
+		var getTimeStr = function(h,m,s) {
+			return (h<10?"0":"") + h + ":" + (m<10?"0":"") + m + ":" + (s<10?"0":"") + s;
+		}
 		u.finishedTime = ko.computed(function() {
 			if (u.state()!=="finished" || !u.stateChangedAt()) return null;
 			var d = Math.abs(u.stateChangedAt() - Math.floor(tableWidget.raceKey()/1000));
-			return tableWidget.getTimeStr(Math.floor(d/3600),Math.floor(d%3600/60),d%60);
+			return getTimeStr(Math.floor(d/3600),Math.floor(d%3600/60),d%60);
 		});
+
 		u.switchTracking = function() {
 			var b = tableWidget.trackedUfoId() == u.id() ? null : u.id();
 			if (!u.visible() || u.noData() || u.noPosition()) b = null;
@@ -61,11 +70,23 @@ define(["jquery","knockout","CountryCodes","config","widget!Checkbox"],function(
 		u.searchCountry = function() {
 			tableWidget.q(u.country3());
 		}
-		u.checkedSubscribe = u.checked.subscribe(function(v) {
-			if (v && tableWidget.allCheckedVisible() == 1) u.visible(true);
-			else if (v && tableWidget.allCheckedVisible() == 0) u.visible(false);
-			else if (!v && tableWidget.allUncheckedVisible() == 1) u.visible(true);
-			else if (!v && tableWidget.allUncheckedVisible() == 0) u.visible(false);
+
+		u.visibilityControl = ko.computed(function() {
+			if (u.checked() && tableWidget.allCheckedVisible() == 1) u.visible(true);
+			else if (u.checked() && tableWidget.allCheckedVisible() == 0) u.visible(false);
+			else if (!u.checked()) {
+				if (tableWidget.mode() == "leading") {
+					if (u.leading() && tableWidget.allUncheckedVisible() == 1) u.visible(true);
+					else if (u.leading() && tableWidget.allUncheckedVisible() == 0) u.visible(false);
+					else if (!u.leading() && tableWidget.allNonLeadingVisible() == 1) u.visible(true);
+					else if (!u.leading() && tableWidget.allNonLeadingVisible() == 0) u.visible(false);
+				}
+				else {
+					if (tableWidget.allUncheckedVisible() == 1) u.visible(true);
+					else if (tableWidget.allUncheckedVisible() == 0) u.visible(false);
+				}
+			}
+			return 0;
 		});
 		return u;
 	}

@@ -13,6 +13,30 @@
 		var testPilotCut = 7; //260
 		var testPilotOn = false;
 		if (query.type == "race") {
+
+/*
+			$.ajax({
+				url: "http://apidev.airtribune.com/v0.1.4/track/group/r-10641273-40ff-4ebd-aec3-22fd3629eba3_online",
+				dataType: "json",
+				data: {
+					from_time:0,
+					to_time:5378652400
+				},
+				success: function(result) {
+					var diff = {};
+					for (var dt in result.timeline) {
+						for (var pilot_id in result.timeline[dt]) {
+							var d = result.timeline[dt][pilot_id];
+							var str = pilot_id + "_" + d.lat + "_" + d.lon;
+							if (!diff[str]) diff[str] = 0;
+							diff[str]++; 
+						}
+					}
+					console.log(diff);
+				}
+			});
+*/
+
 			$.ajax({
 				url: this.apiDomain() + "/" + this.apiVersion() + "/contest/" + this.contestId() + "/race/" + this.raceId(),
 				dataType: "json",

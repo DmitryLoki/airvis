@@ -8,7 +8,7 @@ define({
 		mode: "full",
 		titleUrl: "",
 		debug: false,
-		tracksVisualMode: "10min",
+		tracksVisualMode: "5min",
 		cylindersVisualMode: "full",
 		heightsVisualMode: "level+",
 		modelsVisualMode: "small",
@@ -29,9 +29,10 @@ define({
 	canvas: {
 		ufos: {
 			basic: {
-				font: "11px verdana",
+//				font: "11px verdana",
+				font: "11px arial",
 				textAlign: "left",
-				textBaseline: "bottom",
+				textBaseline: "top",
 				strokeStyle: "#000000",
 				fillStyle: "#1a1a1a",
 				lineWidth: 1
@@ -69,7 +70,8 @@ define({
 				lineWidth: 5
 			},
 			altTitles: {
-				font: "10px verdana",
+//				font: "10px verdana",
+				font: "10px arial",
 				strokeStyle: "#ffffff",
 				lineWidth: 3,
 				fillStyle: "#ff0000"
@@ -89,11 +91,12 @@ define({
 				fillStyle: "rgba(255,255,255,0.6)",
 				strokeStyle: "rgba(255,255,255,0.5)"
 			},
-			highlightSize: 8,
+			highlightSize: 4,
 			highlightDelay: 500,
-			titleOffset: 4,
-			altTitleOffsetY: 5,
-			altTitleOffsetX: 2,
+			titleOffsetY: -16,
+			titleOffsetX: 1,
+			altTitleOffsetY: -5,
+			altTitleOffsetX: 1,
 			minStick: 0,
 			maxStick: 30,
 			checkedCircleSize: 5,
@@ -211,7 +214,9 @@ define({
 			checkedTableHeight: 220,
 			checkedTableMinHeight: 52,
 			tableRowHeight: 20,
-			firstTableRowOffset: 8
+			firstTableRowOffset: 8,
+			windowMode: "short",
+			allCheckboxColor: "#ffffff"
 		},
 		retrieveTable: {
 			visible: true,
@@ -302,10 +307,6 @@ define({
 
 	// Говно какое-то
 
-	ufosTable: {
-		mode: "short",
-		allVisibleCheckboxColor: "#ffffff"
-	},
 	serverFake: 0,		
 	retrieveInterval: 10000,
 	renderTableDataInterval: 5000,

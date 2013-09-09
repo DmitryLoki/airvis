@@ -9,8 +9,30 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 		this.trackedUfoId = options.trackedUfoId;
 
 		this.inModalWindow = ko.observable(false);
-		this.inCountriesMode = ko.observable(false);
-		this.mode = ko.observable(config.ufosTable.mode);
+
+		// Расширенная или свернутая таблица
+		this.windowMode = ko.observable(config.windows.ufosTable.windowMode);
+
+		/* Режим показа: 
+			default - обычные пилоты
+			search - когда что-то вбито в строку поиска
+			countries - когда нужно показать все страны, а в поиске "Countries"
+			checkLeading - когда показываются опции для выбора top5-top10 leading
+			leading - когда показываются leading-пилоты, а под ними - остальные
+		*/
+		this.mode = ko.observable("default");
+
+		/*
+			сортировка пилотов:
+			rating - по рейтингу
+			altitude - по высоте
+		*/
+		this.order = ko.observable("rating");
+		this.order.subscribe(function(v) {
+			self.sort();
+			self.sort();
+			console.log("order subscribe ",v);
+		});
 
 		this._q = ko.observable("");
 		this.q = ko.computed({
@@ -32,6 +54,23 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 				self.updateScroll();
 				self.updateScroll();
 			}
+		});
+
+		this.leadingCnt = ko.observable(0);
+		this.leadingOptions = [
+			{cnt:5,text:"Top 5 leading",order:"rating"},
+			{cnt:10,text:"Top 10 leading",order:"rating"},
+			{cnt:20,text:"Top 20 leading",order:"rating"},
+			{cnt:30,text:"Top 30 leading",order:"rating"},
+			{text:"sep"},
+			{cnt:5,text:"Top 5 altitude",order:"altitude"},
+			{cnt:10,text:"Top 10 altitude",order:"altitude"},
+			{cnt:20,text:"Top 20 altitude",order:"altitude"},
+			{cnt:30,text:"Top 30 altitude",order:"altitude"}
+		];
+		this.leadingCounter = ko.computed(function() {
+			for (var i = 0; i < self.tableUfos().length; i++)
+				self.tableUfos()[i].leading(i<self.leadingCnt());
 		});
 
 		this.checkedLength = ko.observable(0);
@@ -62,14 +101,15 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 					w.visible(val==1);
 				});
 			}
-		});
-		this.allCheckedVisibleCheckbox = new Checkbox({checked:this.allCheckedVisible,color:config.ufosTable.allVisibleCheckboxColor,css:"checkbox-white",mode:"half"});
+		}).extend({throttle:50});
+		this.allCheckedVisibleCheckbox = new Checkbox({checked:this.allCheckedVisible,color:config.windows.ufosTable.allCheckboxColor,css:"checkbox-white",mode:"half"});
 
 		this.allUncheckedVisible = ko.computed({
 			read: function() {
 				var total = 0, visible = 0;
 				self.tableUfos().forEach(function(w) {
 					if (w.checked()) return;
+					if (self.mode() == "leading" && !w.leading()) return;
 					if (w.visible()) visible++;
 					total++;
 				});
@@ -78,18 +118,36 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 			write: function(val) {
 				self.tableUfos().forEach(function(w) {
 					if (w.checked()) return;
+					if (self.mode() == "leading" && !w.leading()) return;
 					w.visible(val==1);
 				});
 			}
-		});
-		this.allUncheckedVisibleCheckbox = new Checkbox({checked:this.allUncheckedVisible,color:config.ufosTable.allVisibleCheckboxColor,css:"checkbox-white",mode:"half"});
+		}).extend({throttle:50});
+		this.allUncheckedVisibleCheckbox = new Checkbox({checked:this.allUncheckedVisible,color:config.windows.ufosTable.allCheckboxColor,css:"checkbox-white",mode:"half"});
+
+		this.allNonLeadingVisible = ko.computed({
+			read: function() {
+				var total = 0; visible = 0;
+				self.tableUfos().forEach(function(w) {
+					if (w.checked() || w.leading()) return;
+					if (w.visible()) visible++;
+					total++;
+				});
+				return total==visible?1:(visible>0?2:0);
+			},
+			write: function(val) {
+				self.tableUfos().forEach(function(w) {
+					if (w.checked() || w.leading()) return;
+					w.visible(val==1);
+				});
+			}
+		}).extend({throttle:50});
+		this.allNonLeadingVisibleCheckbox = new Checkbox({checked:this.allNonLeadingVisible,color:config.windows.ufosTable.allCheckboxColor,css:"checkbox-white",mode:"half"});
+
+
 
 		this.tableHeight = ko.observable(config.windows.ufosTable.tableHeight);
 		this.checkedTableHeight = ko.observable(config.windows.ufosTable.checkedTableHeight);
-		this.distToGoalText = ko.computed(function() {
-			if (self.raceType() == "opendistance") return "Dist, km";
-			else return "Dist to<br>goal, km";
-		});
 		this.checkedTableTotalHeight = ko.computed(function() {
 			return self.checkedLength() * config.windows.ufosTable.tableRowHeight + config.windows.ufosTable.firstTableRowOffset;
 		});
@@ -127,16 +185,15 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 		});
 
 		this.qTableUfos = ko.computed(function() {
+			self.updateScroll();
+			self.updateScroll();
+			var countries = [], c = {}, out = [];
 			if (self.q().length == 0) {
 				self._qTableCountries([]);
-				self.inCountriesMode(false);
-				return [];
+				self.mode("default");
 			}
-			self.updateScroll();
-			self.updateScroll();
-			var countries = [], c = {};
-			if (self.q() == "Countries") {
-				self.inCountriesMode(true);
+			else if (self.q() == "Countries") {
+				self.mode("countries");
 				self.tableUfos().forEach(function(ufo) {
 					if (ufo.checked()) return;
 					if (!c[ufo.country3()]) c[ufo.country3()] = [];
@@ -146,10 +203,24 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 					countries.push({id:i,expand:false,ufos:c[i]});
 				});
 				self._qTableCountries(countries);
-				return [];
+			}
+			else if (self.q() == "Top leading") {
+				self.mode("checkLeading");
+			}
+			else if (self.q().match(/Top \d+ leading/)) {
+				var m = self.q().match(/Top (\d+) leading/);
+				self.leadingCnt(m[1]);
+				self.mode("leading");
+				self.order("rating");
+			}
+			else if (self.q().match(/Top \d+ altitude/)) {
+				var m = self.q().match(/Top (\d+) altitude/);
+				self.leadingCnt(m[1]);
+				self.mode("leading");
+				self.order("altitude");
 			}
 			else {
-				self.inCountriesMode(false);
+				self.mode("search");
 				var q_ar = self.q().toLowerCase().split(/ /);
 				var out = $.grep(self.tableUfos(),function(ufo) {
 					if (ufo.checked()) return;
@@ -172,8 +243,12 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 					countries.push({id:i,expand:true,ufos:c[i]});
 				});
 				self._qTableCountries(countries);
-				return out;
 			}
+			if (self.mode() !== "leading") {
+				self.leadingCnt(0);
+				self.order("rating");
+			}
+			return out;
 		});
 
 	}
@@ -184,46 +259,74 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 		});
 	}
 
+	UfosTable.prototype.rowComparator = function(a,b,type) {
+		var alphabetical = (a.name().replace(/^.*?\.\s*/,"")<b.name().replace(/^.*?\.\s*/,"")?-1:1);
+		var undef1 = !a || a.noData();
+		var undef2 = !b || b.noData();
+		if (undef1 || undef2) return undef1 && undef2 ? alphabetical : (undef1 ? 1 : -1);
+		var d1 = type=="altitude"?-a.alt():a.dist();
+		var d2 = type=="altitude"?-b.alt():b.dist();
+//		if (!(d1>0)) d1 = null;
+//		if (!(d2>0)) d2 = null;
+
+//		if ((a.id() == 74 || b.id() == 74) && type=="altitude") {
+//			console.log(a.id(),a.noData(),a.state(),a.stateChangedAt(),d1);
+//			console.log(b.id(),b.noData(),b.state(),b.stateChangedAt(),d2);
+//		}
+
+		var s1 = a.state ? a.state() : null;
+		var s2 = b.state ? b.state() : null;
+		var c1 = a.stateChangedAt ? a.stateChangedAt() : null;
+		var c2 = b.stateChangedAt ? b.stateChangedAt() : null;
+		if (s1 == null && s2 != null) return 1;
+		if (s1 != null && s2 == null) return -1;
+		if (s1 == "finished" && s2 == "finished") {
+			if (c1 && c2) return c1 == c2 ? alphabetical : (c1 < c2 ? -1 : 1);
+			if (c1) return 1;
+			if (c2) return -1;
+			return 0;
+		}
+		else if (s1 == "finished") return -1;
+		else if (s2 == "finished") return 1;
+		if (s1 == "landed" && s2 != "landed") return 1;
+		if (s2 == "landed" && s1 != "landed") return -1;
+		if (d1 != null && d2 != null) {
+			d1 = Math.floor(d1*10);
+			d2 = Math.floor(d2*10);
+			if (this.raceType() == "opendistance")
+				return d1 == d2 ? alphabetical : (d1 < d2 ? 1 : -1);
+			else
+				return d1 == d2 ? alphabetical : (d1 < d2 ? -1 : 1);
+		}
+		if (d2 != null) return 1;
+		if (d1 != null) return -1;
+		return 0;
+	}
+
+	UfosTable.prototype.rowSorter = function(type) {
+		var self = this;
+		return function(a,b) {
+			return self.rowComparator(a,b,type);
+		}
+	}
+
 	UfosTable.prototype.sortTableRows = function() {
 		var self = this;
-		this.tableUfos.sort(function(a,b) {
-			var alphabetical = (a.name().replace(/^.*?\.\s*/,"")<b.name().replace(/^.*?\.\s*/,"")?-1:1);
-			var undef1 = !a || a.noData();
-			var undef2 = !b || b.noData();
-			if (undef1 || undef2) return undef1 && undef2 ? alphabetical : (undef1 ? 1 : -1);
-			var d1 = a.dist()>0 ? a.dist() : null;
-			var d2 = b.dist()>0 ? b.dist() : null;
-			var s1 = a.state ? a.state() : null;
-			var s2 = b.state ? b.state() : null;
-			var c1 = a.stateChangedAt ? a.stateChangedAt() : null;
-			var c2 = b.stateChangedAt ? b.stateChangedAt() : null;
-
-			if (s1 == null && s2 != null) return 1;
-			if (s1 != null && s2 == null) return -1;
-			if (s1 == "finished" && s2 == "finished") {
-				if (c1 && c2) return c1 == c2 ? alphabetical : (c1 < c2 ? -1 : 1);
-				if (c1) return 1;
-				if (c2) return -1;
-				return 0;
-			}
-			else if (s1 == "finished") return -1;
-			else if (s2 == "finished") return 1;
-			if (s1 == "landed" && s2 != "landed") return 1;
-			if (s2 == "landed" && s1 != "landed") return -1;
-			if (d1 != null && d2 != null) {
-				d1 = Math.floor(d1*10);
-				d2 = Math.floor(d2*10);
-				if (self.raceType() == "opendistance")
-					return d1 == d2 ? alphabetical : (d1 < d2 ? 1 : -1);
-				else
-					return d1 == d2 ? alphabetical : (d1 < d2 ? -1 : 1);
-			}
-			if (d2 != null) return 1;
-			if (d1 != null) return -1;
-			return 0;
-		});
-		for (var i = 0, l = this.tableUfos().length; i < l; i++)
-			this.tableUfos()[i].i(i+1);
+		this.tableUfos.sort(self.rowSorter(self.order()));
+		if (self.order() == "altitude") {
+			var ar = [], ar2id = {};
+			self.tableUfos().forEach(function(item,i) {
+				ar.push(item);
+				ar2id[item.id()] = i;
+			});
+			ar.sort(self.rowSorter("rating"));
+			for (var i = 0; i < ar.length; i++)
+				self.tableUfos()[ar2id[ar[i].id()]].i(i+1);
+		}
+		else {
+			for (var i = 0, l = this.tableUfos().length; i < l; i++)
+				this.tableUfos()[i].i(i+1);
+		}
 	}
 
 	UfosTable.prototype.sort = function() {
@@ -249,7 +352,7 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 	}
 
 	UfosTable.prototype.switchCountriesMode = function() {
-		if (this.inCountriesMode()) {
+		if (this.mode() == "countries") {
 			this.clearSearch();
 		}
 		else {
@@ -257,16 +360,23 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 		}
 	}
 
-	UfosTable.prototype.showTop = function() {
+	UfosTable.prototype.switchLeadingMode = function() {
+		if (this.mode() == "leading" || this.mode() == "checkLeading") {
+			this.clearSearch();
+		}
+		else {
+			this.q("Top leading");
+		}
+	}
 
+	UfosTable.prototype.setLeading = function(item) {
+		this.leadingCnt(item.cnt);
+		this.order(item.order);
+		this.q(item.text);
 	}
 
 	UfosTable.prototype.showInfo = function() {
 
-	}
-
-	UfosTable.prototype.getTimeStr = function(h,m,s) {
-		return (h<10?"0":"") + h + ":" + (m<10?"0":"") + m + ":" + (s<10?"0":"") + s;
 	}
 
 	UfosTable.prototype.createCountry = function(id,expanded,ufos) {
@@ -305,16 +415,16 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 
 	UfosTable.prototype.windowSwitchMode = function() {
 		var self = this;
-		if (this.mode() == "short") {
+		if (this.windowMode() == "short") {
 			if (this.modalWindow)
 				this.modalWindow.width(config.windows.ufosTable.wideWidth);
 			// В css при изменении ширины идет transition: width 0.5s, поэтому здесь - костыльный таймаут
 			setTimeout(function() {
-				self.mode("full");
+				self.windowMode("full");
 			},500);
 		}
 		else {
-			this.mode("short");
+			this.windowMode("short");
 			this.modalWindow.width(config.windows.ufosTable.width);
 		}
 	}
