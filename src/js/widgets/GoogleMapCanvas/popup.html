@@ -1,9 +1,10 @@
 <div id="airvis-ufo-popup">
-	<div class="airvis-ufo-popup-title" style="font-size: 12px;">
+	<div class="airvis-ufo-popup-title">
 		<div class="airvis-ufo-popup-arrow"></div>
-		<div data-bind="text:name() + ' (' + id() + ')'"></div>
+		<div class="airvis-ufo-popup-avatar"></div>
+		<div class="airvis-ufo-popup-name" data-bind="text:name() + ' (' + id() + ')'"></div>
 		<div>
-			<span class="countryicon-sprite iconset-shiny" data-bind="css:'countrycode-'+country().toLowerCase()"></span>
+			<span class="countryicon-sprite iconset-shiny airvis-ufo-popup-flag" data-bind="css:'countrycode-'+country().toLowerCase()"></span>
 			<span data-bind="text:country3"></span>
 		</div>
 	</div>

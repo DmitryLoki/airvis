@@ -9,7 +9,7 @@
 					Selected pilots
 				<!-- /ko -->
 				<!-- ko if: !checked && mode() == "leading" -->
-					Top <span data-bind="text:leadingCnt"></span> leading pilots
+					Top <span data-bind="text:leadingCnt"></span> <span data-bind="text:order()=='altitude'?'altitude':'leading'"></span> pilots
 				<!-- /ko -->
 				<!-- ko if: !checked && mode() != "leading" -->
 					Pilots
