@@ -8,6 +8,7 @@ define([
 	"widget!GoogleMapCanvas",
 	"widget!PlayerControl",
 	"widget!UfosTable",
+	"widget!WaypointsTable",
 	"widget!RetrieveTable",
 	"widget!RetrieveRawForm",
 	"widget!RetrieveChat",
@@ -16,7 +17,7 @@ define([
 	"widget!MainMenu",
 	"widget!TopBar",
 	"widget!Facebook",
-	"widget!RetrieveDistanceMeasurer",
+//	"widget!DistanceMeasurer",
 	"RealServer",
 	"DataSource",
 	"ShortWay",
@@ -34,6 +35,7 @@ define([
 	GoogleMapCanvas,
 	PlayerControl,
 	UfosTable,
+	WaypointsTable,
 	RetrieveTable,
 	RetrieveRawForm,
 	RetrieveChat,
@@ -42,7 +44,7 @@ define([
     MainMenu,
     TopBar,
     Facebook,
-    RetrieveDistanceMeasurer,
+//    DistanceMeasurer,
     RealServer,
     DataSource,
     ShortWay,
@@ -219,7 +221,7 @@ define([
 		if (this.options.mode != this.mode()) {
 			this.mode(this.options.mode);
 
-			("ufosTable playerControl mainMenu facebook topBar windowManager "
+			("ufosTable waypointsTable playerControl mainMenu facebook topBar windowManager "
 			+ " retrieveTable retrieveChat retrieveDistanceMeasurer retrieveRawForm").split(/ /).forEach(function(widgetName) {
 				if (self[widgetName] && self[widgetName].domDestroy) {
 					self[widgetName].domDestroy();
@@ -294,17 +296,23 @@ define([
 				});
 				// Строим виджет facebook
 				this.facebook = new Facebook();
+				// Строим виджет waypointsTable
+				this.waypointsTable = new WaypointsTable({
+					waypoints: this.waypoints,
+					shortWays: this.shortWay
+				});
 				// Определяем виджеты окон
 				this.ufosTableWindow = new Window(config.windows.ufosTable);
 				this.playerControlWindow = new Window(config.windows.playerControl);
 				this.mainMenuWindow = new Window(config.windows.mainMenu);
 				this.facebookWindow = new Window(config.windows.facebook);
+				this.waypointsTableWindow = new Window(config.windows.waypointsTable);
 				// Строим виджет topBar
 				this.topBar = new TopBar();
-				this.topBar.items.push(this.mainMenuWindow,this.ufosTableWindow,this.playerControlWindow,this.facebookWindow);
+				this.topBar.items.push(this.mainMenuWindow,this.ufosTableWindow,this.playerControlWindow,this.facebookWindow,this.waypointsTableWindow);
 				// Перестраиваем windowManager
 				this.windowManager = new WindowManager();
-				this.windowManager.items.push(this.mainMenuWindow,this.ufosTableWindow,this.playerControlWindow,this.facebookWindow);
+				this.windowManager.items.push(this.mainMenuWindow,this.ufosTableWindow,this.playerControlWindow,this.facebookWindow,this.waypointsTableWindow);
 			}
 			else if (this.mode() == "retrieve") {
 				this.retrieveTable = new RetrieveTable({

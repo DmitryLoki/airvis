@@ -6,6 +6,7 @@ define(["knockout"],function(ko) {
 		this.center = ko.observable({lat:options.center.lat,lng:options.center.lng});
 		this.radius = ko.observable(options.radius);
 		this.openKey = ko.observable(options.openKey);
+		this.closeKey = ko.observable(options.closeKey);
 		this.checkedOn = ko.observable(options.checkedOn);
 	}
 	return Waypoint;

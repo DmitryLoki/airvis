@@ -272,16 +272,21 @@ define({
 			top: 180,
 			right: 90
 		},
-	    retrieveDistanceMeasurer: {
+        waypointsTable: {
+            visible: false,
+            menuTitle: "Task",
+            width: 360,
+            xPosition: "right",
+            top:480,
+            right:30
+        },
+	    distanceMeasurer: {
 	      visible: false,
 	      title: "Distance",
-	      menuTitlePosition: "right",
-	      resizable: false,
 	      width: 180,
 	      height: 100,
-	      xPosition: "right",
-	      top: 410,
-	      right: 90
+	      top: 310,
+	      left: 5
 	    }
 	},
 	// В онлайне время отстает от реального серверного на 2 минуты

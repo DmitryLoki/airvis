@@ -129,6 +129,10 @@ body {
   background: rgba(0, 47, 64, 0.35) url("../img/corner.png") bottom right no-repeat;
   cursor: s-resize;
 }
+.airvis-resizebar-placeholder {
+  height: 10px;
+  background-color: rgba(0,47,64,0.35);
+}
 
 
 /* pilots table */
@@ -139,14 +143,18 @@ body {
   margin: 0;
   padding: 0;
   width: 100%;
-  background: rgba(0, 47, 64, .5);
+/*  background: rgba(0, 47, 64, .5); */
 }
 .viewport .airvis-ptable {
   background: none;
 }
 .airvis-ptable tbody tr {
-  background-color: rgba(0,47,64,0.35);
-  color: #ffffff;  
+/*  background-color: rgba(0,47,64,0.35); */
+  color: #ffffff;
+  height: 20px;
+}
+.airvis-ptable tbody tr:first-child {
+  height: 28px;
 }
 .airvis-ptable tbody tr:first-child td { padding-top: 8px;}
 .airvis-ptable tbody tr:nth-child(2n+2) { 
@@ -164,7 +172,7 @@ body {
   padding-bottom: 5px;
   vertical-align: bottom;
   font-weight: normal;
-  background-color: rgba(0,47,64,0.3);
+  background-color: rgba(0,47,64,0.5);
 }
 .airvis-ptable tbody td + td,
 .airvis-ptable th + th { 
@@ -603,6 +611,15 @@ body {
 .airvis-window .airvis-pilot-gspd { width: 49px; }
 .airvis-window .airvis-pilot-vspd { width: 49px; }
 .airvis-window .airvis-pilot-nodata { width: 150px; }
+.airvis-window .airvis-waypoint-number { width: 50px; }
+.airvis-window .airvis-waypoint-name { width: 50px; }
+.airvis-window .airvis-waypoint-radius { width: 45px; }
+.airvis-window .airvis-waypoint-type { width: 45px; }
+.airvis-window .airvis-waypoint-leg { width: 40px; }
+.airvis-window .airvis-waypoint-dist { width: 40px; }
+.airvis-window .airvis-waypoint-open-time { width: 50px; }
+.airvis-window .airvis-waypoint-close-time { width: 50px; }
+
 
 .airvis-window tr .airvis-onover { display: inline-block; float: left; overflow: hidden; width: 0; height: 20px; transition: width 0.2s ease; }
 .airvis-window table.airvis-pilot-table tbody tr:hover { background-color: rgba(50,50,50,.70); cursor: pointer; }
