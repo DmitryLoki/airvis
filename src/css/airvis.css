@@ -967,9 +967,14 @@ body {
   background: url("../img/prof.png") no-repeat scroll 0 -60px transparent;
 }
 .airvisDistanceMeasurerButton:hover {
-  opacity: 0.8;
+  background-position: 0 -90px;
 }
-
+.airvisDistanceMeasurerButton.enabled {
+    background-position: 0 -90px;
+}
+.airvisDistanceMeasurerButton.enabled:hover {
+    background-position: 0 -60px;
+}
 
 .airvis-sms-table tr {
   cursor: pointer;
@@ -1086,7 +1091,6 @@ body {
     margin-left: 10px;
     margin-top: 80px;
     background: url('../img/prof.png') 0 -60px;
-    opacity: 0.8;
 }
 .distance-measurer-control a{
     width: 30px;

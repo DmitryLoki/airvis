@@ -317,7 +317,7 @@ define({
         lineStyle: {
             strokeColor: "#FF0000",
             strokeOpacity: .75,
-            strokeWeight: 7
+            strokeWeight: 4
         }
     },
 

@@ -3,4 +3,4 @@
 	<a class="setProfVisualMode" href="#" data-bind="css:'airvisVisualMode_'+mode(),visible:profVisualMode()=='prof',click:setUserVisualMode">Profi Mode</a>
 	<a class="setUserVisualMode" href="#" data-bind="css:'airvisVisualMode_'+mode(),visible:profVisualMode()=='user',click:setProfVisualMode">User Mode</a>
 <!-- /ko -->
-<a class="airvisDistanceMeasurerButton" href="#" data-bind="click:switchDistanceMeasurer"></a>
+<a class="airvisDistanceMeasurerButton" href="#" data-bind="click:switchDistanceMeasurer,css:{enabled:isDistanceMeasurerEnabled()}"></a>

@@ -309,6 +309,7 @@ define([
 				});
 				// Строим виджет distanceMeasurer
 				this.distanceMeasurer = new DistanceMeasurer();
+                this.map.isDistanceMeasurerEnabled = this.distanceMeasurer.isEnabled;
 				// Определяем виджеты окон
 				this.ufosTableWindow = new Window(config.windows.ufosTable);
 				this.playerControlWindow = new Window(config.windows.playerControl);
