@@ -282,11 +282,11 @@ define({
         },
 	    distanceMeasurer: {
 	      visible: false,
-	      title: "Distance",
-	      width: 180,
+	      menuTitle: "Distance",
+	      width: 150,
 	      height: 100,
 	      top: 310,
-	      left: 5
+	      left: 10,
 	    }
 	},
 	// В онлайне время отстает от реального серверного на 2 минуты
@@ -306,6 +306,18 @@ define({
 		goal: "GOAL",
 		to: "TAKE OFF"
 	},
+	// Настройки измерителя расстояний на google maps
+    distanceMeasurer: {
+        icons:{
+            normal:'/img/distance_marker.png',
+            cross:'/img/distance_marker_cross.png'
+        },
+        lineStyle: {
+            strokeColor: "#FF0000",
+            strokeOpacity: .75,
+            strokeWeight: 7
+        }
+    },
 
 
 

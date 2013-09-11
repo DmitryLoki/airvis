@@ -92,6 +92,9 @@ define([
 		this.setUserVisualMode = function() {
 			self.profVisualMode("user");
 		}
+		this.switchDistanceMeasurer = function() {
+			self.emit("switchDistanceMeasurer");
+		}
 
 		this.trackedUfoId.subscribe(function() {
 			self.startUfoTracking();

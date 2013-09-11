@@ -17,7 +17,7 @@ define([
 	"widget!MainMenu",
 	"widget!TopBar",
 	"widget!Facebook",
-//	"widget!DistanceMeasurer",
+	"widget!DistanceMeasurer",
 	"RealServer",
 	"DataSource",
 	"ShortWay",
@@ -44,7 +44,7 @@ define([
     MainMenu,
     TopBar,
     Facebook,
-//    DistanceMeasurer,
+    DistanceMeasurer,
     RealServer,
     DataSource,
     ShortWay,
@@ -205,6 +205,12 @@ define([
 			}
 			else throw new Error("mapWidget " + this.options.mapWidget + " is not supported");
 
+			this.map.on("switchDistanceMeasurer",function() {
+				if (self.distanceMeasurer) {
+					self.distanceMeasurer.switch(self.map.map);
+				}
+			});
+
 			w.step(function(step) {
 				if (self.map.isReady()) {
 					step.next();
@@ -221,7 +227,7 @@ define([
 		if (this.options.mode != this.mode()) {
 			this.mode(this.options.mode);
 
-			("ufosTable waypointsTable playerControl mainMenu facebook topBar windowManager "
+			("ufosTable waypointsTable playerControl mainMenu facebook topBar windowManager distanceMeasurer"
 			+ " retrieveTable retrieveChat retrieveDistanceMeasurer retrieveRawForm").split(/ /).forEach(function(widgetName) {
 				if (self[widgetName] && self[widgetName].domDestroy) {
 					self[widgetName].domDestroy();
@@ -301,18 +307,21 @@ define([
 					waypoints: this.waypoints,
 					shortWays: this.shortWay
 				});
+				// Строим виджет distanceMeasurer
+				this.distanceMeasurer = new DistanceMeasurer();
 				// Определяем виджеты окон
 				this.ufosTableWindow = new Window(config.windows.ufosTable);
 				this.playerControlWindow = new Window(config.windows.playerControl);
 				this.mainMenuWindow = new Window(config.windows.mainMenu);
 				this.facebookWindow = new Window(config.windows.facebook);
 				this.waypointsTableWindow = new Window(config.windows.waypointsTable);
+				this.distanceMeasurerWindow = new Window(config.windows.distanceMeasurer);
 				// Строим виджет topBar
 				this.topBar = new TopBar();
 				this.topBar.items.push(this.mainMenuWindow,this.ufosTableWindow,this.playerControlWindow,this.facebookWindow,this.waypointsTableWindow);
 				// Перестраиваем windowManager
 				this.windowManager = new WindowManager();
-				this.windowManager.items.push(this.mainMenuWindow,this.ufosTableWindow,this.playerControlWindow,this.facebookWindow,this.waypointsTableWindow);
+				this.windowManager.items.push(this.mainMenuWindow,this.ufosTableWindow,this.playerControlWindow,this.facebookWindow,this.waypointsTableWindow,this.distanceMeasurerWindow);
 			}
 			else if (this.mode() == "retrieve") {
 				this.retrieveTable = new RetrieveTable({
