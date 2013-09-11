@@ -344,13 +344,15 @@ define({
 	},
     distanceMeasurer: {
         icons:{
-            normal:'/img/distance_marker.png',
-            cross:'/img/distance_marker_cross.png'
+            //Это base64 файлов distance_marker.png и distance_marker_cross.png.
+            //Пришлось встраивать картинку так, потому что гуглокарты не кешируют иконки и подгружают их с сервера при каждой смене через setIcon
+            normal:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAaCAYAAAC6nQw6AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAfVJREFUeNqklDlLA1EUhc+otYWFjQuY0gSxd0FiE7ETK5fORm39AaYUFAWRICgIIqkCFhE3xAVtFNziXogGF9w33KJxvCeZqDGTmBkv3ORx7zkfl/fePKWuBHqRL9kgWSGZp9X2Jcck+yS3BufUKIPyC2SVbMzKQHOZoApygcz0cOP8Hlj3AzNbwPE1eqXkEtiaHqgqLRWe2iKg3CYNRXdSqDLItMCG5oHAO6oF5vkJsgnE11IpI+Ugqdg8Atq9wHsQNoFtpmj1xtri5CGhPcgGOD29/CHIKnvSZLfCcNhlC7if9aWKlaAGbmyKYhxED71kEOTg6ZgNzesgyBI5YjOheS0Eqfh/qATtnd6aJ2jePYJG1w/Ng3z+0N84Qa7JDeAtaBxCz4QvtHQRdHD1gE7vsnEQPfTKzd6P3Oy24SVg9yR5CLX00Bu52YyzDxU1PRPA3dPfEGqopUemOfsJYrhvHtHaO5X4PrBHDbUCcX/d8l86p5zCwPxOfBB71AjEGfW56Ghd7gXgORDbYI09amK+Ox3Q4sML2kZXYxussUdNMiBGB033z98FrjV4h+5LEAd08fIG58jKd2FE7gxr7BkBMbr40Is5lDPb4VrctykB6PbpFd1zAmByzZoZEKN/ViCz4Wn6EwnT/gCt+S9RGFknEn4KMAB9csND4vb7pwAAAABJRU5ErkJggg==',
+            cross:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAaCAYAAAC6nQw6AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDoAABSCAABFVgAADqXAAAXb9daH5AAAAL5SURBVHjanJRbSBRhFMd/880YLpGRtfuyuZYRkSuLr10RezF6i17SevOlegoKuhDkSyUVRRciKIgWMYRIotjqJR3qRcnsonahJNNCXRcvrTvu7OzXw+y6OzaadWBg5n/O+c2Zc843yr5tuFk5UA/sBNZmtK/AE+AW0BvWpSNBmQMKAgf8xRyqKodQAHxFtmNkEt4OQFsvDMW4CdwI6/KNG2i3pnK/bgvsqABFca0UKeF5LzS9gGSKPWFd3s8HVWgq747sgmAJi7KeQbjwCFIWFWFd9oiMfqBu6+IhAMHVULfFzgUQQNBfzMHqoDPQMMFK556ttK3lW3UF+Is5tH+7EhRAfVU5CMUJOXwXTrXAVMK+TrXYWj5MKFBVDkC9BtSEAs43FWiCFUVL+D5icKbVfsNgTFLiK6RASwK5UkMBaIIaAZRlR5w1VZEc2xvA7/UwGJMMxiR+r4fje0tRFef+ZHLLBCBdhgy/voLMa5JMQ/yLezhIAXz6Oe5UrTSca7UYis7g93rwez0MRWc4+8ByDAAgk/tJAJG335xO01KIxQWrfR5O1gY4UVtCwOchFheYlnNT3w0A8FTZt401K5fRf74OCtTsvgsMT5ACkUKNf7arXLoeM61RmOiZ/WTTgqNNMDbFOjVUyngiyXJVsGmjP9cjLTWGSI5mJpRGJMfQUlFH3x6+gq5+LoV1eS+72Y2tnfDxR377rDmNlRnNto8/oLXTzs1uNsBwWlJ7/RlMTP/9eExMw/VnkJbUhnU5DKCGSmf97w0Tvseo2rwB5jn8SODKE/gW5XRYl9dmdy8PBNA+MsEabxGVpavcQS8+QKSbO2FdHs7XhUvsjeaXkEj+6UgkofmlHTPX5wbqmDJojHT/6Yh0w5RBI9CxGBDAxUg3TCZywmTCBgEX3RLmA40aJg2PX+eEx11gmDQAo/8CArjc1mv/fwwT2vpsbb7ghUDj0zNc1ftA74PpGa4C4/8DArjd3gftdjW3FwrU/gJ6MxClMnu/UODvAQDdjSe6YGpwbQAAAABJRU5ErkJggg=='
         },
         lineStyle: {
             strokeColor: "#FF0000",
             strokeOpacity: .75,
-            strokeWeight: 7
+            strokeWeight: 4
         }
     },
 	// Настройки тестового сервера
