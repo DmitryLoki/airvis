@@ -1,4 +1,4 @@
-define(["knockout","google.maps","config"],function(ko,gmaps,config) {
+define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) {
 	var Waypoint = function(data,mapWidget) {
 		var w = this;
 

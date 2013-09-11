@@ -2,6 +2,7 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 	var UfosTable = function(options) {
 		var self = this;
 
+		this.$ = $;
 		this.ufos = options.ufos;
 		this.raceKey = options.raceKey;
 		this.raceType = options.raceType;

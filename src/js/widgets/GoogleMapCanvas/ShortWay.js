@@ -1,4 +1,4 @@
-define(["config"],function(config) {
+define(["jquery","config"],function($,config) {
 	var ShortWay = function(data,mapWidget) {
 		var w = this;
 
