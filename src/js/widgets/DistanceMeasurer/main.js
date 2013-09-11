@@ -1,10 +1,10 @@
 define(["google.maps","knockout","config"], function(gmaps,ko,config) {
-    var DistanceMeasurer = function() {
+    var DistanceMeasurer = function(options) {
         var self = this;
         this.rulers = [];
         this.map = null;
         this.distance = ko.observable(0);
-        this.isEnabled = ko.observable(false);
+        this.isEnabled = options.isEnabled;
         this.distanceLabel = ko.computed(function() {
             return (self.distance()/1000).toFixed(2) + ' km';
         });

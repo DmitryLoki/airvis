@@ -45,7 +45,7 @@ define([
 		this.raceTypeOptions = options.raceTypeOptions;
 		this.trackedUfoId = options.trackedUfoId;
 		this.optdistance = options.optdistance;
-		this.isDistanceMeasurerEnabled = ko.observable(false);
+		this.isDistanceMeasurerEnabled = options.isDistanceMeasurerEnabled;
 
 		this.isReady = ko.observable(false);
 

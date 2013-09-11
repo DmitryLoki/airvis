@@ -79,6 +79,7 @@ define([
 		this.isLoaded = ko.observable(false);
 		this.loading = ko.observable(false);
 		this.trackedUfoId = ko.observable(null);
+		this.isDistanceMeasurerEnabled = ko.observable(false);
 
 		this.ufos = ko.observableArray([]);
 		this.waypoints = ko.observableArray([]);
@@ -192,7 +193,8 @@ define([
 				raceType: this.raceType,
 				raceTypeOptions: this.raceTypeOptions,
 				trackedUfoId: this.trackedUfoId,
-				optdistance: this.optdistance
+				optdistance: this.optdistance,
+				isDistanceMeasurerEnabled: this.isDistanceMeasurerEnabled
 			}
 			if (this.mapType() == "GoogleMapCanvas") {
 				this.map = new GoogleMapCanvas(mapOptions);
@@ -308,8 +310,9 @@ define([
 					shortWays: this.shortWay
 				});
 				// Строим виджет distanceMeasurer
-				this.distanceMeasurer = new DistanceMeasurer();
-                this.map.isDistanceMeasurerEnabled = this.distanceMeasurer.isEnabled;
+				this.distanceMeasurer = new DistanceMeasurer({
+					isEnabled: this.isDistanceMeasurerEnabled
+				});
 				// Определяем виджеты окон
 				this.ufosTableWindow = new Window(config.windows.ufosTable);
 				this.playerControlWindow = new Window(config.windows.playerControl);
