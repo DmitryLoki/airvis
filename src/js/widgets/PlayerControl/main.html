@@ -1,19 +1,21 @@
-<div data-bind="event:{mousedown:proxyDrag,touchstart:proxyDrag}">
-	<div class="airvis-player-online-notification" data-bind="visible:offlineNotificationIsVisible">
+<div>
+	<div class="airvis-player-online-notification" data-bind="style:{opacity:offlineNotificationIsVisible()?'1':'0'}">
 		<span class="airvis-player-online-notification-text">This replay is based on Live tracking data! Tracking replay will be available soon.</span>
 		<a class="airvis-window-close airvis-window-close-cross" href="#" data-bind="click:turnOffOfflineNotification"></a>
 	</div>
 	<div class="airvis-clearfix">
-        <div class="airvis-player-timeWindow" data-bind="css:raceTimeCss">
-            <div class="airvis-player-time-status" data-bind="text:isCurrentlyOnline()?'Live':'Replay'"></div>
-            <div class="airvis-player-time" data-bind="text:raceTime"></div>
-        </div>
-        <div class="airvis-player-timeText" data-bind="css:raceTimeCss,text:raceTimeText"></div>
-        <div class="airvis-player-timeWindow airvis-local">
-            <div class="airvis-player-time-status" data-bind="text:isCurrentlyOnline()?'2min delay':'&nbsp;'"></div>
-            <div class="airvis-player-time" data-bind="text:localTime"></div>
-        </div>
-        <div class="airvis-player-timeText airvis-local">Local time</div>
+		<div class="airvis-player-drag" data-bind="event:{mousedown:windowDrag,touchstart:windowDrag}">
+			<div class="airvis-player-timeWindow" data-bind="css:raceTimeCss">
+				<div class="airvis-player-time-status" data-bind="text:isCurrentlyOnline()?'Live':'Replay'"></div>
+				<div class="airvis-player-time" data-bind="text:raceTime"></div>
+			</div>
+			<div class="airvis-player-timeText" data-bind="css:raceTimeCss,text:raceTimeText"></div>
+			<div class="airvis-player-timeWindow airvis-local">
+				<div class="airvis-player-time-status" data-bind="text:isCurrentlyOnline()?'2min delay':'&nbsp;'"></div>
+				<div class="airvis-player-time" data-bind="text:localTime"></div>
+			</div>
+			<div class="airvis-player-timeText airvis-local">Local time</div>
+		</div>
 		<div class="airvis-player-selects-container">
 			<div class="airvis-player-selects">
 				<!-- ko widget: { data: heightsVisualSelect, type: "Select"} --><!-- /ko -->
@@ -39,11 +41,12 @@
 				<a data-bind="click: changeSpeed.bind($data,10), css: { 'player-button-on': playerSpeed() == 10, 'player-button-off': playerSpeed() != 10 }"><span>x10</span></a>
 			</div>
 		</div>
-		<!-- ko if: isOnline() && !disableLiveButton()-->
+		<!-- ko if: isOnline() && serverKey()<endKey() -->
 			<div class="airvis-player-controls airvis-online-container">
 				<a class="airvis-online" href="#" data-bind="click:setLiveMode,css: { 'player-button-on': isCurrentlyOnline(), 'player-button-off': !isCurrentlyOnline() }"><span>LIVE</span></a>
 			</div>
 		<!-- /ko -->
 		<div class="airvis-slider-container" data-bind="css:{'airvis-slider-container-online':isOnline},widget:{data:slider,type:'Slider'}"></div>
 	</div>
+	<a class="airvis-window-close" href="#" data-bind="click:windowClose"></a>
 </div>

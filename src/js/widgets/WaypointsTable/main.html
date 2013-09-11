@@ -1,36 +1,33 @@
-<div class="airvis-tbl airvis-waypoints-table">
-    <div class="airvis-table-header-1">
-        <table cellspacing="0" cellpadding="0" border="0">
-            <tbody>
+<div>
+    <div class="airvis-window-header" data-bind="event:{mousedown:windowDrag,touchstart:windowDrag}">
+        <div class="airvis-window-title">Task</div>
+        <a class="airvis-window-close" href="#" data-bind="click:windowClose"></a>
+    </div>
+    <table class="airvis-ptable">
+        <thead>
             <tr>
-                <td class="airvis-waypoint-number">#</td>
-                <td class="airvis-waypoint-name">Wpt</td>
-                <td class="airvis-waypoint-radius">Radius, km</td>
-                <td class="airvis-waypoint-type">Type</td>
-                <td class="airvis-waypoint-leg">Leg, km</td>
-                <td class="airvis-waypoint-dist">Dist, km</td>
-                <td class="airvis-waypoint-open-time airvis-time">Open time</td>
-                <td class="airvis-waypoint-close-time airvis-time">Close time</td>
+                <th class="airvis-waypoint-number">#</th>
+                <th class="airvis-waypoint-name">Wpt</th>
+                <th class="airvis-waypoint-radius">Radius, km</th>
+                <th class="airvis-waypoint-type">Type</th>
+                <th class="airvis-waypoint-leg">Leg, km</th>
+                <th class="airvis-waypoint-dist">Dist, km</th>
+                <th class="airvis-waypoint-open-time airvis-time">Open time</th>
+                <th class="airvis-waypoint-close-time airvis-time">Close time</th>
             </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="airvis-scrollbar">
-        <div class="airvis-table-body">
-            <table class="waypoints-data-table" cellspacing="0" cellpadding="0" border="0">
-                <tbody data-bind="foreach:{data:tableWaypoints}">
-                <tr>
-                    <td class="airvis-waypoint-number" data-bind="text:num"></td>
-                    <td class="airvis-waypoint-name" data-bind="text:name"></td>
-                    <td class="airvis-waypoint-radius" data-bind="text:( !isTOWaypoint() ? radius : '')"></td>
-                    <td class="airvis-waypoint-type" data-bind="text:( !isTOWaypoint() ? type : '')"></td>
-                    <td class="airvis-waypoint-leg" data-bind="text:( !isTOWaypoint() ? leg : '')"></td>
-                    <td class="airvis-waypoint-dist" data-bind="text:( !isTOWaypoint() ? dist : '')"></td>
-                    <td class="airvis-waypoint-open-time airvis-time" data-bind="text:openTime"></td>
-                    <td class="airvis-waypoint-close-time airvis-time" data-bind="text:closeTime"></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+        </thead>
+        <tbody data-bind="foreach:tableWaypoints">
+            <tr>
+                <td class="airvis-waypoint-number" data-bind="text:num"></td>
+                <td class="airvis-waypoint-name" data-bind="text:name"></td>
+                <td class="airvis-waypoint-radius" data-bind="text:( !isTOWaypoint() ? radius : '')"></td>
+                <td class="airvis-waypoint-type" data-bind="text:( !isTOWaypoint() ? type : '')"></td>
+                <td class="airvis-waypoint-leg" data-bind="text:( !isTOWaypoint() ? leg : '')"></td>
+                <td class="airvis-waypoint-dist" data-bind="text:( !isTOWaypoint() ? dist : '')"></td>
+                <td class="airvis-waypoint-open-time airvis-time" data-bind="text:openTime"></td>
+                <td class="airvis-waypoint-close-time airvis-time" data-bind="text:closeTime"></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="airvis-resizebar-placeholder"></div>
 </div>

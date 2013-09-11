@@ -1,7 +1,10 @@
-<div style="background-color:#333333">
-<!--
-<fb:like-box href="https://www.facebook.com/Airtribune" width="292" height="258" show_faces="true" colorscheme="dark" stream="false" show_border="false" header="false"></fb:like-box>
--->
-<iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2Fairtribune&amp;width=292&amp;height=258&amp;show_faces=true&amp;colorscheme=dark&amp;stream=false&amp;show_border=false&amp;header=false&amp;appId=222672217865380" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:292px; height:258px;" allowTransparency="true"></iframe>
+<div>
+	<div class="airvis-window-header" data-bind="event:{mousedown:windowDrag,touchstart:windowDrag}">
+		<div class="airvis-window-title">Facebook</div>
+		<a class="airvis-window-close" href="#" data-bind="click:windowClose"></a>
+	</div>
+	<div class="airvis-facebook-container">
+	<div class="airvis-facebook-hover" data-bind="visible:isDragged" style="width:292px;height:258px;"></div>
+	<iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2Fairtribune&amp;width=292&amp;height=258&amp;show_faces=true&amp;colorscheme=dark&amp;stream=false&amp;show_border=false&amp;header=false&amp;appId=222672217865380" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:292px; height:258px;" allowTransparency="true"></iframe>
+	</div>
 </div>
-

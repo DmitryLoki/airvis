@@ -102,7 +102,7 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 			self.emit("change",val);
 		});
 
-		this.tracksVisualSelect = new Select({data:this.tracksVisualMode,label:"Tracks",values:[{value:"10min",title:"10 min"},{value:"full",title:"Full"},{value:"off",title:"Off"}],expandDirection:"up"});
+		this.tracksVisualSelect = new Select({data:this.tracksVisualMode,label:"Tracks",values:[{value:"5min",title:"5 min"},{value:"full",title:"Full"},{value:"off",title:"Off"}],expandDirection:"up"});
 		this.cylindersVisualSelect = new Select({data:this.cylindersVisualMode,label:"Cylinders",values:[{value:"full",title:"Full"},{value:"empty",title:"Empty"},{value:"off",title:"Off"}]});
 		this.heightsVisualSelect = new Select({data:this.heightsVisualMode,label:"Altitude",values:[{value:"off",title:"Off"},{value:"level",title:"Levels"},{value:"level+",title:"Bar"}]});
 		this.modelsVisualSelect = new Select({data:this.modelsVisualMode,label:"Models",values:[{value:"large",title:"Large"},{value:"medium",title:"Medium"},{value:"small",title:"Small"}],expandDirection:"up"});
@@ -146,14 +146,22 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		return this;
 	}
 	
-	PlayerControl.prototype.domInit = function(elem,params) {
-		this.modalWindow = params.modalWindow;
+	PlayerControl.prototype.windowClose = function() {
+		if (this.modalWindow)
+			this.modalWindow.visible(false);
 	}
 
-	PlayerControl.prototype.proxyDrag = function(self,e) {
+	PlayerControl.prototype.windowDrag = function(self,e) {
 		if (this.modalWindow)
-			this.modalWindow.dragStart(this.modalWindow,e);
+			this.modalWindow.emit("dragStart",this.modalWindow,e);
 	}
+	
+	PlayerControl.prototype.domInit = function(elem,params) {
+		this.modalWindow = params.modalWindow;
+		this.isReady = true;
+		this.emit("ready");
+	}
+
 
 	PlayerControl.prototype.templates = ["main"];
 

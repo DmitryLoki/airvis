@@ -1,3 +1,9 @@
-<div class="airvis-distance-measurer">
-    <h1 data-bind="text:distanceLabel"></h1>
+<div>
+	<div class="airvis-window-header" data-bind="event:{mousedown:windowDrag,touchstart:windowDrag}">
+		<div class="airvis-window-title">Distance</div>
+		<a class="airvis-window-close airvis-window-close-cross" href="#" data-bind="click:windowClose"></a>
+	</div>
+	<div class="airvis-distance-measurer">
+	    <h1 data-bind="text:distanceLabel"></h1>
+	</div>
 </div>

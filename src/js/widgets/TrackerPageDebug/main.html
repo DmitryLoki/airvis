@@ -1,12 +1,12 @@
 <!-- ko if: isReady -->
-	<div class="airvis-content-container" data-bind="style:{width:width,height:height,opacity:isLoadedWithDelay()?'1':'0'}">
+	<div class="airvis-content-container" data-bind="style:{width:width,height:height,opacity:isLoaded()?'1':'0'}">
 		<div data-bind="style:{width:width,height:height}">
 			<!-- ko widget: { data: map, type: mapType } --><!-- /ko -->
 		</div>
 		<!-- ko if: mode() == "full" -->
 			<!-- ko widget: {data: topBar, type: 'TopBar'} --><!-- /ko -->
 
-			<!-- ko widget: { data: mainMenuWindow, type: 'Window', contentCss: 'airvis-transparent'} -->
+			<!-- ko widget: { data: mainMenuWindow, type: 'Window'} -->
 				<!-- ko widget: {data: mainMenu, type: 'MainMenu', modalWindow: mainMenuWindow } --><!-- /ko -->
 			<!-- /ko -->
 
@@ -26,7 +26,7 @@
                 <!-- ko widget: { data: waypointsTable, type: 'WaypointsTable', modalWindow: waypointsTableWindow } --><!-- /ko -->
             <!-- /ko -->
 
-            <!-- ko widget: {data: distanceMeasurerWindow, type: 'Window'} -->
+	        <!-- ko widget: {data: distanceMeasurerWindow, type: 'Window'} -->
                 <!-- ko widget: { data: distanceMeasurer, type: 'DistanceMeasurer', modalWindow: distanceMeasurerWindow } --><!-- /ko -->
             <!-- /ko -->
 		<!-- /ko -->

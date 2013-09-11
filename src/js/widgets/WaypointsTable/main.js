@@ -7,9 +7,19 @@ define(['knockout', "jquery", "filters", "ShortWay"], function (ko, $, filters, 
         options.waypoints.subscribe(function (wpts) {
             self.tableWaypoints.removeAll();
             ko.utils.arrayPushAll(self.tableWaypoints, self.createTableWaypoints(wpts));
-            self.autoHeight();
         });
     };
+
+    WaypointsTable.prototype.windowDrag = function(self,e) {
+        if (this.modalWindow)
+            this.modalWindow.emit("dragStart",this.modalWindow,e);
+    }
+
+    WaypointsTable.prototype.windowClose = function() {
+        if (this.modalWindow)
+            this.modalWindow.visible(false);
+    }
+
 
     WaypointsTable.prototype.createTableWaypoints = function (waypointsData) {
         var self = this,
@@ -71,34 +81,11 @@ define(['knockout', "jquery", "filters", "ShortWay"], function (ko, $, filters, 
             .replace(/(\d{2}:\d{2}):\d{2}$/,'$1');
     }
 
-    WaypointsTable.prototype.autoHeight = function () {
-        if (this.modalWindow) {
-            var modelWindowContainer = this.container.parents('.airvis-window');
-            this.modalWindow.height(
-                this.container.find('.airvis-table-header-1').height() +
-                    modelWindowContainer.find('.airvis-window-header').height() +
-                    modelWindowContainer.find('.airvis-resize-bottom').height() +
-                    this.dataTable.height()
-            )
-        }
-    };
-
     WaypointsTable.prototype.domInit = function (element, params) {
-        var self = this;
         this.modalWindow = params.modalWindow;
-
-        this.modalWindow.on('open', function(){
-            self.autoHeight();
-        });
-
-        var div = ko.virtualElements.firstChild(element);
-        while (div && div.nodeType != 1)
-            div = ko.virtualElements.nextSibling(div);
-        this.container = $(div);
-        this.dataTable = this.container.find('.waypoints-data-table');
     };
 
-    WaypointsTable.prototype.templates = ['main'];
+    WaypointsTable.prototype.templates = ["main"];
+
     return WaypointsTable;
-})
-;
+});

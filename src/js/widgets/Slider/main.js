@@ -52,7 +52,8 @@ define(["jquery","knockout"], function($,ko) {
 		if (!w || !(w>0)) return;
 		var l = this.container.offset().left;
 		if (!l || !(l>=0)) return;
-		self.dragging(true);
+
+		console.log("w=",w,"l=",l);
 
 		var getEventCoords = function(e,eventType) {
 			if (eventType == "touch") {
@@ -81,6 +82,7 @@ define(["jquery","knockout"], function($,ko) {
 		}
 
 		if (!isClick) {
+			self.dragging(true);
 			$("body").addClass("airvis-document-overwrite-cursor-pointer");
 			$(document).on("mousemove touchmove",mouseMove).one("mouseup mouseleave touchend touchcancel",function(e) {
 				self.disableClick = true;

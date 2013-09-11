@@ -1,36 +1,34 @@
 define([
-    'utils',
-    'walk',
-    'jquery',
-    'knockout',
-    'knockout.mapping',
-    'EventEmitter',
-    'WindowManager',
-    'widget!GoogleMap',
-    'widget!GoogleMapCanvas',
-    'widget!PlayerControl',
-    'widget!UfosTable',
-    'widget!WaypointsTable',
-    'widget!RetrieveTable',
-    'widget!RetrieveRawForm',
-    'widget!RetrieveChat',
-    'widget!Checkbox',
-    'widget!Window',
-    'widget!MainMenu',
-    'widget!TopBar',
-    'widget!Facebook',
-    'widget!DistanceMeasurer',
-    'TestServer',
-    'RealServer',
-    'DataSource',
-    'ShortWay',
-    'config'
-], function(
-	utils,
+	"walk",
+	"jquery",
+	"knockout",
+	"EventEmitter",
+	"WindowManager",
+	"widget!GoogleMap",
+	"widget!GoogleMapCanvas",
+	"widget!PlayerControl",
+	"widget!UfosTable",
+	"widget!WaypointsTable",
+	"widget!RetrieveTable",
+	"widget!RetrieveRawForm",
+	"widget!RetrieveChat",
+	"widget!Checkbox",
+	"widget!Window",
+	"widget!MainMenu",
+	"widget!TopBar",
+	"widget!Facebook",
+	"widget!DistanceMeasurer",
+	"RealServer",
+	"DataSource",
+	"ShortWay",
+	"config",
+	"./Ufo",
+	"./Waypoint",
+	"./Sms"
+],function(
 	walk,
 	$,
 	ko,
-	komap,
 	EventEmitter,
 	WindowManager,
 	GoogleMap,
@@ -47,256 +45,139 @@ define([
     TopBar,
     Facebook,
     DistanceMeasurer,
-    TestServer,
     RealServer,
     DataSource,
     ShortWay,
-    config
+    config,
+    Ufo,
+    Waypoint,
+    Sms
 ){
-
-	// requestAnim shim layer by Paul Irish
-    var requestAnimFrame = (function() {
-//        return 
-//			window.requestAnimationFrame       || 
-//			window.webkitRequestAnimationFrame || 
-//			window.mozRequestAnimationFrame    || 
-//			window.oRequestAnimationFrame      || 
-//			window.msRequestAnimationFrame     || 
-//			function(/* function */ callback, /* DOMElement */ element){
-//			  window.setTimeout(callback, 1000 / 60);
-//			};
-		return function(callback,element) {
-			  window.setTimeout(callback,100);
-			};
-    })();
-
-	var Waypoint = function(options) {
-		this.id = ko.observable(options.id);
-		this.name = ko.observable(options.name);
-		this.type = ko.observable(options.type);
-		this.center = ko.observable({lat:options.center.lat,lng:options.center.lng});
-		this.radius = ko.observable(options.radius);
-		this.openKey = ko.observable(options.openKey);
-		this.closeKey = ko.observable(options.closeKey);
-		this.checkedOn = ko.observable(options.checkedOn);
-	}
-
-	var Ufo = function(options) {
-		this.id = ko.observable(options.id);
-		this.name = ko.observable(options.name);
-		this.country = ko.observable(options.country);
-		this.personId = ko.observable(options.personId);
-		this.color = ko.observable(options.color || config.ufo.color);
-		this.state = ko.observable(null);
-		this.stateChangedAt = ko.observable(null);
-		this.position = ko.observable({lat:null,lng:null,dt:null});
-		this.track = ko.observable({lat:null,lng:null,dt:null});
-		this.alt = ko.observable(null);
-		this.dist = ko.observable(null);
-		this.gSpd = ko.observable(null);
-		this.vSpd = ko.observable(null);
-		this.visible = ko.observable(config.ufo.visible);
-		this.trackVisible = ko.observable(config.ufo.trackVisible);
-		this.noData = ko.observable(true);
-		this.noPosition = ko.observable(true);
-		this.tableData = {
-			dist: ko.observable(null),
-			gSpd: ko.observable(null),
-			vSpd: ko.observable(null),
-			alt: ko.observable(null),
-			state: ko.observable(null),
-			stateChangedAt: ko.observable(null)
-		}
-	}
-
-	Ufo.prototype.updateTableData = function() {
-		this.tableData.dist(this.dist() ? (this.dist()/1000).toFixed(1) : "");
-		this.tableData.gSpd(this.gSpd());
-		this.tableData.vSpd(this.vSpd());
-		this.tableData.alt(this.alt());
-		this.tableData.state(this.state());
-		this.tableData.stateChangedAt(this.stateChangedAt());
-	}
-
-	Ufo.prototype.resetTrack = function() {
-		// dt=null - специальное значение. Карта его отслеживает и убивает у себя трек при dt=null
-		this.track({lat:null,lng:null,dt:null});
-	}
-
-	var Sms = function(options) {
-		this.id = options.id;
-		this.from = options.from;
-		this.to = options.to;
-		this.sender = options.sender;
-		this.timestamp = options.timestamp;
-		this.body = options.body;
-		this.target = options.from == "me" ? options.to : options.from;
-		this.readed = ko.observable(false);
-		var d = new Date(this.timestamp * 1000);
-		this.time = (d.getHours()<10?"0":"") + d.getHours() + ":" + (d.getMinutes()<10?"0":"") + d.getMinutes();
-	}
 
 	var TrackerPageDebug = function() { 
 		var self = this;
-		this.$ = $;
-		this.options = config;
-		this.width = ko.observable(this.options.width);
-		this.height = ko.observable(this.options.height);
-		this.imgRootUrl = ko.observable(this.options.imgRootUrl);
-		this.mapWidget = ko.observable(this.options.mapWidget);
-		this.mapOptions = ko.observable(this.options.mapOptions);
-		this.mode = ko.observable(this.options.mode);
-		this.titleUrl = ko.observable(this.options.titleUrl);
-		this.debug = ko.observable(this.options.debug);
-		this.tracksVisualMode = ko.observable(this.options.tracksVisualMode);
-		this.cylindersVisualMode = ko.observable(this.options.cylindersVisualMode);
-		this.heightsVisualMode = ko.observable(this.options.heightsVisualMode);
-		this.modelsVisualMode = ko.observable(this.options.modelsVisualMode);
-		this.shortWayVisualMode = ko.observable(this.options.shortWayVisualMode);
-		this.namesVisualMode = ko.observable(this.options.namesVisualMode);
-		this.profVisualMode = ko.observable(this.options.profVisualMode);
+		this.options = config.defaults;
+
+		$.each(this.options,function(i,v) {
+			self[i] = ko.observable();
+			self[i].subscribe(function(value) {
+				self.options[i] = value;
+			});
+		});
+		
 		this.startKey = ko.observable(0);
 		this.endKey = ko.observable(0);
 		this.currentKey = ko.observable(0);
 		this.raceKey = ko.observable(0);
-		this.timeoffset = ko.observable("");
-		this.playerState = ko.observable(this.options.playerState);
-		this.playerSpeed = ko.observable(this.options.playerSpeed);
-		this.isReady = ko.observable(false);
-		this.isLoaded = ko.observable(false);
-		this.isOnline = ko.observable(false);
-		this.isCurrentlyOnline = ko.observable(false);
-		this.disableLiveButton = ko.observable(false);
-		this.loading = ko.observable(false);
 		this.optdistance = ko.observable(0);
+		this.timeoffset = ko.observable("");
 		this.raceType = ko.observable("");
+		this.titles = ko.observable({});
 		this.raceTypeOptions = ko.observable({});
 
-		this.ufos = ko.observableArray();
-		this.waypoints = ko.observableArray();
+		this.isReady = ko.observable(false);
+		this.isLoaded = ko.observable(false);
+		this.loading = ko.observable(false);
+		this.trackedUfoId = ko.observable(null);
+
+		this.ufos = ko.observableArray([]);
+		this.waypoints = ko.observableArray([]);
 		this.shortWay = ko.observable(null);
 
-		this.isLoadedWithDelay = ko.observable(false);
-		this.isLoaded.subscribe(function(v) {
-			if (v) {
-				setTimeout(function() {
-					self.isLoadedWithDelay(true);
-				},2000);
-			}
+		this.retrieveStatus = ko.observable("");
+		this.retrieveState = ko.observable(config.retrieveState);
+		this.retrieveSelectedUfo = ko.observable(null);
+		this.smsData = ko.observableArray([]);
+
+		this.mapType = ko.computed(function() {
+			return config.mapTypes[self.mapWidget()];
 		});
 
-
-		// Йоу! Клевый код!
-		this._serverKey = ko.observable(0);
+		this._serverKey = 0;
 		this._serverKeyUpdatedAt = (new Date).getTime();
 		this.serverKey = function(value) {
 			if (value) {
-				self._serverKey(value);
+				self._serverKey = value;
 				self._serverKeyUpdatedAt = (new Date).getTime();
 			}
 			else {
-				if (!self.isOnline()) return null;
 				var d = (new Date).getTime();
-				return self._serverKey() + d - self._serverKeyUpdatedAt - config.serverDelay;
+				return self._serverKey + d - self._serverKeyUpdatedAt - config.serverDelay;
 			}
 		}
 
-		this.tracksVisualMode.subscribe(function() { if (self.map) self.map.update(); });
-		this.cylindersVisualMode.subscribe(function() { if (self.map) self.map.update("static"); });
-		this.heightsVisualMode.subscribe(function() { if (self.map) { self.map.updateIcons(); self.map.update(); } });
-		this.modelsVisualMode.subscribe(function() { if (self.map) { self.map.updateIcons(); self.map.update(); } });
-		this.shortWayVisualMode.subscribe(function() { if (self.map) self.map.update("static"); });
-		this.namesVisualMode.subscribe(function() { if (self.map) { self.map.updateIcons(); self.map.update(); } });
-		this.profVisualMode.subscribe(function() { if (self.map) self.map.update("static"); });
-
-		this.shortWayInitializer = ko.computed(function() {
-			if (self.isReady() && self.waypoints && self.waypoints().length > 0) {
-				var shortWayCalculator = new ShortWay();
-				var data = [];
-				for (var i = 0; i < self.waypoints().length; i++) {
-					var w = self.waypoints()[i];
-					data.push({
-						lat: w.center().lat,
-						lng: w.center().lng,
-						radius: w.radius(),
-						id: w.id(),
-						name: w.name(),
-						type: w.type()
-					});
-				}
-				self.shortWay(shortWayCalculator.calculate(data));
-			}
-			else {
-				self.shortWay(null);
+		this.isCurrentlyOnline = ko.observable(false);
+		this._isCurrentlyOnline = ko.computed(function() {
+			if (!self.isOnline()) return false;
+			self.isCurrentlyOnline(Math.abs(self.currentKey() - self.serverKey()) < config.dtDiffReply);
+		});
+		this.isCurrentlyOnline.subscribe(function(v) {
+			if (v) {
+				self.setLiveMode();
 			}
 		});
 
-		this.mapInitializer = ko.computed(function() {
-			if (self.isReady()) {
-				if (self.map)
-					self.map.destroy();
-				var mapOptions = {
-						ufos: self.ufos,
-						waypoints: self.waypoints,
-						shortWay: self.shortWay,
-						tracksVisualMode: self.tracksVisualMode,
-						cylindersVisualMode: self.cylindersVisualMode,
-						heightsVisualMode: self.heightsVisualMode,
-						modelsVisualMode: self.modelsVisualMode,
-						shortWayVisualMode: self.shortWayVisualMode,
-						namesVisualMode: self.namesVisualMode,
-						profVisualMode: self.profVisualMode,
-						currentKey: self.currentKey,
-						raceKey: self.raceKey,
-						imgRootUrl: self.imgRootUrl,
-						mapOptions: self.mapOptions,
-						mode: self.mode,
-						raceType: self.raceType,
-						raceTypeOptions: self.raceTypeOptions
-				};
-				if (self.mapWidget() == "2d-old") {
-					self.map = new GoogleMap(mapOptions);
-					self.mapType = "GoogleMap";
-				}
-				else if (self.mapWidget() == "2d") {
-					self.map = new GoogleMapCanvas(mapOptions);
-					self.mapType = "GoogleMapCanvas";
-				}
-				else if (self.mapWidget() == "3d") {
-					self.map = new OwgMap(mapOptions);
-					self.mapType = "OwgMap";
-				}
-			}
-			else {
-				self.map = null;
-				self.mapType = null;
-			}
+		this.server = new RealServer({
+			apiDomain: self.apiDomain,
+			apiVersion: self.apiVersion,
+			contestId: self.contestId,
+			raceId: self.raceId,
+			isOnline: self.isOnline
 		});
-
-		this.server = new RealServer(this.options);
 		this.dataSource = new DataSource({
 			server: this.server
 		});
 	}
 
-	TrackerPageDebug.prototype.createWindows = function() {
+	TrackerPageDebug.prototype.domInit = function(elem,params) {
 		var self = this;
-		if (this.mode() == "full") {
-			this.ufosTable = new UfosTable({
-				ufos: this.ufos,
-				raceKey: this.raceKey,
-				optdistance: this.optdistance,
-				raceType: this.raceType
-			});
-			this.ufosTableWindow = new Window(this.options.windows.ufosTable);
 
-			this.playerControl = new PlayerControl({
-				startKey: this.startKey,
-				endKey: this.endKey,
-				currentKey: this.currentKey,
-				raceKey: this.raceKey,
-				serverKey: this.serverKey,
-				timeoffset: this.timeoffset,
+		// callback нужен чтобы внешний код мог вытащить ссылку на визуализацию
+		if (params.callback) {
+			params.callback(self);
+		}
+
+		$.each(params,function(i,p) {
+			self.setOption(i,p);
+		});
+		this.rebuild(function() {
+			self.isReady(true);
+			self.emit("ready",self);
+		});
+		self.emit("domInit",self);
+	}
+
+	TrackerPageDebug.prototype.setOption = function(p,v,force) {
+		if (this.options.hasOwnProperty(p) || force) {
+			this.options[p] = v;
+		}
+	}
+
+	TrackerPageDebug.prototype.rebuild = function(callback) {
+		var self = this;
+		var w = walk();
+
+		$.each(this.options,function(i,v) {
+			// Переменные mapWidget и mode проставляются дальше
+			if (i == "mapWidget" || i == "mode") return;
+			self[i](v);
+		});
+
+		this.ufos([]);
+		this.waypoints([]);
+		this.shortWay(null);
+		this.smsData([]);
+
+		// Строим или перестраиваем виджет map в зависимости от mapType-переменной
+		if (!this.map || this.options.mapWidget !== this.mapWidget()) {
+			this.mapWidget(this.options.mapWidget);
+			if (this.map && this.map.domDestroy) {
+				this.map.domDestroy();
+			}
+			var mapOptions = {
+				ufos: this.ufos,
+				waypoints: this.waypoints,
+				shortWay: this.shortWay,
 				tracksVisualMode: this.tracksVisualMode,
 				cylindersVisualMode: this.cylindersVisualMode,
 				heightsVisualMode: this.heightsVisualMode,
@@ -304,155 +185,231 @@ define([
 				shortWayVisualMode: this.shortWayVisualMode,
 				namesVisualMode: this.namesVisualMode,
 				profVisualMode: this.profVisualMode,
-				playerState: this.playerState,
-				playerSpeed: this.playerSpeed,
-				isOnline: this.isOnline,
-				isCurrentlyOnline: this.isCurrentlyOnline,
-				loading: this.loading,
-				debug: this.debug,
-				setLiveMode: function() { self.setLiveMode(); },
-				disableLiveButton: this.disableLiveButton
+				mode: this.mode,
+				currentKey: this.currentKey,
+				raceKey: this.raceKey,
+				mapOptions: this.mapOptions,
+				raceType: this.raceType,
+				raceTypeOptions: this.raceTypeOptions,
+				trackedUfoId: this.trackedUfoId,
+				optdistance: this.optdistance
+			}
+			if (this.mapType() == "GoogleMapCanvas") {
+				this.map = new GoogleMapCanvas(mapOptions);
+			}
+			else if (this.mapType() == "GoogleMap") {
+				this.map = new GoogleMap(mapOptions);
+			}
+			else if (this.mapType() == "OwgMap") {
+				this.map = new OwgMap(mapOptions);
+			}
+			else throw new Error("mapWidget " + this.options.mapWidget + " is not supported");
+
+			this.map.on("switchDistanceMeasurer",function() {
+				if (self.distanceMeasurer) {
+					self.distanceMeasurer.switch(self.map.map);
+				}
 			});
-			this.playerControlWindow = new Window(this.options.windows.playerControl);
 
-			this.mainMenu = new MainMenu({
-				titleUrl: this.titleUrl
+			w.step(function(step) {
+				if (self.map.isReady()) {
+					step.next();
+				}
+				else {
+					self.map.on("ready",function() {
+						step.next();
+					});
+				}
 			});
-			this.mainMenuWindow = new Window(this.options.windows.mainMenu);
-
-			this.facebook = new Facebook();
-			this.facebookWindow = new Window(this.options.windows.facebook);
-
-            this.waypointsTable = new WaypointsTable({waypoints:this.waypoints,shortWays:this.shortWay});
-            this.waypointsTableWindow = new Window(this.options.windows.waypointsTable);
-
-            this.isReady.subscribe(function() {
-                self.distanceMeasurer.appendControl(self.map.map);
-            });
-            this.distanceMeasurer = new DistanceMeasurer();
-            this.distanceMeasurer.isEnabled.subscribe(function(isEnabled){
-                self.distanceMeasurerWindow[isEnabled ? 'show' : 'hide']();
-            });
-            this.distanceMeasurerWindow = new Window(this.options.windows.distanceMeasurer);
-
-			this.topBar = new TopBar();
-			this.topBar.items.push(this.mainMenuWindow,this.ufosTableWindow,this.playerControlWindow,this.facebookWindow, this.waypointsTableWindow);
-
-			this.windowManager = new WindowManager();
-			this.windowManager.items.push(this.ufosTableWindow,this.playerControlWindow,this.mainMenuWindow,this.facebookWindow,this.waypointsTableWindow,this.distanceMeasurerWindow);
 		}
-		else if (this.mode() == "retrieve") {
-			this.retrieveStatus = ko.observable("");
-			this.retrieveState = ko.observable(config.retrieveState);
-			this.retrieveSelectedUfo = ko.observable(null);
-			this.smsData = ko.observableArray([]);
-			this.retrieveTable = new RetrieveTable({
-				ufos: this.ufos,
-				status: this.retrieveStatus,
-				state: this.retrieveState,
-				selectedUfo: this.retrieveSelectedUfo,
-				smsData: this.smsData
-			});
-			this.retrieveTableWindow = new Window(this.options.windows.retrieveTable);
 
-			this.retrieveChat = new RetrieveChat({
-				ufo: this.retrieveSelectedUfo,
-				smsData: this.smsData,
-				server: this.server
-			});
-			this.retrieveChatWindow = new Window(this.options.windows.retrieveChat);
+		// Строим или перестраиваем остальные виджеты
+		if (this.options.mode != this.mode()) {
+			this.mode(this.options.mode);
 
-			this.retrieveSelectedUfo.subscribe(function(ufo) {
-				if (ufo) self.retrieveChatWindow.show();
-			});
-			this.retrieveChat.on("newMessage",function() {
-				self.retrieveRun();
+			("ufosTable waypointsTable playerControl mainMenu facebook topBar windowManager distanceMeasurer"
+			+ " retrieveTable retrieveChat retrieveDistanceMeasurer retrieveRawForm").split(/ /).forEach(function(widgetName) {
+				if (self[widgetName] && self[widgetName].domDestroy) {
+					self[widgetName].domDestroy();
+				}
 			});
 
-			this.retrieveRawForm = new RetrieveRawForm({server:this.server});
-			this.retrieveRawFormWindow = new Window(this.options.windows.retrieveRawForm);
-
-			this.mainMenu = new MainMenu({
-				titleUrl: this.titleUrl
-			});
-			this.mainMenuWindow = new Window(this.options.windows.mainMenu);
-
-			this.topBar = new TopBar();
-			this.topBar.items.push(this.mainMenuWindow,this.retrieveTableWindow,this.retrieveRawFormWindow,this.retrieveDistanceMeasurerWindow);
-
-			this.windowManager = new WindowManager();
-			this.windowManager.items.push(this.mainMenuWindow,this.retrieveTableWindow,this.retrieveRawFormWindow,this.retrieveChatWindow,this.retrieveDistanceMeasurerWindow);
+			if (this.mode() === "full") {
+				// Строим виджет ufosTable
+				this.ufosTable = new UfosTable({
+					ufos: this.ufos,
+					raceKey: this.raceKey,
+					optdistance: this.optdistance,
+					raceType: this.raceType,
+					trackedUfoId: this.trackedUfoId
+				});
+				this.ufosTable.on("centerMap",function(position) {
+					self.map.centerMap(position);
+				});
+				this.ufosTable.on("zoominMap",function(zoom) {
+					self.map.zoominMap(zoom);
+				});
+				this.ufosTable.on("openPopupById",function(id) {
+					self.map.openPopupById(id);
+				});
+				w.step(function(step) {
+					if (self.ufosTable.isReady) {
+						step.next();
+					}
+					else {
+						self.ufosTable.on("ready",function() {
+							step.next();
+						});
+					}
+				});
+				// Строим виджет playerControl
+				this.playerControl = new PlayerControl({
+					startKey: this.startKey,
+					endKey: this.endKey,
+					currentKey: this.currentKey,
+					raceKey: this.raceKey,
+					serverKey: this.serverKey,
+					timeoffset: this.timeoffset,
+					tracksVisualMode: this.tracksVisualMode,
+					cylindersVisualMode: this.cylindersVisualMode,
+					heightsVisualMode: this.heightsVisualMode,
+					modelsVisualMode: this.modelsVisualMode,
+					shortWayVisualMode: this.shortWayVisualMode,
+					namesVisualMode: this.namesVisualMode,
+					profVisualMode: this.profVisualMode,
+					playerState: this.playerState,
+					playerSpeed: this.playerSpeed,
+					isOnline: this.isOnline,
+					isCurrentlyOnline: this.isCurrentlyOnline,
+					loading: this.loading,
+					debug: this.debug,
+					setLiveMode: function() { self.setLiveMode(); }
+				});
+				w.step(function(step) {
+					if (self.playerControl.isReady) {
+						step.next();
+					}
+					else {
+						self.playerControl.on("ready",function() {
+							step.next();
+						});
+					}
+				});
+				// Строим виджет mainMenu
+				this.mainMenu = new MainMenu({
+					titles: this.titles,
+					titleUrl: this.titleUrl
+				});
+				// Строим виджет facebook
+				this.facebook = new Facebook();
+				// Строим виджет waypointsTable
+				this.waypointsTable = new WaypointsTable({
+					waypoints: this.waypoints,
+					shortWays: this.shortWay
+				});
+				// Строим виджет distanceMeasurer
+				this.distanceMeasurer = new DistanceMeasurer();
+				// Определяем виджеты окон
+				this.ufosTableWindow = new Window(config.windows.ufosTable);
+				this.playerControlWindow = new Window(config.windows.playerControl);
+				this.mainMenuWindow = new Window(config.windows.mainMenu);
+				this.facebookWindow = new Window(config.windows.facebook);
+				this.waypointsTableWindow = new Window(config.windows.waypointsTable);
+				this.distanceMeasurerWindow = new Window(config.windows.distanceMeasurer);
+				// Строим виджет topBar
+				this.topBar = new TopBar();
+				this.topBar.items.push(this.mainMenuWindow,this.ufosTableWindow,this.playerControlWindow,this.facebookWindow,this.waypointsTableWindow);
+				// Перестраиваем windowManager
+				this.windowManager = new WindowManager();
+				this.windowManager.items.push(this.mainMenuWindow,this.ufosTableWindow,this.playerControlWindow,this.facebookWindow,this.waypointsTableWindow,this.distanceMeasurerWindow);
+			}
+			else if (this.mode() == "retrieve") {
+				this.retrieveTable = new RetrieveTable({
+					ufos: this.ufos,
+					status: this.retrieveStatus,
+					state: this.retrieveState,
+					selectedUfo: this.retrieveSelectedUfo,
+					smsData: this.smsData
+				});
+				this.retrieveTable.on("selectUfo",function(ufo) {
+					if (ufo && self.retrieveTableWindow) {
+						self.retrieveChatWindow.show();
+					}
+				});
+				w.step(function(step) {
+					self.retrieveTable.on("ready",function() {
+						step.next();
+					});
+				});
+				this.retrieveChat = new RetrieveChat({
+					ufo: this.retrieveSelectedUfo,
+					smsData: this.smsData,
+					server: this.server
+				});
+				this.retrieveChat.on("newMessage",function() {
+					self.retrieveRun();
+				});
+				w.step(function(step) {
+					self.retrieveChat.on("ready",function() {
+						step.next();
+					});
+				});
+			    this.retrieveDistanceMeasurer = new RetrieveDistanceMeasurer({
+			    	map:this.map
+			    });
+				w.step(function(step) {
+				    self.retrieveDistanceMeasurer.on("ready",function() {
+				    	step.next();
+				    });
+				});
+				this.retrieveRawForm = new RetrieveRawForm({server:this.server});
+				w.step(function(step) {
+					self.retrieveRawForm.on("ready",function() {
+						step.next();
+					});
+				});
+				// Строим виджет mainMenu
+				this.mainMenu = new MainMenu({
+					titles: this.titles,
+					titleUrl: this.titleUrl
+				});
+				w.step(function(step) {
+					self.mainMenu.on("ready",function() {
+						step.next();
+					});
+				});
+				// Определяем виджеты окон
+				this.retrieveTableWindow = new Window(config.windows.retrieveTable);
+				this.retrieveChatWindow = new Window(config.windows.retrieveChat);
+			    this.retrieveDistanceMeasurerWindow = new Window(config.windows.retrieveDistanceMeasurer);
+				this.retrieveRawFormWindow = new Window(config.windows.retrieveRawForm);
+				this.mainMenuWindow = new Window(config.windows.mainMenu);
+				// Строим виджет topBar
+				this.topBar = new TopBar();
+				w.step(function(step) {
+					self.topBar.on("ready",function() {
+						self.topBar.items.push(self.mainMenuWindow,self.retrieveTableWindow,self.retrieveRawFormWindow,self.retrieveDistanceMeasurerWindow);
+						step.next();
+					});
+				});
+				// Перестраиваем windowManager
+				this.windowManager = new WindowManager();
+				w.step(function(step) {
+					self.windowManager.on("ready",function() {
+						self.windowManager.items.push(self.mainMenuWindow,self.retrieveTableWindow,self.retrieveRawFormWindow,self.retrieveChatWindow,self.retrieveDistanceMeasurerWindow);
+						step.next();
+					});
+				});
+			}
 		}
-	}
 
-	TrackerPageDebug.prototype.domInit = function(elem,params) {
-		if (params.contestId)
-			this.options.contestId = params.contestId;
-		if (params.raceId)
-			this.options.raceId = params.raceId;
-		if (params.apiVersion)
-			this.options.apiVersion = params.apiVersion;
-		if (params.apiDomain)
-			this.options.apiDomain = params.apiDomain;
-		if (params.imgRootUrl)
-			this.options.imgRootUrl = params.imgRootUrl;
-		if (params.width)
-			this.options.width = params.width;
-		if (params.height)
-			this.options.height = params.height;
-		if (params.mode)
-			this.options.mode = params.mode;
-		if (params.mapWidget)
-			this.options.mapWidget = params.mapWidget;
-		if (params.mapOptions)
-			this.options.mapOptions = params.mapOptions;
-		if (params.isOnline)
-			this.options.isOnline = params.isOnline;
-		if (params.titleUrl)
-			this.options.titleUrl = params.titleUrl;
-		if (params.debug)
-			this.options.debug = params.debug;
-		this.rebuild();
-		if (params.callback)
-			params.callback(this);
-		this.emit("domInit");
-	}
-
-	TrackerPageDebug.prototype.setOption = function(p,v) {
-		this.options[p] = v;
-	}
-
-	TrackerPageDebug.prototype.rebuild = function() {
-		var self = this;
-		self.clear();
-		self.width(self.options.width);
-		self.height(self.options.height);
-		self.imgRootUrl(self.options.imgRootUrl);
-		self.mapWidget(self.options.mapWidget);
-		self.mapOptions(self.options.mapOptions);
-		self.isOnline(self.options.isOnline);
-		self.titleUrl(self.options.titleUrl);
-		self.debug(self.options.debug);
-
-		if (self.isOnline()) self.server.setOption("isOnline",true);
-
-		// Когда онлайн убираем хвосты 10 минутных треков, на реплее включаем
-		self.tracksVisualMode(self.isOnline()?config.tracksVisualModeOnline:config.tracksVisualModeReplay);
-
-		// Сначала проставляем mode из настроек виджета
-		self.mode(self.options.mode);
-		// Для данного mode создаем все окна и виджеты
-		self.createWindows();
-		// Теперь проставляем isReady, и созданные виджеты вставляются в DOM 
-		self.isReady(!!self.options.raceId);
-
-		if (self.isReady()) {
+		w.wait(function() {
 			self.loadRaceData(function(raceData) {
-				if (self.map)
-					self.map.update("static");
 				if (self.mode() == "full") {
 					self.loadUfosData(function() {
 						self.playerInit();
+						self.playerRun();
+						self.map.update();
 						self.isLoaded(true);
 						self.emit("loaded",raceData);
 					});
@@ -460,72 +417,82 @@ define([
 				else if (self.mode() == "retrieve") {
 					self.loadUfosData(function() {
 						self.retrieveInit();
+						self.map.update();
 						self.isLoaded(true);
 						self.emit("loaded",raceData);
 					});
 				}
 				else {
+					self.map.update();
 					self.isLoaded(true);
 					self.emit("loaded",raceData);
 				}
 			});
+		});
+
+		if (callback) {
+			callback();
 		}
 	}
 
-	TrackerPageDebug.prototype.clear = function() {
-		this.ufos([]);
-		this.waypoints([]);
-	}
-
-  TrackerPageDebug.prototype.loadServerTime = function(callback) {
-    var self = this;
-    this.dataSource.get({
-      type:'serverTime',
-      callback:function(time){
-        self.serverKey(time * 1000);
-        if (callback && typeof callback == "function")
-          callback();
-      }
-    })
-  };
+	TrackerPageDebug.prototype.loadServerTime = function(callback) {
+		var self = this;
+		this.dataSource.get({
+			type: "serverTime",
+			callback: function(data) {
+		    	self.serverKey(data * 1000);
+		    	if (callback && typeof callback == "function") {
+		    		callback();
+		      	}
+		  	}
+		});
+	};
 
 	TrackerPageDebug.prototype.loadRaceData = function(callback) {
 		var self = this;
 		self.loading(true);
-    self.loadServerTime(function(){
-      self.dataSource.get({
-        type: "race",
-        callback: function(data) {
-          self.loading(false);
-          self.startKey(data.startKey);
-          self.endKey(data.endKey);
-          self.currentKey(data.startKey);
-          self.raceKey(data.raceKey||data.startKey);
-          self.timeoffset(data.timeoffset);
-          self.optdistance(data.optdistance);
-          self.raceType(data.raceType);
-          self.raceTypeOptions(data.raceTypeOptions);
-          if (self.mainMenu && data.titles)
-            self.mainMenu.setTitles(data.titles);
-          var waypoints2load = [];
-          if (data.waypoints) {
-            for (var i = 0; i < data.waypoints.length; i++) {
-              var w = new Waypoint(data.waypoints[i]);
-              waypoints2load.push(w);
-            }
-          }
-          self.waypoints(waypoints2load);
-          if (self.map)
-            self.map.calculateAndSetDefaultPosition();
-          if (callback && typeof callback == "function")
-            callback(data);
-        },
-        error: function(jqXHR,textStatus,errorThrown) {
-          self.emit("loadingError");
-        }
-      });
-    })
-
+	    self.loadServerTime(function() {
+		    self.dataSource.get({
+		        type: "race",
+		        callback: function(data) {
+			        self.loading(false);
+	        		self.startKey(data.startKey);
+	        		self.endKey(data.endKey);
+	        		self.currentKey(data.startKey);
+	        		self.raceKey(data.raceKey||data.startKey);
+	        		self.timeoffset(data.timeoffset);
+	        		self.optdistance(data.optdistance);
+	        		self.raceType(data.raceType);
+	        		self.raceTypeOptions(data.raceTypeOptions);
+	        		self.titles(data.titles);
+			        if (data.waypoints) {
+	        		    var waypoints2load = [];
+	        		    var shortWayData = [];
+	            		for (var i = 0; i < data.waypoints.length; i++) {
+	              			var w = new Waypoint(data.waypoints[i]);
+							shortWayData.push({
+								lat: w.center().lat,
+								lng: w.center().lng,
+								radius: w.radius(),
+								id: w.id(),
+								name: w.name(),
+								type: w.type()
+							});
+	              			waypoints2load.push(w);
+	              		}
+				        self.waypoints(waypoints2load);
+				        self.shortWay((new ShortWay).calculate(shortWayData));
+		            }
+	    		    if (self.map)
+	         	    	self.map.calculateAndSetDefaultPosition();
+	          		if (callback && typeof callback == "function")
+	            		callback(data);
+	        	},
+	        	error: function(jqXHR,textStatus,errorThrown) {
+	          		self.emit("loadingError","Failed loading race data");
+		        }
+            });
+		});
 	}
 
 	TrackerPageDebug.prototype.loadUfosData = function(callback) {
@@ -534,20 +501,19 @@ define([
 		self.dataSource.get({
 			type: "ufos",
 			callback: function(ufos) {
-				var ufos2load = [];
-				if (ufos) {
-					for (var i = 0; i < ufos.length; i++) {
-						var w = new Ufo(ufos[i]);
-						ufos2load.push(w);
-					}
-				}
-				self.ufos(ufos2load);
 				self.loading(false);
+				if (ufos) {
+					var ufos2load = [];
+					for (var i = 0; i < ufos.length; i++) {
+						ufos2load.push(new Ufo(ufos[i]));
+					}
+					self.ufos(ufos2load);
+				}
 				if (callback && typeof callback == "function")
 					callback();
 			},
 			error: function(jqXHR,textStatus,errorThrown) {
-				self.emit("loadingError");
+				self.emit("loadingError","Failed loading ufos data");
 			}
 		});
 	}
@@ -607,10 +573,8 @@ define([
 						else
 							ufo.noData(true);
 					});
-					if (_updateIconsRequired)
-						self.map.updateIcons();
-					_updateIconsRequired = false;
 					self.map.update();
+					self.ufosTable.sort();
 					if (callback)
 						callback(data);
 				}
@@ -621,9 +585,8 @@ define([
 		var _currentKeyUpdatedAt = null;
 		var _currentKey = null;
 		var _runTimeout = null;
-		var _updateIconsRequired = false;
 
-		var run = function(callback,force) {
+		var run = function(force) {
 			if (_inRunCycle && !force) return;
 			_inRunCycle = true;
 			if (!_currentKeyUpdatedAt || force) {
@@ -652,66 +615,43 @@ define([
 					_currentKey = null;
 					_inRunCycle = false;
 				}
-				if (callback && typeof callback == "function")
-					callback();
 			});
-		}
-
-		var tableTimerHandle = null;
-		var updateTableData = function() {
-			self.ufos().forEach(function(ufo) {
-				ufo.updateTableData();
-			});
-			self.ufosTable.sortTableRows();
-		}
-		var runTableData = function() {
-			updateTableData();
-			if (self.playerState() == "play") {
-				if (tableTimerHandle)
-					clearTimeout(tableTimerHandle);
-				tableTimerHandle = setTimeout(runTableData,self.options.renderTableDataInterval);
-			}
 		}
 
 		self.playerControl.on("change",function(v) {
+			console.log("playerControl change");
 			self.currentKey(v);
 			self.resetUfosTracks();
-			_updateIconsRequired = true;
-			run(runTableData,true);
+			run(true);
 		});
 
 		self.playerState.subscribe(function(state) {
 			if (state == "play") {
-				run(runTableData,true);
+				run(true);
 			}
 		});
+	}
 
-		if (self.isOnline()) {
-			self.currentKey.subscribe(function(key) {
-				var dt = Math.abs(key-self.serverKey());
-				if (!self.isCurrentlyOnline() && dt < config.dtDiffReply)
-					self.setLiveMode();
-				else if (self.isCurrentlyOnline() && dt > config.dtDiffReply)
-					self.setReplyMode(false);
-			});
-
-			if (self.endKey() < self.serverKey())
-				self.setStartMode();
-			else
-				self.setLiveMode();	
-			self.playerControl.enableOfflineNotification(true);
+	TrackerPageDebug.prototype.playerRun = function() {
+		if (this.isOnline()) {
+			if (this.endKey() > this.serverKey()) {
+				this.setLiveMode();
+			}
+			else {
+				this.playerState("play");
+				this.playerSpeed(1);
+				this.playerControl.emit("change",this.raceKey());
+			}
 		}
 		else {
-			self.setReplyMode();
-			self.playerState("play");
-			self.playerSpeed(2);
-			run(runTableData);
+			this.playerState("play");
+			this.playerSpeed(2);
+//			this.playerControl.emit("change",this.raceKey());
 		}
 	}
 
 	TrackerPageDebug.prototype.setLiveMode = function() {
-		if (!this.isOnline() || this.isCurrentlyOnline()) return;
-		this.isCurrentlyOnline(true);
+		if (!this.isOnline()) return;
 		if (this.playerControl) {
 			this.playerState("play");
 			this.playerSpeed(1);
@@ -719,17 +659,9 @@ define([
 		}
 	}
 
-	TrackerPageDebug.prototype.setStartMode = function() {
-		this.playerControl.emit("change",this.raceKey());
-		this.disableLiveButton(true);
-	}
 
-	TrackerPageDebug.prototype.setReplyMode = function() {
-		if (!this.isOnline() || !this.isCurrentlyOnline()) return;
-		this.isCurrentlyOnline(false);
-		this.resetUfosTracks();
-	}
-
+// TODO: Дописать и переделать ретрив
+/*
 	TrackerPageDebug.prototype.retrieveRun = function() {
 		var self = this;
 		this.retrieveStatus("Loading...");
@@ -780,7 +712,7 @@ define([
 		});
 		this.retrieveState.notifySubscribers(this.retrieveState());
 	}
-
+*/
 	TrackerPageDebug.prototype.templates = ["main"];
 
 	return TrackerPageDebug;

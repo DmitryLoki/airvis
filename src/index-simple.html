@@ -17,31 +17,16 @@
     <script type="text/javascript">
 
       window.airvisPageLoadedCallback = function(self) {
+        console.log("callback");
         self.on("domInit",function() {
           $("a.test1").click(function() {
-            self.setOption("contestId","cnts-130520-3159653810");
-            self.setOption("raceId","5e102624-c409-4b5d-8aa5-c78381abae3e");
-            self.setOption("apiVersion","v0.2");
+            self.setOption("contestId","cnts-130529-2717963794");
+            self.setOption("raceId","r-f9ee78a7-6e38-4e49-888f-8fd6452cb864");
             self.rebuild();
           });
           $("a.test2").click(function() {
             self.setOption("contestId","cnts-130529-2717963794");
             self.setOption("raceId","r-6a31d091-c481-491d-a84b-be5749b7411c");
-            self.setOption("apiVersion","v0.2");
-            self.rebuild();
-          });
-
-          $("a.test3").click(function() {
-            self.setOption("contestId","cnts-130522-3500945464");
-            self.setOption("raceId","r-1e8e16c6-5f0c-441b-86dc-66d81aaadab3");
-            self.setOption("apiVersion","v0.2");
-            self.rebuild();
-          });
-
-          $("a.test4").click(function() {
-            self.setOption("contestId","cnts-130522-3500945464");
-            self.setOption("raceId","r-37c58c05-e669-49be-9ca7-f67d3b2186c5");
-            self.setOption("apiVersion","v0.2");
             self.rebuild();
           });
         });
@@ -72,12 +57,10 @@
   </head>
   <body>
     <div role="main" class="airvis-container">
-      <!-- ko widget: { data: page, imgRootUrl: "/img/", contestId: "cnts-130525-2928126425", raceId: "r-533ff015-0bb1-42af-bfa3-ffa23c4469ac", width: "100%", height: "380px", callback: window.airvisPageLoadedCallback, mode: "simple", apiVersion: "v0.2", mapOptions: {panControl:false,streetViewControl:false,scrollwheel:false,zoomControl:true,mapTypeControl:false,zoomControlOptions:{style:google.maps.ZoomControlStyle.LARGE}}} --><!-- /ko -->
+      <!-- ko widget: { data: page, imgRootUrl: "/img/", contestId: "cnts-130529-2717963794", raceId: "r-f9ee78a7-6e38-4e49-888f-8fd6452cb864", width: "100%", height: "380px", apiDomain: "http://api.airtribune.com", apiVersion: "v0.2", mapWidget: "2d", mapOptions: {panControl:false,streetViewControl:false,mode:"simple",zoomControl:true,minZoom:3,maxZoom:19,scaleControl:true,scaleControlOptions:{position:9},scrollwheel:false,activateScrollWheelOnClick:true}, titleUrl: "http://lala.com", isOnline: false, debug: true, callback: window.airvisPageLoadedCallback } --><!-- /ko -->
       <br><br>
       <a href="#" class="test1">Test1</a>
       <a href="#" class="test2">Test2</a>
-      <a href="#" class="test3">Day 2</a>
-      <a href="#" class="test4">Day 1</a>
       <div id="time"></div>
     </div>
   </body>

@@ -1,4 +1,4 @@
-define(["jquery","knockout"],function($,ko) {
+define(["jquery","knockout","EventEmitter"],function($,ko,EventEmitter) {
 	var WindowManager = function() {
 		var self = this;
 
@@ -116,12 +116,12 @@ define(["jquery","knockout"],function($,ko) {
 				}
 				w.top(top);
 				w.left(left);
-				w.emit("drag");
 			}
 			$("body").addClass("airvis-document-overwrite-cursor-move");
 			$(document).on("mousemove touchmove",mouseMove).one("mouseup mouseleave touchend touchcancel",function(e) {
 				$("body").removeClass("airvis-document-overwrite-cursor-move");
 				$(document).off("mousemove touchmove",mouseMove);
+				w.emit("dragStop");
 			});
 		}
 
@@ -191,6 +191,7 @@ define(["jquery","knockout"],function($,ko) {
 			$(document).on("mousemove touchmove",mouseMove).one("mouseup mouseleave touchend touchcancel",function(e) {
 				$("body").removeClass("airvis-document-overwrite-cursor-" + cursor);
 				$(document).off("mousemove touchmove",mouseMove);
+				w.emit("resizeStop");
 			});
 		}
 
@@ -201,6 +202,8 @@ define(["jquery","knockout"],function($,ko) {
 			});
 		});
 	}
+
+	WindowManager.prototype = EventEmitter.prototype;
 
 	return WindowManager;
 });
