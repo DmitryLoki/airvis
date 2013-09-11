@@ -1,15 +1,11 @@
-define(["google.maps", "knockout"], function (gmap, ko) {
+define(["google.maps", "knockout", 'config'], function (gmap, ko, config) {
     var DistanceMeasurer = function () {
         var self = this;
         this.rulers = [];
         this.distance = ko.observable(0);
         this.isEnabled = ko.observable(false);
         this.distanceLabel = ko.computed(function () {
-            if (self.distance() < 1) {
-                return (self.distance() * 1000).toFixed(0) + ' m';
-            } else {
-                return self.distance().toFixed(2) + ' km';
-            }
+            return self.distance().toFixed(2) + ' km';
         });
 
         this.isEnabled.subscribe(function (isEnabled) {
@@ -33,11 +29,7 @@ define(["google.maps", "knockout"], function (gmap, ko) {
     };
 
     DistanceMeasurer.prototype.enable = function () {
-        this.rulerpoly = new gmap.Polyline({
-            strokeColor: "#FFFF00",
-            strokeOpacity: .7,
-            strokeWeight: 7
-        });
+        this.rulerpoly = new gmap.Polyline(config.distanceMeasurer.lineStyle);
         this.gmapClickListener = gmap.event.addListener(this.map, 'click', this.clickHandler.bind(this));
         this.rulerpoly.setMap(this.map);
     };
@@ -71,13 +63,24 @@ define(["google.maps", "knockout"], function (gmap, ko) {
         }
     };
 
+    function setRulerIcon(ruler, icon) {
+        return function () {
+            ruler.setIcon(config.distanceMeasurer.icons[icon])
+        }
+    }
+
     DistanceMeasurer.prototype.createRuler = function (latLng) {
         var self = this,
             ruler = new google.maps.Marker({
                 position: latLng,
                 map: this.map,
-                draggable: true
+                draggable: true,
+                icon: config.distanceMeasurer.icons.normal
             });
+
+        gmap.event.addListener(ruler, 'mouseover', setRulerIcon(ruler, 'cross'));
+
+        gmap.event.addListener(ruler, 'mouseout', setRulerIcon(ruler, 'normal'));
 
         gmap.event.addListener(ruler, 'drag', function () {
             self.updatePolyline();
@@ -111,7 +114,7 @@ define(["google.maps", "knockout"], function (gmap, ko) {
             return ruler2;
         });
         return totalDistance;
-    }
+    };
 
     DistanceMeasurer.distance = function (lat1, lon1, lat2, lon2) {
         var R = 6371;
@@ -122,7 +125,18 @@ define(["google.maps", "knockout"], function (gmap, ko) {
         var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         var d = R * c;
         return d;
-    }
+    };
+
+    DistanceMeasurer.prototype.domInit = function (element, params) {
+        var self = this;
+        this.modalWindow = params.modalWindow;
+        if(this.modalWindow) {
+            this.modalWindow.on('close', function () {
+                self.isEnabled(false);
+                self.disable();
+            });
+        }
+    };
 
     DistanceMeasurer.prototype.templates = ["main", "control"];
     return DistanceMeasurer;

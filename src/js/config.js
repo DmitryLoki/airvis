@@ -270,12 +270,14 @@ define({
         },
         distanceMeasurer: {
             visible: false,
+            absoluteCloseIcon: true,
+            closeCrossIcon: true,
             title: "Distance",
             resizable: false,
-            width: 180,
+            width: 150,
             height: 100,
             top: 310,
-            left: 5
+            left: 10
         }
 	},
 	tracksVisualMode: "10min",
@@ -340,6 +342,17 @@ define({
 		center: {lat: 55.748758, lng: 37.6174},
 		type: "TERRAIN"
 	},
+    distanceMeasurer: {
+        icons:{
+            normal:'/img/distance_marker.png',
+            cross:'/img/distance_marker_cross.png'
+        },
+        lineStyle: {
+            strokeColor: "#FF0000",
+            strokeOpacity: .75,
+            strokeWeight: 7
+        }
+    },
 	// Настройки тестового сервера
 	testServerOptions: {
 		mainTitle: "52th FAI european paragliding championship",
