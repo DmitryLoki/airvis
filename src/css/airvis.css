@@ -472,7 +472,7 @@ body {
 #airvis-ufo-popup {
   border: 1px solid #001814;
   color: #ffffff;
-  width: 160px;
+  min-width: 160px;
 }
 /* Stupid gmaps overwrites styles with it's own gm-style so here's by-id stylesheet */
 #airvis-ufo-popup * {
@@ -494,6 +494,7 @@ body {
 }
 #airvis-ufo-popup .airvis-ufo-popup-title .airvis-ufo-popup-name {
   margin-top: -3px;
+  margin-left: 33px;
   white-space: nowrap;
 }
 #airvis-ufo-popup .airvis-ufo-popup-title .airvis-ufo-popup-flag {
