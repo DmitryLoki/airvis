@@ -31,6 +31,8 @@ define(["google.maps","./BasicOverlay"],function(gmaps,BasicOverlay) {
 
 	CanvasOverlay.prototype.onAdd = function() {
 		this._canvas = document.createElement("canvas");
+    	this._canvas.style.webkitTransform = "translate3d(0,0,0)"; // turn on hw acceleration
+	 	this._canvas.style.imageRendering = "optimizeSpeed";
 		this._canvas.style.position = "absolute";
 		this._canvas.style.pointerEvents = "none";
 		this._context = this._canvas.getContext("2d");

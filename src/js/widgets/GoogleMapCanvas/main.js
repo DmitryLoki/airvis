@@ -204,9 +204,12 @@ define([
 
 	GoogleMap.prototype._updateDynamicCanvas = function(canvas) {
 		// В самом низу рисуются треки
+		// Оптимизируем: проставляем все свойства сначала, рендерим в один проход
+		var context = canvas.getContext();
+
 		if (this.tracksVisualMode() != "off") {
 			this.mapUfos.forEach(function(ufo) {
-				ufo.render(canvas,"track");
+				ufo.render(canvas,context,"track");
 			},this);
 		}
 		// Затем - ножки не подсвеченных и не выбранных пилотов
@@ -218,7 +221,7 @@ define([
 			else if (ufo.checked())
 				checkedUfos.push(ufo);
 			else
-				ufo.render(canvas,"elev");
+				ufo.render(canvas,context,"elev");
 		},this);
 
 		var overlayZ = 1;
@@ -226,37 +229,37 @@ define([
 		// Затем иконки не подсвеченных и не выбранных пилотов, и вместе с иконками двигаем overlay
 		this.mapUfos.forEach(function(ufo) {
 			if (!ufo.highlighted() && !ufo.checked()) {
-				ufo.render(canvas,"icon");
+				ufo.render(canvas,context,"icon");
 				ufo._overlayZ = overlayZ++;
-				ufo.render(canvas,"overlay");
+				ufo.render(canvas,context,"overlay");
 			}
 		},this);
 		if (checkedUfos.length > 0) {
 			// Затем ножки выбранных пилотов
 			checkedUfos.forEach(function(ufo) {
-				ufo.render(canvas,"elev");
+				ufo.render(canvas,context,"elev");
 			});
 			// Затем иконки выбранных пилотов, и вместе с иконками двигаем overlay
 			checkedUfos.forEach(function(ufo) {
-				ufo.render(canvas,"icon");
+				ufo.render(canvas,context,"icon");
 				ufo._overlayZ = overlayZ++;
-				ufo.render(canvas,"overlay");
+				ufo.render(canvas,context,"overlay");
 			});
 		}
 		if (highlightedUfos.length > 0) {
 			// Затем подсветки подсвеченных пилотов
 			highlightedUfos.forEach(function(ufo) {
-				ufo.render(canvas,"highlight");
+				ufo.render(canvas,context,"highlight");
 			});
 			// Затем ножки подсвеченных пилотов
 			highlightedUfos.forEach(function(ufo) {
-				ufo.render(canvas,"elev");
+				ufo.render(canvas,context,"elev");
 			});
 			// Затем иконки подсвеченных пилотов
 			highlightedUfos.forEach(function(ufo) {
-				ufo.render(canvas,"icon");
+				ufo.render(canvas,context,"icon");
 				ufo._overlayZ = overlayZ++;
-				ufo.render(canvas,"overlay");
+				ufo.render(canvas,context,"overlay");
 			});
 		}
 	}

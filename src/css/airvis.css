@@ -158,7 +158,7 @@ body {
 }
 .airvis-ptable tbody tr:first-child td { padding-top: 8px;}
 .airvis-ptable tbody tr:nth-child(2n+2) { 
-  background-color: rgba(0,47,64,0.5);
+  background-color: rgba(0,47,64,0.35);
 }
 .airvis-ptable td,
 .airvis-ptable th {
@@ -176,7 +176,7 @@ body {
 }
 .airvis-ptable tbody td + td,
 .airvis-ptable th + th { 
-  border-left: 1px solid rgba(0,47,64,.15);
+  border-left: 1px solid rgba(0,47,64,.5);
 }
 .airvis-ptable td > span { 
   display: inline-block;
@@ -276,10 +276,13 @@ body {
 }
 
 .airvis-ptable th .airvis-ptable-check {
-/*  background-position: 1px 0; */
   background-position: -5px -263px;
   height: 12px;
 }
+.airvis-ptable th .airvis-ptable-check:hover {
+  background-position: -5px -243px;
+}
+
 
 .airvis-ptable-track {
   display: block;
@@ -473,7 +476,7 @@ body {
 }
 /* Stupid gmaps overwrites styles with it's own gm-style so here's by-id stylesheet */
 #airvis-ufo-popup * {
-  font: normal 12px/15px Arial;
+  font: normal 12px/15px Arial; 
 }
 
 #airvis-ufo-popup .airvis-ufo-popup-title {
@@ -491,6 +494,7 @@ body {
 }
 #airvis-ufo-popup .airvis-ufo-popup-title .airvis-ufo-popup-name {
   margin-top: -3px;
+  white-space: nowrap;
 }
 #airvis-ufo-popup .airvis-ufo-popup-title .airvis-ufo-popup-flag {
   display: block;
@@ -505,23 +509,24 @@ body {
 }
 #airvis-ufo-popup .airvis-popup-check {
 /*  background: transparent url("../img/star_disable.png") 4px 8px no-repeat; */
-  background: rgba(83,43,0,0.5) url("../img/star_disable.png") 4px 3px no-repeat;
+  background: rgba(83,43,0,0.5) url("../img/star_disable.png") 4px 1px no-repeat;
   border: 1px solid #3b270c;
   border-width: 1px 0;
   color: #ffb667;
   display: block;
-  padding: 1px 5px 2px 5px;
+/*  padding: 1px 5px 2px 5px; */
   padding-left: 20px;
   text-decoration: none;
+  -webkit-padding-before: 1px;
 }
 #airvis-ufo-popup .airvis-popup-check:hover {
-  background: rgba(83,43,0,0.5) url("../img/star_enable.png") 4px 3px no-repeat;
+  background: rgba(83,43,0,0.5) url("../img/star_enable.png") 4px 1px no-repeat;
 }
 #airvis-ufo-popup .airvis-popup-checked {
-  background: rgba(83,43,0,0.5) url("../img/star_enable.png") 4px 3px no-repeat;
+  background: rgba(83,43,0,0.5) url("../img/star_enable.png") 4px 1px no-repeat;
 }
 #airvis-ufo-popup .airvis-popup-checked:hover {
-  background: rgba(83,43,0,0.5) url("../img/star_disable.png") 4px 3px no-repeat;
+  background: rgba(83,43,0,0.5) url("../img/star_disable.png") 4px 1px no-repeat;
 }
 #airvis-ufo-popup .airvis-ufo-popup-list {
   padding: 2px 5px 8px 5px;
@@ -937,6 +942,7 @@ body {
 .noSelect { user-select: none; -o-user-select: none; -moz-user-select: none; -khtml-user-select: none; -webkit-user-select: none; }
 
 
+
 .setUserVisualMode, .setProfVisualMode {
     background: url("../img/prof.png") no-repeat scroll 0 0 transparent;
     height: 30px;
@@ -947,9 +953,11 @@ body {
     top: 129px;
     width: 30px;
 }
+/*
 .setUserVisualMode:hover, .setProfVisualMode:hover {
     opacity: 0.8;
 }
+*/
 .setProfVisualMode {
     background-position: 0 -30px;
     display: block;
@@ -958,6 +966,22 @@ body {
   top: 60px;
   right: 130px;
 }
+
+.setProfVisualMode {
+  background: transparent url("../img/BTN_Binokl_Normal.png") 0 0 no-repeat;
+}
+.setProfVisualMode:hover {
+  background: transparent url("../img/BTN_Binokl_Hover.png") 0 0 no-repeat;
+}
+.setUserVisualMode {
+  background: transparent url("../img/BTN_Flag_Normal.png") 0 0 no-repeat;
+}
+.setUserVisualMode:hover {
+  background: transparent url("../img/BTN_Flag_Hover.png") 0 0 no-repeat;
+}
+
+
+
 .airvisDistanceMeasurerButton {
   position: absolute;
   top: 255px;

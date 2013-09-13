@@ -115,7 +115,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 					context[i] = properties[i];
 		}
 
-		u._prepareIcon = function(co) {
+		u._prepareIcon = function() {
 			u.iconSize = config.canvas.ufos.sizes[mapWidget.modelsVisualMode()] || config.canvas.ufos.sizes["default"];
 			u.iconCenter = {x:u.iconSize,y:u.iconSize*2};
 			u.iconCanvas = document.createElement("canvas");
@@ -167,22 +167,18 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 				// Имя пилота
 				if (mapWidget.namesVisualMode() == "on" || (mapWidget.namesVisualMode() == "auto" && mapWidget.zoom() >= config.namesVisualModeAutoMinZoom)) {
 					setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.titles));
-					if (u.colored()) 
+					if (u.colored()) {
 						setProperties(ic,config.canvas.ufos.checkedTitles);
-//					ic.strokeText(u.name()+"("+u.id()+")",u.iconCenter.x+config.canvas.ufos.titleOffsetX,u.iconCenter.y-u.iconSize*Math.sqrt(3)/2+config.canvas.ufos.titleOffsetY);
-//					ic.fillText(u.name()+"("+u.id()+")",u.iconCenter.x+config.canvas.ufos.titleOffsetX,u.iconCenter.y-u.iconSize*Math.sqrt(3)/2+config.canvas.ufos.titleOffsetY);
+					}
 					ic.strokeText(u.name()+"("+u.id()+")",u.iconCenter.x+config.canvas.ufos.titleOffsetX,u.iconCenter.y+config.canvas.ufos.titleOffsetY);
 					ic.fillText(u.name()+"("+u.id()+")",u.iconCenter.x+config.canvas.ufos.titleOffsetX,u.iconCenter.y+config.canvas.ufos.titleOffsetY);
-				}
-
-				// Подпись высоты
-				if (mapWidget.heightsVisualMode() == "level+") {
-					var t = u.alt() + "m";
-					setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.altTitles));
-//					ic.strokeText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY-u.iconSize*Math.sqrt(3)/2);
-//					ic.fillText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY-u.iconSize*Math.sqrt(3)/2);
-					ic.strokeText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY);
-					ic.fillText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY);
+					// Подпись высоты
+					if (mapWidget.heightsVisualMode() == "level+") {
+						var t = u.alt() + "m";
+						setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.altTitles));
+						ic.strokeText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY);
+						ic.fillText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY);
+					}
 				}
 			}
 		}
@@ -214,7 +210,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			ctx.fill();
 	    }
 
-		u.render = function(co,type) {
+		u.render = function(canvas,context,type) {
 			if (!mapWidget.isReady() || u.noData() || u.noPosition() || !u.visible()) {
 				u._overlay.hide();
 				if (mapWidget._popup && mapWidget._popup._ufo == u) mapWidget._popup.hide();
@@ -229,14 +225,12 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 				u.prepareCoordsRequired = false;
 			}
 
-			var p = co.abs2rel(u.preparedCoords,mapWidget.zoom());
-			if (!co.inViewport(p,u.iconSize)) {
+			var p = canvas.abs2rel(u.preparedCoords,mapWidget.zoom());
+			if (!canvas.inViewport(p,u.iconSize)) {
 				u._overlay.hide();
 				if (mapWidget._popup && mapWidget._popup._ufo == u) mapWidget._popup.hide();
 				return;
 			}
-
-			var context = co.getContext();
 
 			u._height = 0;
 			if ((u.state() != "landed") && (u.alt() > 0) && (mapWidget.heightsVisualMode() == "level" || mapWidget.heightsVisualMode() == "level+"))
@@ -257,7 +251,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			// TODO: укоротить копипастный код
 			if (type == "highlight" && u.highlightedLevel() > 0) {
 				var h = u.highlightedLevel();
-				co.setProperties(config.canvas.ufos.highlight);
+				canvas.setProperties(config.canvas.ufos.highlight);
 				// Подсветка иконки
 				context.beginPath();
 				context.moveTo(p.x,p.y-u._height+h*2);
@@ -284,23 +278,23 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			}
 
 			if ((type == "elev") && (u.state() != "landed") && (mapWidget.heightsVisualMode() == "level" || mapWidget.heightsVisualMode() == "level+")) {
-				co.setProperties(config.canvas.ufos.stickDot);
-				if (u.colored()) co.setProperties({fillStyle:u.color()});
+				canvas.setProperties(config.canvas.ufos.stickDot);
+				if (u.colored()) canvas.setProperties({fillStyle:u.color()});
 				_drawEllipse(context,p.x-5,p.y-3,10,6);
-				co.setProperties(config.canvas.ufos.stick);
-				if (u.colored()) co.setProperties({fillStyle:u.color()});
+				canvas.setProperties(config.canvas.ufos.stick);
+				if (u.colored()) canvas.setProperties({fillStyle:u.color()});
 				context.beginPath();
 				context.fillRect(p.x-1.5,p.y-u._height-4.5,3,u._height+5);
 				context.strokeRect(p.x-1.5,p.y-u._height-4.5,3,u._height+5);
 			}
 
 			if (type == "track" && mapWidget.tracksVisualMode() != "off" && u.trackData.length > 0) {
-				co.setProperties(config.canvas.ufos.basic);
-				if (u.colored()) co.setProperties({strokeStyle:u.color()});
+				canvas.setProperties(config.canvas.ufos.basic);
+				if (u.colored()) canvas.setProperties({strokeStyle:u.color()});
 				context.beginPath();
 				for (var i = 0; i < u.trackData.length; i++) {
 					if (u.trackData[i].dt == null) continue;
-					var pp = co.abs2rel(u.trackData[i],mapWidget.zoom());
+					var pp = canvas.abs2rel(u.trackData[i],mapWidget.zoom());
 					if (i > 0) context.lineTo(pp.x,pp.y);
 					else context.moveTo(pp.x,pp.y);
 				}
