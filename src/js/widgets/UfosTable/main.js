@@ -330,6 +330,27 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 		}
 	}
 
+	UfosTable.prototype.update = function() {
+		var self = this;
+		if (this._updating) {
+			this._updateRequired = true;
+			return;
+		}
+		this._updating = true;
+		clearTimeout(this._updatingTimeout);
+		this.tableUfos().forEach(function(ufo) {
+			ufo.updateTableData();
+		});
+		this.sortTableRows();
+		this._updatingTimeout = setTimeout(function() {
+			self._updating = false;
+			if (self._updateRequired) {
+				self._updateRequired = false;
+				self.update();
+			}
+		},config.table.updatingTimeout);
+	}
+
 	UfosTable.prototype.sort = function() {
 		var self = this;
 		if (this._sorting) {

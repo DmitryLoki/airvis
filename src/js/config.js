@@ -23,7 +23,14 @@ define({
 		contestId: "",
 		raceId: "",
 		apiDomain: "http://api.airtribune.com",
-		apiVersion: "v0.2"
+		apiVersion: "v0.2",
+	    // точность (в ответе сервера если координата отличается от предыдущей меньше чем на это число (по lat и lng), пропускаем ее
+	    // расчитана исходя из размера экрана и разницы координат его углов, на максимальном зуме <5px 
+	    coordsPrecision: 0.00001,
+	    // зум, на котором был расчет
+	    // при обработке ответа сервера если координаты отличаются меньше чем на coordsPrecision, то вообще их выбрасываем из ответа
+	    // затем при отрисовке - на зуме Z точность считается: coordsPrecision * Math.pow(2,coordsPrecision-Z)
+	    coordsPrecisionZoom: 19
 	},
 	// Настройки GoogleMapCanvas
 	canvas: {
@@ -196,7 +203,8 @@ define({
 	},
 	// Настройки таблицы пилотов
 	table: {
-		sortingTimeout: 1000
+		sortingTimeout: 1000,
+		updatingTimeout: 3000
 	},
 	// Настройки размеров и положений окон с виджетами
 	windows: {
@@ -205,8 +213,8 @@ define({
 			menuTitle: "Leaderboard",
 //			width: 363,
 //			wideWidth: 483,
-			width: 400,
-			wideWidth: 520,
+			width: 429,
+			wideWidth: 549,
 			top: 180,
 			left: 90,
 			tableHeight: 288,
@@ -322,13 +330,10 @@ define({
     },
 
 
-
-
 	// Говно какое-то
 
 	serverFake: 0,		
 	retrieveInterval: 10000,
-	renderTableDataInterval: 5000,
 	shortWay: {
 		wide: {
 			strokeColor: "#002244",

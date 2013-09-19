@@ -28,6 +28,19 @@ define(["jquery","knockout","CountryCodes","config","widget!Checkbox"],function(
 		u.rowType = "ufo";
 		u.distFrom = data.distFrom;
 
+		u.tableData = {
+			dist: ko.observable(u.dist()),
+			alt: ko.observable(u.alt()),
+			speed: ko.observable(u.speed()),
+			vSpd: ko.observable(u.vSpd())
+		}
+
+		u.updateTableData = function() {
+			u.tableData.dist(u.dist());
+			u.tableData.alt(u.alt());
+			u.tableData.speed(u.speed());
+			u.tableData.vSpd(u.vSpd());
+		}
 
 		u.distFrom = ko.computed(function() {
 			return u.dist() > 0 ? Math.floor((tableWidget.optdistance() - u.dist())*10)/10 : Math.floor(tableWidget.optdistance()*10)/10;
@@ -36,6 +49,7 @@ define(["jquery","knockout","CountryCodes","config","widget!Checkbox"],function(
 			return u.colored() ? u.color() : config.canvas.ufos.visibleCheckboxColor;
 		});
 		u.visibleCheckbox = new Checkbox({checked:u.visible,color:u.visibleCheckboxColor});
+		u.trackVisibleCheckbox = new Checkbox({checked:u.trackVisible,color:u.visibleCheckboxColor});
 
 		var getTimeStr = function(h,m,s) {
 			return (h<10?"0":"") + h + ":" + (m<10?"0":"") + m + ":" + (s<10?"0":"") + s;

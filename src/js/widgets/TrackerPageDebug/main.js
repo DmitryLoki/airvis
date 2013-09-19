@@ -123,7 +123,8 @@ define([
 			apiVersion: self.apiVersion,
 			contestId: self.contestId,
 			raceId: self.raceId,
-			isOnline: self.isOnline
+			isOnline: self.isOnline,
+			coordsPrecision: self.coordsPrecision
 		});
 		this.dataSource = new DataSource({
 			server: this.server
@@ -508,9 +509,13 @@ define([
 				self.loading(false);
 				if (ufos) {
 					var ufos2load = [];
-					for (var i = 0; i < ufos.length; i++) {
-						ufos2load.push(new Ufo(ufos[i]));
-					}
+					$.each(ufos,function(i,data) {
+						var ufo = new Ufo(data);
+						ufo.trackVisible.subscribe(function(v) {
+							self.updateFullTracksData(ufo);
+						});
+						ufos2load.push(ufo);
+					});
 					self.ufos(ufos2load);
 				}
 				if (callback && typeof callback == "function")
@@ -528,8 +533,26 @@ define([
 		});
 	}
 
+	TrackerPageDebug.prototype.updateFullTracksData = function(ufo) {
+		if (ufo.trackVisible()) {
+			this.dataSource.get({
+				type: "ufoFullTrack",
+				id: ufo.id(),
+				from_time: Math.floor(this.startKey()/1000),
+				to_time: Math.ceil(this.endKey()/1000),
+				callback: function(data) {
+					ufo.pushFullTrack(data);
+				}
+			});
+		}
+		else {
+			ufo.destroyFullTrack();
+		}
+	}
+
 	TrackerPageDebug.prototype.playerInit = function() {
 		var self = this;
+
 		var renderFrame = function(callback) {
 			self.loading(true);
 			self.currentDataSourceGetKey = self.currentKey();
@@ -578,7 +601,7 @@ define([
 							ufo.noData(true);
 					});
 					self.map.update();
-					self.ufosTable.sort();
+					self.ufosTable.update();
 					if (callback)
 						callback(data);
 				}

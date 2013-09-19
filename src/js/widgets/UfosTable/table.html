@@ -2,6 +2,7 @@
 	<thead>
 		<tr>
 			<th class="airvis-ptable-checkbox"><!-- ko widget: { data: checked?allCheckedVisibleCheckbox:allUncheckedVisibleCheckbox, type: 'Checkbox'} --><!-- /ko --></th>
+			<th class="airvis-ptable-checkbox"></th>
 			<th class="airvis-ptable-number">#</th>
 			<th class="airvis-ptable-name">
 				<!-- ko if: checked -->
@@ -52,6 +53,7 @@
 						<!-- ko foreach: {data:qTableCountries,as:'rwc'} -->
 							<tr data-bind="click:rwc.switch">
 								<td class="airvis-ptable-checkbox"></td>
+								<td class="airvis-ptable-checkbox"></td>
 								<td class="airvis-ptable-number"></td>
 								<td class="airvis-ptable-name airvis-ptable-countryname" colspan="6">
 									<span class="airvis-ptable-onover">
@@ -75,12 +77,14 @@
 							<!-- ko if: text == "sep" -->
 								<tr>
 									<td class="airvis-ptable-checkbox"></td>
+									<td class="airvis-ptable-checkbox"></td>
 									<td class="airvis-ptable-number"></td>
 									<td class="airvis-ptable-name" colspan=6>&nbsp;</td>
 								</tr>
 							<!-- /ko -->
 							<!-- ko if: text != "sep" -->
 								<tr data-bind="click:$parent.setLeading.bind($parent,$data)">
+									<td class="airvis-ptable-checkbox"></td>
 									<td class="airvis-ptable-checkbox"></td>
 									<td class="airvis-ptable-number"></td>
 									<td class="airvis-ptable-name" colspan=6><span data-bind="text:text"></span></td>
@@ -96,6 +100,7 @@
 						<!-- /ko -->
 						<tr class="airvis-ptable-header">
 							<td class="airvis-ptable-checkbox"><!-- ko widget: { data: allNonLeadingVisibleCheckbox, type: 'Checkbox'} --><!-- /ko --></td>
+							<td class="airvis-ptable-checkbox"></td>
 							<td class="airvis-ptable-number">#</td>
 							<td class="airvis-ptable-name">Pilots</td>
 							<td class="airvis-ptable-country" data-bind="visible:windowMode()=='full'">Country</td>

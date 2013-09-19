@@ -12,6 +12,7 @@ define(["jquery","knockout","CountryCodes","config","jquery.cookie"],function($,
 		this.stateChangedAt = ko.observable(null);
 		this.position = ko.observable({lat:null,lng:null,dt:null});
 		this.track = ko.observable({lat:null,lng:null,dt:null});
+		this.trackData = ko.observableArray([]);
 		this.alt = ko.observable(null);
 		this.dist = ko.observable(null);
 		this.gSpd = ko.observable(null);
@@ -49,11 +50,23 @@ define(["jquery","knockout","CountryCodes","config","jquery.cookie"],function($,
 			return self.checked() || self.leading();
 		});
 
+		this.fullTrackIsAvailable = ko.observable(false);
+		this.fullTrackMaxDt = ko.observable(0);
 	}
 
 	Ufo.prototype.resetTrack = function() {
 		// dt=null - специальное значение. Карта его отслеживает и убивает у себя трек при dt=null
 		this.track({lat:null,lng:null,dt:null});
+	}
+
+	Ufo.prototype.pushFullTrack = function(data) {
+		this.trackData(data);
+		this.fullTrackMaxDt(data[data.length-1].dt);
+		this.fullTrackIsAvailable(true);
+	}
+
+	Ufo.prototype.destroyFullTrack = function() {
+		this.fullTrackIsAvailable(false);
 	}
 
 	return Ufo;
