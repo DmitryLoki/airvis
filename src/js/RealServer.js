@@ -13,30 +13,6 @@
 		var testPilotCut = 7; //260
 		var testPilotOn = false;
 		if (query.type == "race") {
-
-/*
-			$.ajax({
-				url: "http://apidev.airtribune.com/v0.1.4/track/group/r-10641273-40ff-4ebd-aec3-22fd3629eba3_online",
-				dataType: "json",
-				data: {
-					from_time:0,
-					to_time:5378652400
-				},
-				success: function(result) {
-					var diff = {};
-					for (var dt in result.timeline) {
-						for (var pilot_id in result.timeline[dt]) {
-							var d = result.timeline[dt][pilot_id];
-							var str = pilot_id + "_" + d.lat + "_" + d.lon;
-							if (!diff[str]) diff[str] = 0;
-							diff[str]++; 
-						}
-					}
-					console.log(diff);
-				}
-			});
-*/
-
 			$.ajax({
 				url: this.apiDomain() + "/" + this.apiVersion() + "/contest/" + this.contestId() + "/race/" + this.raceId(),
 				dataType: "json",
@@ -62,7 +38,6 @@
 						data.raceTypeOptions.bearing = result.bearing;
 
 					var d = new Date(data.startKey);
-//					data.titles.dateTitle = d.toDateString();
 					var m_ar = "Jan Fab Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(/ /);
 					data.titles.dateTitle = d.getDate() + " " + m_ar[d.getMonth()] + ", " + d.getFullYear();
 					if (result.checkpoints && result.checkpoints.features) {
@@ -143,8 +118,6 @@
 				success: function(result,textStatus,request) {
 					if (!result.start) result.start = {};
 					var data = {start:{},timeline:{}};
-//					var tmp = {};
-//					data.serverKey = (new Date(request.getResponseHeader("Date"))).getTime();
 					$.each(result.start,function(pilot_id,rw) {
 						if (testPilotOn && pilot_id!=testPilotCut) return;
 						data.start[pilot_id] = {
@@ -160,15 +133,14 @@
 							stateChangedAt: rw.statechanged_at,
 							dt: query.first
 						}
-//						tmp[pilot_id] = {state:rw.state,stateChangedAt:rw.statechanged_at};
 					});
 
-					// resort
 					var keys = [];
 					for (var dt in result.timeline)
 						if (result.timeline.hasOwnProperty(dt))
 							keys.push(dt);
 					keys.sort();
+
 					for (var key_i = 0; key_i < keys.length; key_i++) {
 						var dt = keys[key_i];
 						var rws = result.timeline[dt];
@@ -190,14 +162,6 @@
 							}
 							if (rw.state)
 								data.timeline[dt][pilot_id].stateChangedAt = Math.floor(dt/1000);
-//							if (rw.state) {
-//								data.timeline[dt][pilot_id].stateChangedAt = Math.floor(dt/1000);
-//								tmp[pilot_id] = {state:rw.state,stateChangedAt:Math.floor(dt/1000)};
-//							}
-//							else if (tmp[pilot_id]) {
-//								data.timeline[dt][pilot_id].state = tmp[pilot_id].state;
-//								data.timeline[dt][pilot_id].stateChangedAt = tmp[pilot_id].stateChangedAt;
-//							}
 						});
 					}
 					if (query.callback)
@@ -206,6 +170,30 @@
 				error: function(jqXHR,textStatus,errorThrown) {
 					if (query.error)
 						query.error(jqXHR,textStatus,errorThrown);
+				}
+			});
+		}
+		else if (query.type == "ufoFullTrack") {
+			$.ajax({
+				url: this.apiDomain() + "/" + this.apiVersion() + "/track/group/" + this.raceId(),
+				dataType: "json",
+				data: {
+					track_labels: query.id,
+					from_time: query.from_time,
+					to_time: query.to_time
+				},
+				success: function(result,textStatus,request) {
+					var data = [];
+					$.each(result.timeline,function(dt,rws) {
+						if (!rws[query.id]) return;
+						data.push({
+							lat: rws[query.id].lat,
+							lng: rws[query.id].lon,
+							dt: dt
+						});
+					});
+					if (query.callback)
+						query.callback(data);
 				}
 			});
 		}
