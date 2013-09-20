@@ -2,6 +2,7 @@ define(["google.maps","./BasicOverlay"],function(gmaps,BasicOverlay) {
 
 	var CanvasOverlay = function(options) {
 		this._map = options.map;
+		this._z = options.z;
 		this._container = options.container;
 		this._mapDiv = this._map.getDiv();
 		this._onAddCallback = options.onAdd;
@@ -25,8 +26,6 @@ define(["google.maps","./BasicOverlay"],function(gmaps,BasicOverlay) {
 	CanvasOverlay.prototype.clear = function() {
         if(this._canvas)
 		    this._canvas.height = this._canvas.height;
-//		if (!this._context) return;
-//		this._context.clearRect(0,0,this._width,this._height);
 	}
 
 	CanvasOverlay.prototype.onAdd = function() {
@@ -34,13 +33,12 @@ define(["google.maps","./BasicOverlay"],function(gmaps,BasicOverlay) {
     	this._canvas.style.webkitTransform = "translate3d(0,0,0)"; // turn on hw acceleration
 	 	this._canvas.style.imageRendering = "optimizeSpeed";
 		this._canvas.style.position = "absolute";
+		if (this._z > 0)
+			this._canvas.style.zIndex = this._z;
 		this._canvas.style.pointerEvents = "none";
 		this._context = this._canvas.getContext("2d");
-//		this._proj = this._map.getProjection();
-
 		this.getPanes().overlayLayer.appendChild(this._canvas);
-//		this._map.controls[this._container].push(this._canvas);
-		this.relayout("onAdd CanvasOverlay");
+		this.relayout();
 		if (typeof this._onAddCallback === "function")
 			this._onAddCallback();
 	}

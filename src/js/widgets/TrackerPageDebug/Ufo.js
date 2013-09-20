@@ -52,11 +52,6 @@ define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,
 		this.fullTrackMaxDt = ko.observable(0);
 	}
 
-	Ufo.prototype.resetTrack = function() {
-		// dt=null - специальное значение. Карта его отслеживает и убивает у себя трек при dt=null
-		this.track({lat:null,lng:null,dt:null});
-	}
-
 	Ufo.prototype.pushFullTrack = function(data) {
 		this.trackData(data);
 		this.fullTrackMaxDt(data[data.length-1].dt);

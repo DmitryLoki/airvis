@@ -26,13 +26,16 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		u.vSpd = data.vSpd;
 		u.distFrom = data.distFrom;
 		u.colored = data.colored;
-		u.resetTrack = data.resetTrack;
 		u.finishedTime = data.finishedTime;
 
 		u.highlightedLevel = ko.observable(0);
-		u.trackData = [];
 		u.preparedCoords = null;
 		u.prepareCoordsRequired = true;
+
+		u.trackData = [];
+		u.trackI = 0;
+		u.trackStartDt = 0;
+		u.trackP = null;
 
 		u.distFrom = ko.computed(function() {
 			return u.dist() > 0 ? Math.floor((mapWidget.optdistance() - u.dist())*10)/10 : Math.floor(mapWidget.optdistance()*10)/10;
@@ -56,14 +59,28 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			mapWidget.openPopup(u);
 		});
 
+		// проверка того, что начало трека удалилось из-за 5min треков
+		u.trackStartChanged = function() {
+			return u.trackData && u.trackStartDt>0 && u.trackStartDt<u.trackData[0].dt;
+		}
+
+		// этот метод вызывается чтобы перерисовать трек на канвасе
+		u.resetTrack = function() {
+			u.trackStartDt = 0;
+			u.trackI = 0;
+			u.trackP = null;
+		}
+
+		// этот метод вызывается когда нужно удалить трек
+		u.destroyTrack = function() {
+			u.trackData = [];
+			u.trackStartDt = 0;
+			u.trackI = 0;
+			u.trackP = null;
+		}
+
 		u.trackSubscribe = u.track.subscribe(function(v) {
-			if (!mapWidget.isReady() || mapWidget.tracksVisualMode() == "off") return;
-			// если приходит специальное значение v.dt=null, обнуляем трек
-			if (v.dt == null) {
-				u.trackData = [];
-				return;
-			}
-			if (!v.lat || !v.lng) return;
+			if (!mapWidget.isReady() || mapWidget.tracksVisualMode() == "off" || !v.lat || !v.lng) return;
 			// подготавливаем координаты и добавляем новую точку в trackData
 			var coords = mapWidget.prepareCoords(v.lat,v.lng);
 			v.x = coords.x;
@@ -77,8 +94,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		});
 
 		u.visibleSubscribe = u.visible.subscribe(function() {
-//			u.resetTrack();
-			mapWidget.update();
+			mapWidget.updateAndRedraw();
 		});
 		u.stateSubscribe = u.state.subscribe(function() {
 			u.updateIconRequired = true;
@@ -86,7 +102,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		});
 		u.coloredSubscribe = u.colored.subscribe(function() {
 			u.updateIconRequired = true;
-			mapWidget.update();
+			mapWidget.updateAndRedraw();
 		});
 		u.highlightedSubscribe = u.highlighted.subscribe(function(v) {
 			if (v) {
@@ -99,13 +115,17 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		});
 		u.nameSubscribe = u.name.subscribe(function() {
 			u.updateIconRequired = true;
+			mapWidget.update();
 		});
 		u.positionSubscribe = u.position.subscribe(function(p) {
 			u.prepareCoordsRequired = true;
+			mapWidget.update();
 		});
 		u.altSubscribe = u.alt.subscribe(function() {
-			if (mapWidget.heightsVisualMode() == "level+")
+			if (mapWidget.heightsVisualMode() == "level+") {
 				u.updateIconRequired = true;
+				mapWidget.update();
+			}
 		});
 
 		var setProperties = function(context,properties) {
@@ -183,12 +203,13 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			}
 		}
 
-		u._prepareCoords = function() {
-			if (!mapWidget.isReady() || u.noData() || !u.position()) {
+		u._prepareCoords = function(canvas) {
+			if (u.noData() || !u.position()) {
 				u.preparedCoords = null;
 				return;
 			}
-			u.preparedCoords = mapWidget.prepareCoords(u.position().lat,u.position().lng);
+			u.preparedCoords = canvas.ll2p(u.position().lat,u.position().lng);
+//			u.preparedCoords = mapWidget.prepareCoords(u.position().lat,u.position().lng);
 		}
 
 		var _drawEllipse = function(ctx, x, y, w, h) {
@@ -210,7 +231,9 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			ctx.fill();
 	    }
 
-		u.render = function(canvas,context,type) {
+		u.render = function(canvas,type) {
+			var context = canvas.getContext();
+
 			if (!mapWidget.isReady() || u.noData() || u.noPosition() || !u.visible()) {
 				u._overlay.hide();
 				if (mapWidget._popup && mapWidget._popup._ufo == u) mapWidget._popup.hide();
@@ -221,17 +244,64 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 				u.updateIconRequired = false;
 			}
 			if (!u.preparedCoords || u.prepareCoordsRequired) {
-				u._prepareCoords();
+				u._prepareCoords(canvas);
 				u.prepareCoordsRequired = false;
 			}
 
 			var p = canvas.abs2rel(u.preparedCoords,mapWidget.zoom());
+
+			// Треки рисуем независимо от того, находится ли сам маркер в области видимости или нет
+			if (type == "staticTrackUpdate" && u.trackI+1<u.trackData.length) {
+				var cntDrawed = 0, cntTotal = 0, cntLines = 0;
+
+				canvas.setProperties(u.colored() ? $.extend({},config.canvas.ufos.tracks,{strokeStyle:u.color()}) : config.canvas.ufos.tracks);
+				context.beginPath();
+				var p = u.trackP ? u.trackP : canvas.abs2rel(u.trackData[u.trackI],mapWidget.zoom());
+				var startNewLine = false;
+				context.moveTo(p.x,p.y);
+				cntTotal++;
+				for (var i = u.trackI+1, l = u.trackData.length; i < l; i++) {
+					cntTotal++;
+					var p2 = canvas.abs2rel(u.trackData[i],mapWidget.zoom());
+					if (!canvas.inViewport(p2,0)) {
+						var prevInViewport = i>0 ? canvas.inViewport(canvas.abs2rel(u.trackData[i-1],mapWidget.zoom()),0) : true;
+						var nextInViewport = i+1<l ? canvas.inViewport(canvas.abs2rel(u.trackData[i+1],mapWidget.zoom()),0) : true;
+						if (!prevInViewport && !nextInViewport) {
+							startNewLine = true;
+							continue;
+						}
+					}
+					if (Math.pow(p2.x-p.x,2)+Math.pow(p2.y-p.y,2)>config.pxTrackPrecision) {
+						if (startNewLine) context.moveTo(p2.x,p2.y);
+						else context.lineTo(p2.x,p2.y);
+						p = p2;
+						cntDrawed++;
+						if (startNewLine)
+							cntLines++;
+					}
+					startNewLine = false;
+				}
+				context.stroke();
+				u.trackI = u.trackData.length-1;
+				u.trackStartDt = u.trackData[0].dt;
+				u.trackP = p;
+//				console.log("trackUpdate cntTotal",cntTotal,"cntDrawed",cntDrawed,"cntLines",cntLines);
+			}
+			if (type == "trackEnd" && u.trackP && p) {
+				canvas.setProperties(u.colored() ? $.extend({},config.canvas.ufos.tracks,{strokeStyle:u.color()}) : config.canvas.ufos.tracks);
+				context.beginPath();
+				context.moveTo(u.trackP.x,u.trackP.y);
+				context.lineTo(p.x,p.y);
+				context.stroke();
+			}
+
+			// все остальное отрисовываем только если оно находится в области видимости			
 			if (!canvas.inViewport(p,u.iconSize)) {
 				u._overlay.hide();
 				if (mapWidget._popup && mapWidget._popup._ufo == u) mapWidget._popup.hide();
 				return;
 			}
-
+			
 			u._height = 0;
 			if ((u.state() != "landed") && (u.alt() > 0) && (mapWidget.heightsVisualMode() == "level" || mapWidget.heightsVisualMode() == "level+"))
 				u._height = Math.floor(u.alt()/100);

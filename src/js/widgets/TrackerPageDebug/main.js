@@ -530,12 +530,6 @@ define([
 		});
 	}
 
-	TrackerPageDebug.prototype.resetUfosTracks = function() {
-		this.ufos().forEach(function(ufo) {
-			ufo.resetTrack();
-		});
-	}
-
 	TrackerPageDebug.prototype.updateFullTracksData = function(ufo) {
 		if (ufo.trackVisible()) {
 			this.dataSource.get({
@@ -650,7 +644,7 @@ define([
 
 		self.playerControl.on("change",function(v) {
 			self.currentKey(v);
-			self.resetUfosTracks();
+			self.map.destroyTracks();
 			run(true);
 		});
 

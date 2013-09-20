@@ -36,7 +36,7 @@ define(["google.maps"],function(gmaps) {
 		}
 	}
 
-	BasicOverlay.prototype.performSimpleFakeCoordsCalculation = function(lat,lng) {
+	BasicOverlay.prototype.ll2p = function(lat,lng) {
 		return {
 			x: this._sqTlCorner.x+(lng-this._tlCorner.lng())/(this._brCorner.lng()-this._tlCorner.lng())*(this._sqBrCorner.x-this._sqTlCorner.x),
 			y: this._sqTlCorner.y+(lat-this._tlCorner.lat())/(this._brCorner.lat()-this._tlCorner.lat())*(this._sqBrCorner.y-this._sqTlCorner.y)
@@ -49,7 +49,7 @@ define(["google.maps"],function(gmaps) {
 	}
 
 	BasicOverlay.prototype.ll2xy = function(lat,lng,zoom) {
-		return this.abs2rel(this.performSimpleFakeCoordsCalculation(lat,lng),zoom);
+		return this.abs2rel(this.ll2p(lat,lng),zoom);
 	}
 
 	BasicOverlay.prototype.inViewport = function(center,radius) {

@@ -8,7 +8,7 @@ define({
 		mode: "full",
 		titleUrl: "",
 		debug: false,
-		tracksVisualMode: "5min",
+		tracksVisualMode: "full",
 		cylindersVisualMode: "full",
 		heightsVisualMode: "level+",
 		modelsVisualMode: "small",
@@ -40,7 +40,8 @@ define({
 		ufos: {
 			basic: {
 //				font: "11px verdana",
-				font: "11px arial",
+//				font: "11px arial",
+				font: "11px verdana",
 				textAlign: "left",
 				textBaseline: "top",
 				strokeStyle: "#000000",
@@ -337,7 +338,8 @@ define({
         }
     },
     // берем квадрат расстояния от пред. точки до текущей у трека. если он меньше чем pxTrackPrecision, точку не рисуем (допускаем смещение до 5px)
-    pxTrackPrecision: 25,
+//    pxTrackPrecision: 25,
+    pxTrackPrecision: 400,
 
 	// Говно какое-то
 
