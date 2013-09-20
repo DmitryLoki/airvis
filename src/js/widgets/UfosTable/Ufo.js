@@ -85,6 +85,7 @@ define(["jquery","knockout","CountryCodes","config","widget!Checkbox"],function(
 			tableWidget.q(u.country3());
 		}
 
+		/*
 		u.visibilityControl = ko.computed(function() {
 			if (u.checked() && tableWidget.allCheckedVisible() == 1) u.visible(true);
 			else if (u.checked() && tableWidget.allCheckedVisible() == 0) u.visible(false);
@@ -102,6 +103,27 @@ define(["jquery","knockout","CountryCodes","config","widget!Checkbox"],function(
 			}
 			return 0;
 		});
+		*/
+
+		var checkedAndLeadingSubscribe = function() {
+			if (u.checked() && tableWidget.allCheckedVisible() == 1) u.visible(true);
+			else if (u.checked() && tableWidget.allCheckedVisible() == 0) u.visible(false);
+			else if (!u.checked()) {
+				if (tableWidget.mode() == "leading") {
+					if (u.leading() && tableWidget.allUncheckedVisible() == 1) u.visible(true);
+					else if (u.leading() && tableWidget.allUncheckedVisible() == 0) u.visible(false);
+					else if (!u.leading() && tableWidget.allNonLeadingVisible() == 1) u.visible(true);
+					else if (!u.leading() && tableWidget.allNonLeadingVisible() == 0) u.visible(false);
+				}
+				else {
+					if (tableWidget.allUncheckedVisible() == 1) u.visible(true);
+					else if (tableWidget.allUncheckedVisible() == 0) u.visible(false);
+				}
+			}
+		}
+		u.checked.subscribe(checkedAndLeadingSubscribe);
+		u.leading.subscribe(checkedAndLeadingSubscribe);
+
 		return u;
 	}
 

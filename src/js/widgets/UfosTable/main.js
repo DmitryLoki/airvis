@@ -8,6 +8,7 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 		this.raceType = options.raceType;
 		this.optdistance = options.optdistance;
 		this.trackedUfoId = options.trackedUfoId;
+		this.cookiesEnabled = options.cookiesEnabled;
 
 		this.inModalWindow = ko.observable(false);
 
@@ -32,13 +33,13 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 		this.order.subscribe(function(v) {
 			self.sort();
 			self.sort();
-			console.log("order subscribe ",v);
 		});
 
-		this._q = ko.observable("");
+		this._q = ko.observable(this.cookiesEnabled()?$.cookie("searchQuery")||"":"");
 		this.q = ko.computed({
 			read: self._q,
 			write: function(v) {
+				if (self.cookiesEnabled()) $.cookie("searchQuery",v);
 				self._q(v);
 			}
 		}).extend({throttle:200});
@@ -56,6 +57,25 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 				self.updateScroll();
 			}
 		});
+
+		// при изменении checked или visible у tablePilots c throttle в секунду обновляем куки
+		// при этом основываемся на this.ufos, потому что this.tableUfos пересортируются раз в 5 секунд при плее.
+		this.checkedCookie = ko.computed(function() {
+			var ar = [];
+			self.ufos().forEach(function(ufo) {
+				if (ufo.checked()) ar.push(ufo.id());
+			});
+			if (!self.isReady || !self.cookiesEnabled()) return;
+			$.cookie("checkedUfos",ar.join(","));
+		}).extend({throttle:1000});
+		this.visibleCookie = ko.computed(function() {
+			var ar = [];
+			self.ufos().forEach(function(ufo) {
+				if (!ufo.visible()) ar.push(ufo.id());
+			});
+			if (!self.isReady || !self.cookiesEnabled()) return;
+			$.cookie("invisibleUfos",ar.join(","));
+		}).extend({throttle:1000});
 
 		this.leadingCnt = ko.observable(0);
 		this.leadingOptions = [
@@ -144,8 +164,6 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 			}
 		}).extend({throttle:50});
 		this.allNonLeadingVisibleCheckbox = new Checkbox({checked:this.allNonLeadingVisible,color:config.windows.ufosTable.allCheckboxColor,css:"checkbox-white",mode:"half"});
-
-
 
 		this.tableHeight = ko.observable(config.windows.ufosTable.tableHeight);
 		this.checkedTableHeight = ko.observable(config.windows.ufosTable.checkedTableHeight);
@@ -251,7 +269,6 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 			}
 			return out;
 		});
-
 	}
 
 	UfosTable.prototype.uncheckAll = function() {

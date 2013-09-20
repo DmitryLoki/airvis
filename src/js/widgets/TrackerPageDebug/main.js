@@ -24,7 +24,8 @@ define([
 	"config",
 	"./Ufo",
 	"./Waypoint",
-	"./Sms"
+	"./Sms",
+	"jquery.cookie"
 ],function(
 	walk,
 	$,
@@ -195,7 +196,8 @@ define([
 				raceTypeOptions: this.raceTypeOptions,
 				trackedUfoId: this.trackedUfoId,
 				optdistance: this.optdistance,
-				isDistanceMeasurerEnabled: this.isDistanceMeasurerEnabled
+				isDistanceMeasurerEnabled: this.isDistanceMeasurerEnabled,
+				cookiesEnabled: this.cookiesEnabled
 			}
 			if (this.mapType() == "GoogleMapCanvas") {
 				this.map = new GoogleMapCanvas(mapOptions);
@@ -244,7 +246,8 @@ define([
 					raceKey: this.raceKey,
 					optdistance: this.optdistance,
 					raceType: this.raceType,
-					trackedUfoId: this.trackedUfoId
+					trackedUfoId: this.trackedUfoId,
+					cookiesEnabled: this.cookiesEnabled
 				});
 				this.ufosTable.on("centerMap",function(position) {
 					self.map.centerMap(position);
@@ -510,7 +513,7 @@ define([
 				if (ufos) {
 					var ufos2load = [];
 					$.each(ufos,function(i,data) {
-						var ufo = new Ufo(data);
+						var ufo = new Ufo(data,self);
 						ufo.trackVisible.subscribe(function(v) {
 							self.updateFullTracksData(ufo);
 						});
@@ -646,7 +649,6 @@ define([
 		}
 
 		self.playerControl.on("change",function(v) {
-			console.log("playerControl change");
 			self.currentKey(v);
 			self.resetUfosTracks();
 			run(true);

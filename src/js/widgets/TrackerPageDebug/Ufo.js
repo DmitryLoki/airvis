@@ -1,6 +1,6 @@
-define(["jquery","knockout","CountryCodes","config","jquery.cookie"],function($,ko,countryCodes,config) {
+define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,config) {
 
-	var Ufo = function(options) {
+	var Ufo = function(options,mainWidget) {
 		var self = this;
 		this.i = ko.observable(0);
 		this.id = ko.observable(options.id);
@@ -17,20 +17,18 @@ define(["jquery","knockout","CountryCodes","config","jquery.cookie"],function($,
 		this.dist = ko.observable(null);
 		this.gSpd = ko.observable(null);
 		this.vSpd = ko.observable(null);
-		this.visible = ko.observable(config.ufo.visible);
 		this.trackVisible = ko.observable(config.ufo.trackVisible);
 		this.noData = ko.observable(true);
 		this.noPosition = ko.observable(true);
-		var isChecked = ($.cookie("checkedUfos")||"").split(/,/).indexOf(this.id())!==-1;
+
+		// Значение по умолчанию - non-checked, поэтому в куках храним checkedUfos
+		var isChecked = mainWidget.cookiesEnabled() ? ($.cookie("checkedUfos")||"").split(/,/).indexOf(this.id())!==-1 : config.ufo.checked;
 		this.checked = ko.observable(isChecked);
-		this.checked.subscribe(function(v) {
-			var ar = ($.cookie("checkedUfos")||"").split(/,/);
-			var i = ar.indexOf(this.id());
-			if (v && i!==-1 || !v && i==-1) return;
-			if (v) ar.push(this.id());
-			else ar.splice(i,1);
-			$.cookie("checkedUfos",ar.join(","));
-		},this);
+
+		// Значение по умолчанию - visible, поэтому в куках храним invisibleUfos
+		var isInvisible = mainWidget.cookiesEnabled() ? ($.cookie("invisibleUfos")||"").split(/,/).indexOf(this.id())!==-1 : config.ufo.visible;
+		this.visible = ko.observable(!isInvisible);
+
 		this.highlighted = ko.observable(false);
 		this.switchCheck = function() {
 			self.checked(!self.checked());

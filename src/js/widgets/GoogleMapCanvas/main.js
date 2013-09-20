@@ -46,6 +46,7 @@ define([
 		this.trackedUfoId = options.trackedUfoId;
 		this.optdistance = options.optdistance;
 		this.isDistanceMeasurerEnabled = options.isDistanceMeasurerEnabled;
+		this.cookiesEnabled = options.cookiesEnabled;
 
 		this.isReady = ko.observable(false);
 
@@ -174,8 +175,37 @@ define([
 		return this._popup && this._popup._ufo == ufo;
 	}
 
+	GoogleMap.prototype.savePosition = function() {
+		var self = this;
+		if (!this.map || !this.isReady() || !this.shortWay() || !this.cookiesEnabled()) return;
+		if (this._savingPostion) {
+			this._requireSavePosition = true;
+			return;
+		}
+		this._savingPostion = true;
+		this._requireSavePosition = false;
+		var c = this.map.getCenter();
+		$.cookie("mapPosition",c.lat() + "," + c.lng() + "," + this.zoom() + "," + this.map.getMapTypeId());
+		setTimeout(function() {
+			self._savingPostion = false;
+			if (self._requireSavePosition)
+				self.savePosition();
+		},1000);
+	}
+
+	GoogleMap.prototype.restorePosition = function() {
+		if (!this.map || !this.isReady() || !this.cookiesEnabled()) return false;
+		var a = ($.cookie("mapPosition")||"").split(/,/);
+		if (!a || a.length!=4) return false;
+		this.map.setMapTypeId(a[3]);
+		this.map.setCenter(new gmaps.LatLng(a[0],a[1]));
+		this.map.setZoom(Math.floor(a[2]));
+		return true;
+	}
+
 	GoogleMap.prototype.calculateAndSetDefaultPosition = function() {
 		if (!this.map || !this.shortWay()) return;
+		if ($.cookie("mapPosition") && this.restorePosition()) return;
 		if (this.raceType() == "opendistance") {
 			this.map.setCenter(new gmaps.LatLng(this.shortWay()[0].lat,this.shortWay()[0].lng));
 			this.map.setZoom(config.canvas.openDistanceDefaultZoom);
@@ -417,6 +447,7 @@ define([
 		gmaps.event.addListener(this.map,"bounds_changed",function() {
 			self.relayoutOverlays();
 			self.updateAll();
+			self.savePosition();
 		});
 
 		// перегенерация иконок нужна чтобы в зависимости от зума рисовать или нет подписи
@@ -438,6 +469,7 @@ define([
 			var mapType = self.map.mapTypes.get(self.map.getMapTypeId());
 			if (mapType.maxZoomIncreased && self.zoom() > mapType.originalMaxZoom) 
 				self.map.setZoom(mapType.originalMaxZoom);
+			self.savePosition();
 		});
 
 		// отключить слежение за пилотом при перетаскивании карты

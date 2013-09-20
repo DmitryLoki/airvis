@@ -30,7 +30,10 @@ define({
 	    // зум, на котором был расчет
 	    // при обработке ответа сервера если координаты отличаются меньше чем на coordsPrecision, то вообще их выбрасываем из ответа
 	    // затем при отрисовке - на зуме Z точность считается: coordsPrecision * Math.pow(2,coordsPrecision-Z)
-	    coordsPrecisionZoom: 19
+	    coordsPrecisionZoom: 19,
+	    // в куках сохраняется положение карты и другие параметры. в режиме превью, где на странице можно переключать гонки, должно быть выключено
+	    // на странице с одной гонкой лучше включить
+	    cookiesEnabled: false
 	},
 	// Настройки GoogleMapCanvas
 	canvas: {
@@ -199,6 +202,7 @@ define({
 	// Настройки модели TrackerPageDebug/ufo
 	ufo: {
 		color: "#000000",
+		checked: false,
 		visible: true,
 		trackVisible: false,
 		trackStrokeOpacity: 1,
