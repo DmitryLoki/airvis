@@ -44,6 +44,10 @@ define({
 				fillStyle: "#1a1a1a",
 				lineWidth: 1
 			},
+			tracks: {
+				strokeStyle: "#000000",
+				lineWidth: 1
+			},
 			stick: {
 				fillStyle: "#333333",
 				strokeStyle: "#1a1a1a",
@@ -328,7 +332,8 @@ define({
             strokeWeight: 4
         }
     },
-
+    // берем квадрат расстояния от пред. точки до текущей у трека. если он меньше чем pxTrackPrecision, точку не рисуем (допускаем смещение до 5px)
+    pxTrackPrecision: 25,
 
 	// Говно какое-то
 
