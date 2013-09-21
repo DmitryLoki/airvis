@@ -559,8 +559,8 @@ define([
 				timeMultiplier: self.playerSpeed(),
 				dtStart: self.startKey(),
 				isOnline: self.isOnline(),
-//				mode: self.isCurrentlyOnline() ? "simple" : "linear",
-				mode: self.isCurrentlyOnline() ? "simple" : "simple",
+				mode: self.isCurrentlyOnline() ? "simple" : "linear",
+//				mode: self.isCurrentlyOnline() ? "simple" : "simple",
 				callback: function(data,query) {
 					if (query.dt != self.currentDataSourceGetKey) return;
 					// в data ожидается массив с ключами - id-шниками пилотов и данными - {lat и lng} - текущее положение

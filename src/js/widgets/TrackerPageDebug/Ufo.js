@@ -12,7 +12,6 @@ define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,
 		this.stateChangedAt = ko.observable(null);
 		this.position = ko.observable({lat:null,lng:null,dt:null});
 		this.track = ko.observable({lat:null,lng:null,dt:null});
-		this.trackData = ko.observableArray([]);
 		this.alt = ko.observable(null);
 		this.dist = ko.observable(null);
 		this.gSpd = ko.observable(null);
@@ -20,6 +19,14 @@ define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,
 		this.trackVisible = ko.observable(config.ufo.trackVisible);
 		this.noData = ko.observable(true);
 		this.noPosition = ko.observable(true);
+
+		this.trackData = {
+			data: [],
+			endI: 0,
+			startDt: 0,
+			lastPrintedPoint: 0,
+			isFullTrack: false
+		}
 
 		// Значение по умолчанию - non-checked, поэтому в куках храним checkedUfos
 		var isChecked = mainWidget.cookiesEnabled() ? ($.cookie("checkedUfos")||"").split(/,/).indexOf(this.id())!==-1 : config.ufo.checked;
@@ -47,19 +54,15 @@ define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,
 		this.colored = ko.computed(function() {
 			return self.checked() || self.leading();
 		});
-
-		this.fullTrackIsAvailable = ko.observable(false);
-		this.fullTrackMaxDt = ko.observable(0);
 	}
 
 	Ufo.prototype.pushFullTrack = function(data) {
-		this.trackData(data);
-		this.fullTrackMaxDt(data[data.length-1].dt);
-		this.fullTrackIsAvailable(true);
+		this.trackData.data = data;
+		this.trackData.isFullTrack = true;
 	}
 
 	Ufo.prototype.destroyFullTrack = function() {
-		this.fullTrackIsAvailable(false);
+		this.trackData.isFullTrack = false;
 	}
 
 	return Ufo;

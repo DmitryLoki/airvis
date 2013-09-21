@@ -81,9 +81,6 @@ define({
 				lineWidth: 3,
 				fillStyle: "#000000"
 			},
-			checkedTitles: {
-				lineWidth: 5
-			},
 			altTitles: {
 //				font: "10px verdana",
 				font: "10px arial",
