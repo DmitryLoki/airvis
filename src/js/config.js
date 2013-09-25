@@ -202,7 +202,7 @@ define({
 		color: "#000000",
 		checked: false,
 		visible: true,
-		trackVisible: false,
+		fullTrackEnabled: false,
 		trackStrokeOpacity: 1,
 		trackStrokeWeight: 1,
 		flat: true
@@ -219,7 +219,8 @@ define({
 			menuTitle: "Leaderboard",
 //			width: 363,
 //			wideWidth: 483,
-			width: 429,
+//			width: 429,
+			width: 406,
 			wideWidth: 549,
 			top: 180,
 			left: 90,

@@ -48,14 +48,18 @@ define(["google.maps"],function(gmaps) {
 		return { x: ((uniPx.x - this._sqTlCorner.x) * scale) >> 0, y: ((uniPx.y - this._sqTlCorner.y) * scale) >> 0 };
 	}
 
-	BasicOverlay.prototype.ll2xy = function(lat,lng,zoom) {
-		return this.abs2rel(this.ll2p(lat,lng),zoom);
+	BasicOverlay.prototype.ll2xy = function(coords,zoom) {
+		return this.abs2rel(this.ll2p(coords.lat,coords.lng),zoom);
 	}
 
 	BasicOverlay.prototype.inViewport = function(center,radius) {
 		if (center.x + radius < 0 || center.x - radius > this._width) return false;
 		if (center.y + radius < 0 || center.y - radius > this._height) return false;
 		return true;
+	}
+
+	BasicOverlay.prototype.llInViewport = function(coords) {
+		return this.between(coords.lat,this._tlCorner.lat(),this._brCorner.lat()) && this.between(coords.lng,this._tlCorner.lng(),this._brCorner.lng());
 	}
 
 	BasicOverlay.prototype.getCenter = function() {
@@ -68,6 +72,10 @@ define(["google.maps"],function(gmaps) {
 
 	BasicOverlay.prototype.getWidth = function() {
 		return this._width;
+	}
+
+	BasicOverlay.prototype.between = function(value,p1,p2) {
+		return (p1 <= value && value <= p2) || (p2 <= value && value <= p1);
 	}
 
 	return BasicOverlay;

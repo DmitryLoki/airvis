@@ -6,9 +6,11 @@
 		this.contestId = options.contestId;
 		this.raceId = options.raceId;
 		this.isOnline = options.isOnline;
+		this.coordsPrecision = options.coordsPrecision;
 	}
 
 	RealServer.prototype.get = function(query) {
+		var self = this;
 		var mult = 1000;
 		var testPilotCut = 7; //260
 		var testPilotOn = false;
@@ -184,14 +186,34 @@
 				},
 				success: function(result,textStatus,request) {
 					var data = [];
+					var p = null;
+
+					// Убрать когда с сервера начнут приходить данные в правильном порядке
+					var keys = [];
+					for (var dt in result.timeline)
+						if (result.timeline.hasOwnProperty(dt))
+							keys.push(dt);
+					keys.sort();
+
+					for (var i=0, l=keys.length; i<l; i++) {
+						var dt = keys[i];
+						var rws = result.timeline[dt];
+						if (!rws[query.id]) continue;
+						var p2 = {lat:rws[query.id].lat,lng:rws[query.id].lon,dt:dt*1000};
+						if (p && (Math.abs(p.lat-p2.lat)+Math.abs(p.lng-p2.lng)<self.coordsPrecision())) continue;
+						data.push(p2);
+						p = {lat:p2.lat,lng:p2.lng};
+					}
+
+/*
 					$.each(result.timeline,function(dt,rws) {
 						if (!rws[query.id]) return;
-						data.push({
-							lat: rws[query.id].lat,
-							lng: rws[query.id].lon,
-							dt: dt
-						});
+						var p2 = {lat:rws[query.id].lat,lng:rws[query.id].lon,dt:dt*1000};
+						if (p && (Math.abs(p.lat-p2.lat)+Math.abs(p.lng-p2.lng)<self.coordsPrecision())) return;
+						data.push(p2);
+						p = p2;
 					});
+*/
 					if (query.callback)
 						query.callback(data);
 				}

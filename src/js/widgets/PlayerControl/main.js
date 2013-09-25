@@ -24,6 +24,7 @@ define(["knockout","widget!Slider","widget!RadioGroup","widget!Select","config"]
 		this.setLiveMode = options.setLiveMode;
 		this.debug = options.debug;
 		this.disableLiveButton = options.disableLiveButton;
+		this.fps = options.fps;
 
 		this.dragKey = ko.observable(0);
 		this.dragging = ko.observable(false);

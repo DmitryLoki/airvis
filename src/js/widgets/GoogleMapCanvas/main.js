@@ -365,6 +365,7 @@ define([
 		this["_updating"+s] = true;
 		this["_updateRequired"+s] = false;
 		clearTimeout(this["_updatingTimeout"+s]);
+		console.log("call map update",type,force);
 		if (type == "static") this._updateStaticCanvas();
 		else this._updateDynamicCanvas();
 		this["_updatingTimeout"+s] = setTimeout(function() {

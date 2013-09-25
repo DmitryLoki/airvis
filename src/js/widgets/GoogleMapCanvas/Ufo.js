@@ -13,7 +13,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		u.visible = data.visible;
 		u.checked = data.checked;
 		u.highlighted = data.highlighted;
-		u.trackVisible = data.trackVisible;
+		u.fullTrackEnabled = data.fullTrackEnabled;
 		u.noData = data.noData;
 		u.noPosition = data.noPosition;
 		u.alt = data.alt;
@@ -74,6 +74,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 
 		// этот метод вызывается когда нужно удалить трек
 		u.destroyTrack = function() {
+			if (u.fullTrackEnabled()) return;
 			u.trackData.data = [];
 			u.trackData.startDt = 0;
 			u.trackData.endI = 0;
@@ -81,14 +82,14 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		}
 
 		u.trackSubscribe = u.track.subscribe(function(v) {
-			if (!mapWidget.isReady() || mapWidget.tracksVisualMode() == "off" || !v.lat || !v.lng) return;
-			// подготавливаем координаты и добавляем новую точку в trackData
-			var coords = mapWidget.prepareCoords(v.lat,v.lng);
-			v.x = coords.x;
-			v.y = coords.y;
+			if (!mapWidget.isReady() || !v.lat || !v.lng) return;
+			if (!u.fullTrackEnabled() && mapWidget.tracksVisualMode() == "off") return;
+			// добавляем точку в трек только если у нее dt >= чем последнее в trackData (fullTrack+online!)
+			var lastDt = u.trackData.data.length>0 ? u.trackData.data[u.trackData.data.length-1].dt : 0;
+			if (v.dt <= lastDt) return;
 			u.trackData.data.push(v);
 			// если 10 минут ограничение трека, убираем из начала трека старые точки
-			if (mapWidget.tracksVisualMode() == "5min") {
+			if (mapWidget.tracksVisualMode() == "5min" && !u.fullTrackEnabled()) {
 				while (u.trackData.data[0] && (mapWidget.currentKey() > u.trackData.data[0].dt + 300000))
 					u.trackData.data.splice(0,1);
 			}
@@ -249,45 +250,39 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			ctx.fill();
 	    }
 
+	    u.hide = function() {
+			u._overlay.hide();
+			if (mapWidget._popup && mapWidget._popup._ufo == u) mapWidget._popup.hide();
+	    }
+
 		u.render = function(canvas,type) {
 			var context = canvas.getContext();
 
-			if (!mapWidget.isReady() || u.noData() || u.noPosition() || !u.visible()) {
-				u._overlay.hide();
-				if (mapWidget._popup && mapWidget._popup._ufo == u) mapWidget._popup.hide();
-				return;
-			}
-			if (!u.iconNameCanvas || u.updateIconNameRequired) {
-				u._prepareNameIcon();
-				u.updateIconNameRequired = false;
-			}
-			if (!u.iconCanvas || u.updateIconRequired) {
-				u._prepareIcon();
-				u.updateIconRequired = false;
-			}
-			if (!u.preparedCoords || u.prepareCoordsRequired) {
-				u._prepareCoords(canvas);
-				u.prepareCoordsRequired = false;
-			}
-
-			var p = canvas.abs2rel(u.preparedCoords,mapWidget.zoom());
+			// Если видимость отключена, ничего не рисуем
+			if (!mapWidget.isReady() || !u.visible()) return u.hide();
 
 			// Треки рисуем независимо от того, находится ли сам маркер в области видимости или нет
-			if (type == "staticTrackUpdate" && u.trackData.endI+1<u.trackData.data.length) {
-				var cntDrawed = 0, cntTotal = 0, cntLines = 0;
+			// При этом в статичных кусках трека данные уже подготовлены, не важно, какие координаты имеет сейчас пилот
+			// Пилот вообще может не иметь координат (если включен fullTrack - трек рисуется, пилот - не обязательно)
+			// Однако если full-track выключен, и нет данных (т.е. нет иконки пилота), все-таки и трек рисовать не нужно
+			if (!u.fullTrackEnabled() && (u.noData() || u.noPosition())) return u.hide();
 
+			if (type == "staticTrackUpdate" && u.trackData.endI+1<u.trackData.data.length && (mapWidget.tracksVisualMode() != "off" || u.fullTrackEnabled())) {
+				var cntDrawed = 0, cntTotal = 0, cntLines = 0;
 				canvas.setProperties(u.colored() ? $.extend({},config.canvas.ufos.tracks,{strokeStyle:u.color()}) : config.canvas.ufos.tracks);
 				context.beginPath();
-				var p = u.trackData.lastPrintedPoint ? u.trackData.lastPrintedPoint : canvas.abs2rel(u.trackData.data[u.trackData.endI],mapWidget.zoom());
+//				var p = u.trackData.lastPrintedPoint ? u.trackData.lastPrintedPoint : canvas.abs2rel(u.trackData.data[u.trackData.endI],mapWidget.zoom());
+				var p = u.trackData.lastPrintedPoint ? u.trackData.lastPrintedPoint : canvas.ll2xy(u.trackData.data[u.trackData.endI],mapWidget.zoom());
 				var startNewLine = false;
 				context.moveTo(p.x,p.y);
 				cntTotal++;
 				for (var i = u.trackData.endI+1, l = u.trackData.data.length; i < l; i++) {
 					cntTotal++;
-					var p2 = canvas.abs2rel(u.trackData.data[i],mapWidget.zoom());
+//					var p2 = canvas.abs2rel(u.trackData.data[i],mapWidget.zoom());
+					var p2 = canvas.ll2xy(u.trackData.data[i],mapWidget.zoom());
 					if (!canvas.inViewport(p2,0)) {
-						var prevInViewport = i>0 ? canvas.inViewport(canvas.abs2rel(u.trackData.data[i-1],mapWidget.zoom()),0) : true;
-						var nextInViewport = i+1<l ? canvas.inViewport(canvas.abs2rel(u.trackData.data[i+1],mapWidget.zoom()),0) : true;
+						var prevInViewport = i>0 ? canvas.llInViewport(u.trackData.data[i-1]) : true;
+						var nextInViewport = i+1<l ? canvas.llInViewport(u.trackData.data[i+1]) : true;
 						if (!prevInViewport && !nextInViewport) {
 							startNewLine = true;
 							continue;
@@ -309,7 +304,19 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 				u.trackData.lastPrintedPoint = p;
 //				console.log("trackUpdate cntTotal",cntTotal,"cntDrawed",cntDrawed,"cntLines",cntLines);
 			}
-			else if (type == "trackEnd" && u.trackData.lastPrintedPoint && p) {
+
+			// Если нет данных на текущий момент, дальше не рисуем
+			if (u.noData() || u.noPosition()) return u.hide();
+
+			// Подготавливаем координаты если требуется (иконки пока не нужны)
+			if (!u.preparedCoords || u.prepareCoordsRequired) {
+				u._prepareCoords(canvas);
+				u.prepareCoordsRequired = false;
+			}
+			var p = canvas.abs2rel(u.preparedCoords,mapWidget.zoom());
+
+			// Кусочек трека до текущего положения пилота рисуем в любом случае, даже если пилот улетел за экран (только в случае fullTrack его рисовать не нужно)
+			if (type == "trackEnd" && u.trackData.lastPrintedPoint && p && !u.fullTrackEnabled() && mapWidget.tracksVisualMode() != "off") {
 				canvas.setProperties(u.colored() ? $.extend({},config.canvas.ufos.tracks,{strokeStyle:u.color()}) : config.canvas.ufos.tracks);
 				context.beginPath();
 				context.moveTo(u.trackData.lastPrintedPoint.x,u.trackData.lastPrintedPoint.y);
@@ -317,11 +324,18 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 				context.stroke();
 			}
 
-			// все остальное отрисовываем только если оно находится в области видимости			
-			if (!canvas.inViewport(p,u.iconSize)) {
-				u._overlay.hide();
-				if (mapWidget._popup && mapWidget._popup._ufo == u) mapWidget._popup.hide();
-				return;
+			// Все остальное отрисовываем только если оно находится в области видимости			
+			if (!canvas.llInViewport(u.position())) return u.hide();
+//			if (!canvas.inViewport(p,u.iconSize)) return u.hide();
+
+			// Готовим иконки
+			if (!u.iconNameCanvas || u.updateIconNameRequired) {
+				u._prepareNameIcon();
+				u.updateIconNameRequired = false;
+			}
+			if (!u.iconCanvas || u.updateIconRequired) {
+				u._prepareIcon();
+				u.updateIconRequired = false;
 			}
 			
 			u._height = 0;
@@ -339,7 +353,6 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 					u.highlightedLevel(h>0?h:0);
 				}
 			}
-
 			// TODO: укоротить копипастный код
 			if (type == "highlight" && u.highlightedLevel() > 0) {
 				var h = u.highlightedLevel();

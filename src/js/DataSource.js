@@ -6,6 +6,7 @@ define(["jquery"],function($) {
 		this.options = options;
 		this.cache = {};
 		this.cacheCallbacks = {};
+		this.cacheFullTracks = {};
 		this.get = function(query) {
 			// TODO: добавить обработку error на случай если нет options.server или в query что-то не то
 			// Для типа timeline DataSource должен выдать координаты всех пилотов на момент времени options.dt.
@@ -351,6 +352,18 @@ define(["jquery"],function($) {
 					}
 
 				query.callback(out);
+			}
+			else if (query.type == "ufoFullTrack") {
+				if (this.cacheFullTracks[query.id]) {
+					query.callback(this.cacheFullTracks[query.id]);
+					return;
+				}
+				this.options.server.get($.extend({},query,{
+					callback: function(data) {
+						self.cacheFullTracks[query.id] = data;
+						query.callback(data);
+					}
+				}));
 			}
 			// В остальных случаях будем просто запрашивать данные у сервера без кеширования
 			else {
