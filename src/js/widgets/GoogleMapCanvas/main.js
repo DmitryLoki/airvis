@@ -102,7 +102,7 @@ define([
 			self.startUfoTracking();
 		});
 
-		this.tracksVisualMode.subscribe(function(){self.update();});
+		this.tracksVisualMode.subscribe(function(){self.destroyTracks();self.updateAndRedraw();});
 		this.cylindersVisualMode.subscribe(function(){self.update("static");});
 		this.heightsVisualMode.subscribe(function(){self.update();});
 		this.modelsVisualMode.subscribe(function(){self.updateIcons();self.update();});
@@ -237,6 +237,16 @@ define([
 		var overlayZ = 1;
 
 		// Треки будем рисовать на собственном канвасе
+		if (this.tracksVisualMode() == "off" && this.updateStaticTracksRequired) {
+			this.tracksOverlay.clear();
+			this.mapUfos.forEach(function(ufo) {
+				if (ufo.fullTrackEnabled()) {
+					ufo.resetTrack();
+					ufo.render(self.tracksOverlay,"staticTrackUpdate");
+				}
+			});
+			this.updateStaticTracksRequired = false;
+		}
 		if (this.tracksVisualMode() != "off") {
 			// Проверяем, нужно ли перерисовывать канвас из-за того, что удалились начала треков в режиме 5min
 			if (!this.updateStaticTracksRequired) {
@@ -249,7 +259,6 @@ define([
 				}
 			}
 			if (this.updateStaticTracksRequired) {
-				console.log("updateStaticTracksRequired");
 				this.tracksOverlay.clear();
 			}
 			this.mapUfos.forEach(function(ufo) {
