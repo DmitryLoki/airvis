@@ -199,7 +199,7 @@ body {
 .airvis-ptable .airvis-ptable-name-wrapper {
   overflow: hidden;
   white-space: nowrap;
-  width: 181px;
+  width: 101px;
 }
 .airvis-ptable td.airvis-ptable-name .countryicon-sprite { 
   margin-left: 10px;
@@ -244,10 +244,11 @@ body {
   background-color: rgba(83,43,0,.75); 
   cursor: pointer; 
 }
-.airvis-ptable-checkbox { width: 28px; }
-.airvis-ptable-number { width: 29px; }
-.airvis-ptable-name { width: 181px; padding-left: 10px;}
+.airvis-ptable-checkbox { width: 20px; }
+.airvis-ptable-number { width: 25px; }
+.airvis-ptable-name { width: 101px; padding-left: 10px;}
 .airvis-ptable-country { width: 69px;}
+.airvis-country-flag {width:40px; border-left:none !important;}
 .airvis-ptable-dist-to-goal { width: 59px; }
 .airvis-ptable-alt { width: 39px; }
 .airvis-ptable-gspd { width: 49px; }

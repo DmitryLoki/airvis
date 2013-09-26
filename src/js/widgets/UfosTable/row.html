@@ -13,9 +13,11 @@
 				<a class="airvis-ptable-track" href="#" data-bind="css:{'airvis-ptable-tracked':$parent.trackedUfoId()==id()},click:switchTracking,clickBubble:false"></a>
 			</span>
 			<span class="airvis-pilot-name" data-bind="text:name() + ' (' + id() + ')'"></span>
-			<a href="#" class="countryicon-sprite iconset-shiny" data-bind="css:'countrycode-'+country().toLowerCase(),visible:$parent.windowMode()=='short',click:searchCountry,clickBubble:false"></a>
 		</div>
 	</td>
+    <td class="airvis-country-flag" data-bind="visible:$parent.windowMode()=='short'">
+        <a href="#" class="countryicon-sprite iconset-shiny" data-bind="css:'countrycode-'+country().toLowerCase(),click:searchCountry,clickBubble:false"></a>
+    </td>
 	<td class="airvis-ptable-country" data-bind="visible:$parent.windowMode()=='full'">
 		<a href="#" data-bind="click:searchCountry,clickBubble:false">
 			<span class="countryicon-sprite iconset-shiny" data-bind="css:'countrycode-'+country().toLowerCase()"></span>

@@ -213,7 +213,7 @@ define({
 			menuTitle: "Leaderboard",
 //			width: 363,
 //			wideWidth: 483,
-			width: 429,
+			width: 370,
 			wideWidth: 549,
 			top: 180,
 			left: 90,
