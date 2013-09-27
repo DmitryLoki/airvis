@@ -201,7 +201,7 @@ define({
 	ufo: {
 		color: "#000000",
 		checked: false,
-		visible: true,
+		invisible: false,
 		fullTrackEnabled: false,
 		trackStrokeOpacity: 1,
 		trackStrokeWeight: 1,
