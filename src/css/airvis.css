@@ -259,7 +259,7 @@ body {
   text-decoration: none;
 }
 
-.airvis-ptable-checkbox .checkbox { top: 2px; position: relative;}
+.airvis-ptable-checkbox .checkbox { top: 3px; position: relative;}
 .airvis-ptable .airvis-pilot-name { padding-top: 3px; display: inline-block;}
 .airvis-ptable .airvis-ptable-country { text-align: left; padding-left: 15px; }
 .airvis-ptable-check {
@@ -363,20 +363,34 @@ body {
   float: left;
   height: 24px;
   margin: 5px 5px 5px 9px;
-  width: 300px;
+  width: 304px;
 }
-.airvis-pform-clearSearch {
+.airvis-pform-searchIcon {
   background: transparent url("../img/controls_pic.png") 50% 0 no-repeat;
   display: block;
   float: left;
   height: 24px;  
   width: 24px;
+  cursor: default;
+  outline: none;  
+}
+.airvis-pform-clearSearch {
+  background: transparent url("../img/controls_pic.png") 20px 0 no-repeat;
+  display: block;
+  float: left;
+  height: 24px;  
+  width: 24px;
+  cursor: default;
+  outline: none;
+  border-right: 1px solid #09242d;
 }
 .airvis-pform-clearSearchActive {
   background-position: 50% -192px;
+  cursor: pointer;
 }
 .airvis-pform-clearSearchActive:hover {
   background-position: 50% -216px;
+  cursor: pointer;
 }
 .airvis-pform-showCountries {
   background: transparent url("../img/controls_pic.png") 50% -48px no-repeat;
@@ -432,9 +446,8 @@ body {
   float: left;
   font: normal 14px/18px Arial;
   padding: 3px 10px 3px;
-  width: 196px;
-  text-align: right;
-  border-right: 1px solid #09242d;
+/*  width: 196px;*/
+  width: 176px;
   letter-spacing: 0.14px;
   margin: 0;
   height: 18px;

@@ -9,8 +9,9 @@ define(["google.maps"],function(gmaps) {
 	BasicOverlay.prototype.clear = function() { }
 	BasicOverlay.prototype.onAdd = function() { }
 	BasicOverlay.prototype.onRemove = function() { }
+	BasicOverlay.prototype.draw = function() { }
 
-	BasicOverlay.prototype.relayout = function(debug) {
+	BasicOverlay.prototype.relayout = function() {
 		if (!this._mapDiv || !this._map) return;
 		if (this._width != this._mapDiv.offsetWidth || this._height != this._mapDiv.offsetHeight) {
 			this._width = this._mapDiv.offsetWidth;
@@ -18,29 +19,47 @@ define(["google.maps"],function(gmaps) {
 			this.setContainerSize(this._width,this._height);
 		}
 		this._bounds = this._map.getBounds();
-		this._corner = new gmaps.LatLng(this._bounds.getNorthEast().lat(), this._bounds.getSouthWest().lng());
-		this._mapCorner = this._map.getProjection().fromLatLngToPoint(this._corner);
+
+		var ne = this._bounds.getNorthEast();
+		var sw = this._bounds.getSouthWest();
+
+		this._tlCorner = new gmaps.LatLng(ne.lat(),sw.lng());
+		this._brCorner = new gmaps.LatLng(sw.lat(),ne.lng());
+
+		this._sqTlCorner = this._map.getProjection().fromLatLngToPoint(this._tlCorner);
+		this._sqBrCorner = this._map.getProjection().fromLatLngToPoint(this._brCorner);
 
 		var proj = this.getProjection();
 		if (proj) {
-			this._pxCorner = proj.fromLatLngToDivPixel(this._corner);
-			this.setContainerOffset(this._pxCorner.x,this._pxCorner.y);
+			this._pxTlCorner = proj.fromLatLngToDivPixel(this._tlCorner);
+			this.setContainerOffset(this._pxTlCorner.x,this._pxTlCorner.y);
 		}
 	}
 
-	BasicOverlay.prototype.draw = function() {
-//		this.relayout("BasicOverlay draw");
+	BasicOverlay.prototype.ll2p = function(lat,lng) {
+		return {
+			x: this._sqTlCorner.x+(lng-this._tlCorner.lng())/(this._brCorner.lng()-this._tlCorner.lng())*(this._sqBrCorner.x-this._sqTlCorner.x),
+			y: this._sqTlCorner.y+(lat-this._tlCorner.lat())/(this._brCorner.lat()-this._tlCorner.lat())*(this._sqBrCorner.y-this._sqTlCorner.y)
+		}
 	}
 
 	BasicOverlay.prototype.abs2rel = function(uniPx,zoom) {
 		var scale = 1 << zoom;
-		return { x: ((uniPx.x - this._mapCorner.x) * scale) >> 0, y: ((uniPx.y - this._mapCorner.y) * scale) >> 0 };
+		return { x: ((uniPx.x - this._sqTlCorner.x) * scale) >> 0, y: ((uniPx.y - this._sqTlCorner.y) * scale) >> 0 };
+	}
+
+	BasicOverlay.prototype.ll2xy = function(coords,zoom) {
+		return this.abs2rel(this.ll2p(coords.lat,coords.lng),zoom);
 	}
 
 	BasicOverlay.prototype.inViewport = function(center,radius) {
 		if (center.x + radius < 0 || center.x - radius > this._width) return false;
 		if (center.y + radius < 0 || center.y - radius > this._height) return false;
 		return true;
+	}
+
+	BasicOverlay.prototype.llInViewport = function(coords) {
+		return this.between(coords.lat,this._tlCorner.lat(),this._brCorner.lat()) && this.between(coords.lng,this._tlCorner.lng(),this._brCorner.lng());
 	}
 
 	BasicOverlay.prototype.getCenter = function() {
@@ -53,6 +72,10 @@ define(["google.maps"],function(gmaps) {
 
 	BasicOverlay.prototype.getWidth = function() {
 		return this._width;
+	}
+
+	BasicOverlay.prototype.between = function(value,p1,p2) {
+		return (p1 <= value && value <= p2) || (p2 <= value && value <= p1);
 	}
 
 	return BasicOverlay;

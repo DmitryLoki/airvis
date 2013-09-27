@@ -10,6 +10,26 @@ define(["jquery","es5-shim","ie-fix"], function($) {
 		return context[func].apply(this,args);
 	}
 
+	var cancelRequestAnimFrame = (function() {
+	    return window.cancelAnimationFrame ||
+	        window.webkitCancelRequestAnimationFrame ||
+	        window.mozCancelRequestAnimationFrame ||
+	        window.oCancelRequestAnimationFrame ||
+	        window.msCancelRequestAnimationFrame ||
+	        clearTimeout
+	})();
+
+	var requestAnimFrame = (function() {
+	    return window.requestAnimationFrame || 
+        window.webkitRequestAnimationFrame || 
+        window.mozRequestAnimationFrame || 
+        window.oRequestAnimationFrame || 
+        window.msRequestAnimationFrame || 
+        function(/* function */ callback, /* DOMElement */ element) {
+            return window.setTimeout(callback,1000/60);
+        };
+	})();
+
 	return {
 		isWidget: function(obj) {
 			return !!obj._widgetName;
@@ -45,6 +65,8 @@ define(["jquery","es5-shim","ie-fix"], function($) {
 		error: function(message) {
 			alert(message);
 			console.log("ERROR",message);
-		}
+		},
+		requestAnimFrame: requestAnimFrame.bind(window),
+		cancelRequestAnimFrame: cancelRequestAnimFrame.bind(window)
 	}
 });

@@ -2,7 +2,6 @@ define([
 	"walk",
 	"jquery",
 	"knockout",
-	"utils",
 	"EventEmitter",
 	"WindowManager",
 	"widget!GoogleMap",
@@ -31,7 +30,6 @@ define([
 	walk,
 	$,
 	ko,
-	utils,
 	EventEmitter,
 	WindowManager,
 	GoogleMap,
@@ -555,20 +553,6 @@ define([
 		}
 	}
 
-	TrackerPageDebug.prototype.calculateFPS = function() {
-		var dt = Math.floor((new Date).getTime()/1000);
-		if (!this._fps) this._fps = 1;
-		if (!this._fpsDt || this._fpsDt+1<dt) this._fpsDt = dt;
-		if (this._fpsDt === dt) {
-			this._fps++;
-		}
-		else {
-			this.fps(this._fps);
-			this._fps = 1;
-			this._fpsDt = dt;
-		}
-	}
-
 	TrackerPageDebug.prototype.playerInit = function() {
 		var self = this;
 
@@ -641,7 +625,6 @@ define([
 				if (_runTimeout) clearTimeout(_runTimeout);
 				_runTimeout = null;
 			}
-			self.calculateFPS();
 			renderFrame(function() {
 				if (self.playerState() == "play") {
 					_runTimeout = setTimeout(function() {
@@ -658,10 +641,9 @@ define([
 					},50);
 				}
 				else {
-					_inRunCycle = false;
 					_currentKeyUpdatedAt = null;
 					_currentKey = null;
-					_runTimeout = null;
+					_inRunCycle = false;
 				}
 			});
 		}

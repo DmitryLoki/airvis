@@ -9,8 +9,9 @@
 	</div>
 	<div class="airvis-form-row">
 		<div class="airvis-pform">
-			<a class="airvis-pform-clearSearch" href="#" data-bind="click:clearSearch,css:{'airvis-pform-clearSearchActive':_q().length>0}"></a>
+			<i class="airvis-pform-searchIcon"></i>
 			<input type="text" data-bind="value:_q,valueUpdate:'afterkeydown'" placeholder="Example: Maurer">
+			<a class="airvis-pform-clearSearch" href="#" data-bind="click:clearSearch,css:{'airvis-pform-clearSearchActive':_q().length>0}"></a>
 			<a class="airvis-pform-showCountries" href="#" data-bind="click:switchCountriesMode,css:{'airvis-pform-showCountries-active':mode()=='countries'}"></a>
 			<a class="airvis-pform-showTop" href="#" data-bind="click:switchLeadingMode,css:{'airvis-pform-showTop-active':mode()=='leading'||mode()=='checkLeading'}"></a>
 		</div>

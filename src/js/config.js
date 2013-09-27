@@ -8,7 +8,7 @@ define({
 		mode: "full",
 		titleUrl: "",
 		debug: false,
-		tracksVisualMode: "5min",
+		tracksVisualMode: "full",
 		cylindersVisualMode: "full",
 		heightsVisualMode: "level+",
 		modelsVisualMode: "small",
@@ -30,18 +30,26 @@ define({
 	    // зум, на котором был расчет
 	    // при обработке ответа сервера если координаты отличаются меньше чем на coordsPrecision, то вообще их выбрасываем из ответа
 	    // затем при отрисовке - на зуме Z точность считается: coordsPrecision * Math.pow(2,coordsPrecision-Z)
-	    coordsPrecisionZoom: 19
+	    coordsPrecisionZoom: 19,
+	    // в куках сохраняется положение карты и другие параметры. в режиме превью, где на странице можно переключать гонки, должно быть выключено
+	    // на странице с одной гонкой лучше включить
+	    cookiesEnabled: false
 	},
 	// Настройки GoogleMapCanvas
 	canvas: {
 		ufos: {
 			basic: {
 //				font: "11px verdana",
-				font: "11px arial",
+//				font: "11px arial",
+				font: "11px verdana",
 				textAlign: "left",
 				textBaseline: "top",
 				strokeStyle: "#000000",
 				fillStyle: "#1a1a1a",
+				lineWidth: 1
+			},
+			tracks: {
+				strokeStyle: "#000000",
 				lineWidth: 1
 			},
 			stick: {
@@ -72,9 +80,6 @@ define({
 				strokeStyle: "#ffffff",
 				lineWidth: 3,
 				fillStyle: "#000000"
-			},
-			checkedTitles: {
-				lineWidth: 5
 			},
 			altTitles: {
 //				font: "10px verdana",
@@ -195,8 +200,9 @@ define({
 	// Настройки модели TrackerPageDebug/ufo
 	ufo: {
 		color: "#000000",
+		checked: false,
 		visible: true,
-		trackVisible: false,
+		fullTrackEnabled: false,
 		trackStrokeOpacity: 1,
 		trackStrokeWeight: 1,
 		flat: true
@@ -328,7 +334,9 @@ define({
             strokeWeight: 4
         }
     },
-
+    // берем квадрат расстояния от пред. точки до текущей у трека. если он меньше чем pxTrackPrecision, точку не рисуем (допускаем смещение до 5px)
+//    pxTrackPrecision: 25,
+    pxTrackPrecision: 400,
 
 	// Говно какое-то
 

@@ -33,7 +33,6 @@ define(["jquery","google.maps","EventEmitter","./BasicOverlay"],function($,gmaps
 		this._container.style.position = "absolute";
 		if (this._z > 0)
 			this._container.style.zIndex = this._z;
-//		this._container.style.pointerEvents = "none";
 		this.getPanes().floatPane.appendChild(this._container);
 		this.relayout("onAdd DivOverlay");
 		if (typeof this._onAddCallback === "function")

@@ -18,7 +18,7 @@ define(["jquery","knockout","CountryCodes","config","widget!Checkbox"],function(
 		u.alt = data.alt;
 		u.vSpd = data.vSpd;
 		u.highlighted = data.highlighted;
-		u.trackVisible = data.trackVisible;
+		u.fullTrackEnabled = data.fullTrackEnabled;
 		u.noData = data.noData;
 		u.noPosition = data.noPosition;
 		u.position = data.position;
@@ -49,7 +49,7 @@ define(["jquery","knockout","CountryCodes","config","widget!Checkbox"],function(
 			return u.colored() ? u.color() : config.canvas.ufos.visibleCheckboxColor;
 		});
 		u.visibleCheckbox = new Checkbox({checked:u.visible,color:u.visibleCheckboxColor});
-		u.trackVisibleCheckbox = new Checkbox({checked:u.trackVisible,color:u.visibleCheckboxColor});
+		u.fullTrackEnabledCheckbox = new Checkbox({checked:u.fullTrackEnabled,color:u.visibleCheckboxColor});
 
 		var getTimeStr = function(h,m,s) {
 			return (h<10?"0":"") + h + ":" + (m<10?"0":"") + m + ":" + (s<10?"0":"") + s;
@@ -85,6 +85,7 @@ define(["jquery","knockout","CountryCodes","config","widget!Checkbox"],function(
 			tableWidget.q(u.country3());
 		}
 
+		/*
 		u.visibilityControl = ko.computed(function() {
 			if (u.checked() && tableWidget.allCheckedVisible() == 1) u.visible(true);
 			else if (u.checked() && tableWidget.allCheckedVisible() == 0) u.visible(false);
@@ -102,6 +103,27 @@ define(["jquery","knockout","CountryCodes","config","widget!Checkbox"],function(
 			}
 			return 0;
 		});
+		*/
+
+		var checkedAndLeadingSubscribe = function() {
+			if (u.checked() && tableWidget.allCheckedVisible() == 1) u.visible(true);
+			else if (u.checked() && tableWidget.allCheckedVisible() == 0) u.visible(false);
+			else if (!u.checked()) {
+				if (tableWidget.mode() == "leading") {
+					if (u.leading() && tableWidget.allUncheckedVisible() == 1) u.visible(true);
+					else if (u.leading() && tableWidget.allUncheckedVisible() == 0) u.visible(false);
+					else if (!u.leading() && tableWidget.allNonLeadingVisible() == 1) u.visible(true);
+					else if (!u.leading() && tableWidget.allNonLeadingVisible() == 0) u.visible(false);
+				}
+				else {
+					if (tableWidget.allUncheckedVisible() == 1) u.visible(true);
+					else if (tableWidget.allUncheckedVisible() == 0) u.visible(false);
+				}
+			}
+		}
+		u.checked.subscribe(checkedAndLeadingSubscribe);
+		u.leading.subscribe(checkedAndLeadingSubscribe);
+
 		return u;
 	}
 

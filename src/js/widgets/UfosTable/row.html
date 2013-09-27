@@ -2,8 +2,8 @@
 	<td class="airvis-ptable-checkbox">
         <!-- ko widget: { data: rw.visibleCheckbox, type: 'Checkbox'} --><!-- /ko -->
 	</td>
-	<td class="airvis-ptable-checkbox">
-        <!-- ko widget: { data: rw.trackVisibleCheckbox, type: 'Checkbox'} --><!-- /ko -->
+	<td class="airvis-ptable-checkbox" data-bind="visible:$parent.windowMode()=='full'">
+        <!-- ko widget: { data: rw.fullTrackEnabledCheckbox, type: 'Checkbox'} --><!-- /ko -->
 	</td>
 	<td class="airvis-ptable-number" data-bind="text:rw.i"></td>
 	<td class="airvis-ptable-name">

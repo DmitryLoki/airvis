@@ -46,6 +46,7 @@ define([
 		this.trackedUfoId = options.trackedUfoId;
 		this.optdistance = options.optdistance;
 		this.isDistanceMeasurerEnabled = options.isDistanceMeasurerEnabled;
+		this.cookiesEnabled = options.cookiesEnabled;
 
 		this.isReady = ko.observable(false);
 
@@ -101,7 +102,7 @@ define([
 			self.startUfoTracking();
 		});
 
-		this.tracksVisualMode.subscribe(function(){self.update();});
+		this.tracksVisualMode.subscribe(function(){self.destroyTracks();self.updateAndRedraw();});
 		this.cylindersVisualMode.subscribe(function(){self.update("static");});
 		this.heightsVisualMode.subscribe(function(){self.update();});
 		this.modelsVisualMode.subscribe(function(){self.updateIcons();self.update();});
@@ -174,8 +175,37 @@ define([
 		return this._popup && this._popup._ufo == ufo;
 	}
 
+	GoogleMap.prototype.savePosition = function() {
+		var self = this;
+		if (!this.map || !this.isReady() || !this.shortWay() || !this.cookiesEnabled()) return;
+		if (this._savingPostion) {
+			this._requireSavePosition = true;
+			return;
+		}
+		this._savingPostion = true;
+		this._requireSavePosition = false;
+		var c = this.map.getCenter();
+		$.cookie("mapPosition",c.lat() + "," + c.lng() + "," + this.zoom() + "," + this.map.getMapTypeId());
+		setTimeout(function() {
+			self._savingPostion = false;
+			if (self._requireSavePosition)
+				self.savePosition();
+		},1000);
+	}
+
+	GoogleMap.prototype.restorePosition = function() {
+		if (!this.map || !this.isReady() || !this.cookiesEnabled()) return false;
+		var a = ($.cookie("mapPosition")||"").split(/,/);
+		if (!a || a.length!=4) return false;
+		this.map.setMapTypeId(a[3]);
+		this.map.setCenter(new gmaps.LatLng(a[0],a[1]));
+		this.map.setZoom(Math.floor(a[2]));
+		return true;
+	}
+
 	GoogleMap.prototype.calculateAndSetDefaultPosition = function() {
 		if (!this.map || !this.shortWay()) return;
+		if ($.cookie("mapPosition") && this.restorePosition()) return;
 		if (this.raceType() == "opendistance") {
 			this.map.setCenter(new gmaps.LatLng(this.shortWay()[0].lat,this.shortWay()[0].lng));
 			this.map.setZoom(config.canvas.openDistanceDefaultZoom);
@@ -202,15 +232,50 @@ define([
 			this.map.setZoom(this.map.getZoom()+1);
 	}
 
-	GoogleMap.prototype._updateDynamicCanvas = function(canvas) {
-		// В самом низу рисуются треки
-		// Оптимизируем: проставляем все свойства сначала, рендерим в один проход
-		var context = canvas.getContext();
+	GoogleMap.prototype._updateDynamicCanvas = function() {
+		var self = this;
+		var overlayZ = 1;
 
-		if (this.tracksVisualMode() != "off") {
+		// Треки будем рисовать на собственном канвасе
+		if (this.tracksVisualMode() == "off" && this.updateStaticTracksRequired) {
+			this.tracksOverlay.clear();
 			this.mapUfos.forEach(function(ufo) {
-				ufo.render(canvas,context,"track");
-			},this);
+				if (ufo.fullTrackEnabled()) {
+					ufo.resetTrack();
+					ufo.render(self.tracksOverlay,"staticTrackUpdate");
+				}
+			});
+			this.updateStaticTracksRequired = false;
+		}
+		if (this.tracksVisualMode() != "off") {
+			// Проверяем, нужно ли перерисовывать канвас из-за того, что удалились начала треков в режиме 5min
+			if (!this.updateStaticTracksRequired) {
+				if (this.tracksVisualMode() == "5min") {
+					this.mapUfos.forEach(function(ufo) {
+						if (ufo.trackStartChanged()) {
+							self.updateStaticTracksRequired = true;
+						}
+					});
+				}
+			}
+			if (this.updateStaticTracksRequired) {
+				this.tracksOverlay.clear();
+			}
+			this.mapUfos.forEach(function(ufo) {
+				if (self.updateStaticTracksRequired)
+					ufo.resetTrack();
+				ufo.render(self.tracksOverlay,"staticTrackUpdate");
+			});
+			this.updateStaticTracksRequired = false;
+		}
+
+		this.canvasOverlay.clear();
+
+		// Рисуем кусочек трека от последней статичной точки до параплана
+		if (this.tracksVisualMode() !== "off") {
+			this.mapUfos.forEach(function(ufo) {
+				ufo.render(self.canvasOverlay,"trackEnd");
+			});
 		}
 		// Затем - ножки не подсвеченных и не выбранных пилотов
 		var highlightedUfos = [];
@@ -221,51 +286,51 @@ define([
 			else if (ufo.checked())
 				checkedUfos.push(ufo);
 			else
-				ufo.render(canvas,context,"elev");
-		},this);
-
-		var overlayZ = 1;
-
+				ufo.render(self.canvasOverlay,"elev");
+		});
 		// Затем иконки не подсвеченных и не выбранных пилотов, и вместе с иконками двигаем overlay
 		this.mapUfos.forEach(function(ufo) {
 			if (!ufo.highlighted() && !ufo.checked()) {
-				ufo.render(canvas,context,"icon");
+				ufo.render(self.canvasOverlay,"icon");
 				ufo._overlayZ = overlayZ++;
-				ufo.render(canvas,context,"overlay");
+				ufo.render(self.canvasOverlay,"overlay");
 			}
-		},this);
+		});
 		if (checkedUfos.length > 0) {
 			// Затем ножки выбранных пилотов
 			checkedUfos.forEach(function(ufo) {
-				ufo.render(canvas,context,"elev");
+				ufo.render(self.canvasOverlay,"elev");
 			});
 			// Затем иконки выбранных пилотов, и вместе с иконками двигаем overlay
 			checkedUfos.forEach(function(ufo) {
-				ufo.render(canvas,context,"icon");
+				ufo.render(self.canvasOverlay,"icon");
 				ufo._overlayZ = overlayZ++;
-				ufo.render(canvas,context,"overlay");
+				ufo.render(self.canvasOverlay,"overlay");
 			});
 		}
 		if (highlightedUfos.length > 0) {
 			// Затем подсветки подсвеченных пилотов
 			highlightedUfos.forEach(function(ufo) {
-				ufo.render(canvas,context,"highlight");
+				ufo.render(self.canvasOverlay,"highlight");
 			});
 			// Затем ножки подсвеченных пилотов
 			highlightedUfos.forEach(function(ufo) {
-				ufo.render(canvas,context,"elev");
+				ufo.render(self.canvasOverlay,"elev");
 			});
 			// Затем иконки подсвеченных пилотов
 			highlightedUfos.forEach(function(ufo) {
-				ufo.render(canvas,context,"icon");
+				ufo.render(self.canvasOverlay,"icon");
 				ufo._overlayZ = overlayZ++;
-				ufo.render(canvas,context,"overlay");
+				ufo.render(self.canvasOverlay,"overlay");
 			});
 		}
 	}
 
-	GoogleMap.prototype._updateStaticCanvas = function(canvas) {
+	GoogleMap.prototype._updateStaticCanvas = function() {
 		var drawOrder = {}, drawOrderKeys = [];
+
+		this.staticCanvasOverlay.clear();
+
 		this.mapWaypoints.forEach(function(waypoint,i) {
 			var order = config.canvas.waypoints.drawOrder[waypoint.type()] || 0;
 			if (!drawOrder[order]) {
@@ -279,16 +344,16 @@ define([
 			var order = drawOrderKeys[i];
 			if (drawOrder.hasOwnProperty(order) && drawOrder[order].length > 0)
 				for (var j = 0; j < drawOrder[order].length; j++)
-					this.mapWaypoints[drawOrder[order][j]].render(canvas,"waypoint");
+					this.mapWaypoints[drawOrder[order][j]].render(this.staticCanvasOverlay,"waypoint");
 		}
 		if (this.mapShortWay) {
-			this.mapShortWay.render(canvas,"line");
-			this.mapShortWay.render(canvas,"arrows");
-			this.mapShortWay.render(canvas,"bearing");
-			this.mapShortWay.render(canvas,"labels");
+			this.mapShortWay.render(this.staticCanvasOverlay,"line");
+			this.mapShortWay.render(this.staticCanvasOverlay,"arrows");
+			this.mapShortWay.render(this.staticCanvasOverlay,"bearing");
+			this.mapShortWay.render(this.staticCanvasOverlay,"labels");
 		}
 		this.mapWaypoints.forEach(function(waypoint) {
-			waypoint.render(canvas,"label");
+			waypoint.render(this.staticCanvasOverlay,"label");
 		},this);
 	}
 
@@ -298,40 +363,52 @@ define([
 		},this);
 	}
 
+
 	GoogleMap.prototype.update = function(type,force) {
 		var self = this;
-		var canvas = type=="static" ? this.staticCanvasOverlay : this.canvasOverlay;
-		if (!canvas) return;
-
-		if (!force && canvas._updating) {
-			canvas._updateRequired = true;
+		var s = type ? type + "Canvas" : "usualCanvas";
+		if (this["_updating"+s] && !force) {
+			this["_updateRequired"+s] = true;
 			return;
 		}
-		canvas._updating = true;
-		canvas._updateRequired = false;
-		clearTimeout(canvas._updatingTimeout);
-		canvas.clear();
-		if (type=="static") this._updateStaticCanvas(canvas);
-		else this._updateDynamicCanvas(canvas);
-		canvas._updatingTimeout = setTimeout(function() {
-			canvas._updating = false;
-			if (canvas._updateRequired)
+		this["_updating"+s] = true;
+		this["_updateRequired"+s] = false;
+		clearTimeout(this["_updatingTimeout"+s]);
+		console.log("call map update",type,force);
+		if (type == "static") this._updateStaticCanvas();
+		else this._updateDynamicCanvas();
+		this["_updatingTimeout"+s] = setTimeout(function() {
+			self["_updating"+s] = false;
+			if (self["_updateRequired"])
 				self.update(type);
 		},100);
 	}
 
+	GoogleMap.prototype.updateAndRedraw = function(type,force) {
+		this.updateStaticTracksRequired = true;
+		this.update(type,force);
+	}
+
+	GoogleMap.prototype.destroyTracks = function() {
+		this.mapUfos.forEach(function(ufo) {
+			ufo.destroyTrack();
+		});
+		this.updateStaticTracksRequired = true;
+	}
+
 	GoogleMap.prototype.updateAll = function() {
         this.update("static",true);
-        this.update("dynamic",true);
+        this.updateAndRedraw("dynamic",true);
         this.updatePopup();
 	}
 
 	GoogleMap.prototype.relayoutOverlays = function(debug) {
 		if (!this.isReady()) return;
-        this.staticCanvasOverlay.relayout("staticCanvasOverlay");
-        this.canvasOverlay.relayout("canvasOverlay");
-        this.mouseOverlay.relayout("mouseOverlay");
-        this.popupOverlay.relayout("popupOverlay");
+        this.staticCanvasOverlay.relayout();
+        this.canvasOverlay.relayout();
+        this.tracksOverlay.relayout();
+        this.mouseOverlay.relayout();
+        this.popupOverlay.relayout();
 	}
 
 /*
@@ -396,10 +473,11 @@ define([
 		});
 
 	   	var w = walk();
-		w.step(function(step){self.staticCanvasOverlay = new CanvasOverlay({map:self.map,onAdd:function(){step.next();}});});
-		w.step(function(step){self.canvasOverlay = new CanvasOverlay({map:self.map,onAdd:function(){step.next();}});});
-		w.step(function(step){self.mouseOverlay = new DivOverlay({map:self.map,z:2,onAdd:function(){step.next();}});});
-		w.step(function(step){self.popupOverlay = new DivOverlay({map:self.map,z:3,onAdd:function(){step.next();}});});
+		w.step(function(step){self.staticCanvasOverlay = new CanvasOverlay({map:self.map,z:1,onAdd:function(){step.next();}});});
+		w.step(function(step){self.tracksOverlay = new CanvasOverlay({map:self.map,z:2,onAdd:function(){step.next();}});});
+		w.step(function(step){self.canvasOverlay = new CanvasOverlay({map:self.map,z:3,onAdd:function(){step.next();}});});
+		w.step(function(step){self.mouseOverlay = new DivOverlay({map:self.map,z:4,onAdd:function(){step.next();}});});
+		w.step(function(step){self.popupOverlay = new DivOverlay({map:self.map,z:5,onAdd:function(){step.next();}});});
 		w.step(function(step) {
 	        gmaps.event.addListenerOnce(self.map,"idle",function() {
 	        	step.next();
@@ -417,6 +495,7 @@ define([
 		gmaps.event.addListener(this.map,"bounds_changed",function() {
 			self.relayoutOverlays();
 			self.updateAll();
+			self.savePosition();
 		});
 
 		// перегенерация иконок нужна чтобы в зависимости от зума рисовать или нет подписи
@@ -438,6 +517,7 @@ define([
 			var mapType = self.map.mapTypes.get(self.map.getMapTypeId());
 			if (mapType.maxZoomIncreased && self.zoom() > mapType.originalMaxZoom) 
 				self.map.setZoom(mapType.originalMaxZoom);
+			self.savePosition();
 		});
 
 		// отключить слежение за пилотом при перетаскивании карты
