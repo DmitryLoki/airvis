@@ -363,7 +363,7 @@ body {
   float: left;
   height: 24px;
   margin: 5px 5px 5px 9px;
-  width: 304px;
+  width: 270px;
 }
 .airvis-pform-searchIcon {
   background: transparent url("../img/controls_pic.png") 50% 0 no-repeat;
@@ -447,7 +447,7 @@ body {
   font: normal 14px/18px Arial;
   padding: 3px 10px 3px;
 /*  width: 196px;*/
-  width: 176px;
+  width: 142px;
   letter-spacing: 0.14px;
   margin: 0;
   height: 18px;
