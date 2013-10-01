@@ -1,42 +1,13 @@
 define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) {
  	var Ufo = function(data,mapWidget) {
-		var u = this;
-
-		u.i = data.i;
-		u.id = data.id;
-		u.name = data.name;
-		u.color = data.color;
-		u.state = data.state;
-		u.stateChangedAt = data.stateChangedAt;
-		u.position = data.position;
-		u.track = data.track;
-		u.visible = data.visible;
-		u.checked = data.checked;
-		u.highlighted = data.highlighted;
-		u.fullTrackEnabled = data.fullTrackEnabled;
-		u.noData = data.noData;
-		u.noPosition = data.noPosition;
-		u.alt = data.alt;
-		u.country = data.country;
-		u.country3 = data.country3;
-		u.switchCheck = data.switchCheck;
-		u.dist = data.dist;
-		u.gspd = data.gspd;
-		u.speed = data.speed;
-		u.vSpd = data.vSpd;
-		u.distFrom = data.distFrom;
-		u.colored = data.colored;
-		u.finishedTime = data.finishedTime;
-		u.trackData = data.trackData;
+ 		var u = this;
+ 		for (var i in data)
+			u[i] = data[i];
 
 		u.highlightedLevel = ko.observable(0);
 		u.preparedCoords = null;
 		u.prepareCoordsRequired = true;
 
-//		u.trackData = [];
-//		u.trackI = 0;
-//		u.trackStartDt = 0;
-//		u.trackEndPrintedP = null;
 
 		u.distFrom = ko.computed(function() {
 			return u.dist() > 0 ? Math.floor((mapWidget.optdistance() - u.dist())*10)/10 : Math.floor(mapWidget.optdistance()*10)/10;
@@ -61,39 +32,9 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		});
 
 		// проверка того, что начало трека удалилось из-за 5min треков
-		u.trackStartChanged = function() {
-			return u.trackData.data.length>0 && u.trackData.startDt>0 && u.trackData.startDt<u.trackData.data[0].dt;
-		}
-
-		// этот метод вызывается чтобы перерисовать трек на канвасе
-		u.resetTrack = function() {
-			u.trackData.startDt = 0;
-			u.trackData.endI = 0;
-			u.trackData.lastPrintedPoint = null;
-		}
-
-		// этот метод вызывается когда нужно удалить трек
-		u.destroyTrack = function() {
-			if (u.fullTrackEnabled()) return;
-			u.trackData.data = [];
-			u.trackData.startDt = 0;
-			u.trackData.endI = 0;
-			u.trackData.lastPrintedPoint = null;
-		}
-
-		u.trackSubscribe = u.track.subscribe(function(v) {
-			if (!mapWidget.isReady() || !v.lat || !v.lng) return;
-			if (!u.fullTrackEnabled() && mapWidget.tracksVisualMode() == "off") return;
-			// добавляем точку в трек только если у нее dt >= чем последнее в trackData (fullTrack+online!)
-			var lastDt = u.trackData.data.length>0 ? u.trackData.data[u.trackData.data.length-1].dt : 0;
-			if (v.dt <= lastDt) return;
-			u.trackData.data.push(v);
-			// если 10 минут ограничение трека, убираем из начала трека старые точки
-			if (mapWidget.tracksVisualMode() == "5min" && !u.fullTrackEnabled()) {
-				while (u.trackData.data[0] && (mapWidget.currentKey() > u.trackData.data[0].dt + 300000))
-					u.trackData.data.splice(0,1);
-			}
-		});
+//		u.trackStartChanged = function() {
+//			return u.trackData.data.length>0 && u.trackData.startDt>0 && u.trackData.startDt<u.trackData.data[0].dt;
+//		}
 
 		u.visibleSubscribe = u.visible.subscribe(function() {
 			mapWidget.updateAndRedraw();
@@ -420,7 +361,6 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		}
 
 		u.destroy = function() {
-			u.trackSubscribe.dispose();
 			u.visibleSubscribe.dispose();
 			u.coloredSubscribe.dispose();
 			u.stateSubscribe.dispose();

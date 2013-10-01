@@ -8,7 +8,7 @@ define({
 		mode: "full",
 		titleUrl: "",
 		debug: false,
-		tracksVisualMode: "full",
+		tracksVisualMode: "5min",
 		cylindersVisualMode: "full",
 		heightsVisualMode: "level+",
 		modelsVisualMode: "small",

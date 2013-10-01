@@ -11,7 +11,6 @@ define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,
 		this.state = ko.observable(null);
 		this.stateChangedAt = ko.observable(null);
 		this.position = ko.observable({lat:null,lng:null,dt:null});
-		this.track = ko.observable({lat:null,lng:null,dt:null});
 		this.alt = ko.observable(null);
 		this.dist = ko.observable(null);
 		this.gSpd = ko.observable(null);
@@ -70,16 +69,55 @@ define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,
 
 	Ufo.prototype.pushFullTrack = function(data) {
 		this.trackData.data = data;
-		this.trackData.endI = 0;
 		this.trackData.startDt = 0;
+		this.trackData.endI = 0;
 		this.trackData.lastPrintedPoint = null;
 	}
 
 	Ufo.prototype.destroyFullTrack = function() {
 		this.trackData.data = [];
-		this.trackData.endI = 0;
 		this.trackData.startDt = 0;
+		this.trackData.endI = 0;
 		this.trackData.lastPrintedPoint = null;
+	}
+
+	// Добавляет точку в трек, если только последняя точка трека не совпадает с добавляемой (проверка по dt), не работает для fullTrackEnabled
+	Ufo.prototype.appendTrack = function(dot) {
+		if (this.fullTrackEnabled()) return;
+		var  l = this.trackData.data.length;
+		if (l > 0) {
+			var lastDot = this.trackData.data[l-1];
+			if (lastDot && lastDot.dt == dot.dt) return;
+		}
+		this.trackData.data.push(dot);
+	}
+
+	// этот метод удаляет трек, если только пилот не в состоянии fullTrack
+	Ufo.prototype.destroyTrack = function() {
+		if (this.fullTrackEnabled()) return;
+		this.trackData.data = [];
+		this.trackData.startDt = 0;
+		this.trackData.endI = 0;
+		this.trackData.lastPrintedPoint = null;
+	}
+
+	// этот метод вызывается перед перерисовкой трека на канвасе
+	Ufo.prototype.resetTrack = function() {
+		this.trackData.startDt = 0;
+		this.trackData.endI = 0;
+		this.trackData.lastPrintedPoint = null;
+	}
+
+	// метод проверяет, что нужно удалить точки из начала трека, т.е. что в треке существуют точки с dt < чем нужное
+	Ufo.prototype.trackStartChanged = function(dt) {
+		return dt && this.trackData.data.length>0 && this.trackData.data[0].dt<dt;
+	}
+
+	// метод отрезает начало трека - удаляет точки, у которых dt < чем нужное
+	Ufo.prototype.cutTrackStart = function(dt) {
+		if (!dt || this.trackData.data.length==0) return;
+		while (this.trackData.data[0].dt<dt)
+			this.trackData.data.splice(0,1);
 	}
 
 	return Ufo;
