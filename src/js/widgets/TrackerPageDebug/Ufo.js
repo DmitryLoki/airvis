@@ -45,7 +45,7 @@ define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,
 		this.checked = ko.observable(isChecked);
 
 		// Значение по умолчанию - visible, поэтому в куках храним invisibleUfos
-		var isInvisible = mainWidget.cookiesEnabled() ? ($.cookie("invisibleUfos")||"").split(/,/).indexOf(this.id())!==-1 : config.ufo.visible;
+		var isInvisible = mainWidget.cookiesEnabled() ? ($.cookie("invisibleUfos")||"").split(/,/).indexOf(this.id())!==-1 : config.ufo.invisible;
 		this.visible = ko.observable(!isInvisible);
 
 		this.highlighted = ko.observable(false);

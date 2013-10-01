@@ -1,36 +1,38 @@
 <table class="airvis-ptable">
-	<thead>
-		<tr>
-			<th class="airvis-ptable-checkbox"><!-- ko widget: { data: checked?allCheckedVisibleCheckbox:allUncheckedVisibleCheckbox, type: 'Checkbox'} --><!-- /ko --></th>
-			<th class="airvis-ptable-checkbox" data-bind="visible:$parent.windowMode()=='full'">Full<br>track</th>
-			<th class="airvis-ptable-number">#</th>
-			<th class="airvis-ptable-name">
-				<!-- ko if: checked -->
-					<a class="airvis-ptable-check airvis-ptable-checked" href="#" data-bind="click:uncheckAll,clickBubble:false"></a>
-					Selected pilots
-				<!-- /ko -->
-				<!-- ko if: !checked && mode() == "leading" -->
-					Top <span data-bind="text:leadingCnt"></span> <span data-bind="text:order()=='altitude'?'altitude':'leading'"></span> pilots
-				<!-- /ko -->
-				<!-- ko if: !checked && mode() != "leading" -->
-					Pilots
-				<!-- /ko -->
-			</th>
-            <th class="airvis-country-flag" data-bind="visible:windowMode()=='short'"></th>
-			<th class="airvis-ptable-country" data-bind="visible:windowMode()=='full'">Country</th>
-			<th class="airvis-ptable-dist-to-goal">
-				<!-- ko if: raceType() == "opendistance" -->
-					Dist, km
-				<!-- /ko -->
-				<!-- ko if: raceType() != "opendistance" -->
-					Dist to<br>goal, km
-				<!-- /ko -->
-			</th>
-			<th class="airvis-ptable-alt">Alt,<br>m</th>
-			<th class="airvis-ptable-gspd">Speed,<br>km/h</th>
-			<th class="airvis-ptable-vspd" data-bind="visible:windowMode()=='full'">Vaio,<br>m/s</th>
-		</tr>
-	</thead>
+	<!-- ko ifnot: mode()=="checkLeading" && !checked -->
+		<thead>
+			<tr>
+				<th class="airvis-ptable-checkbox"><!-- ko widget: { data: checked?allCheckedVisibleCheckbox:allUncheckedVisibleCheckbox, type: 'Checkbox'} --><!-- /ko --></th>
+				<th class="airvis-ptable-checkbox" data-bind="visible:$parent.windowMode()=='full'">Full<br>track</th>
+				<th class="airvis-ptable-number">#</th>
+				<th class="airvis-ptable-name">
+					<!-- ko if: checked -->
+						<a class="airvis-ptable-check airvis-ptable-checked" href="#" data-bind="click:uncheckAll,clickBubble:false"></a>
+						Selected pilots
+					<!-- /ko -->
+					<!-- ko if: !checked && mode() == "leading" -->
+						Top <span data-bind="text:leadingCnt"></span> <span data-bind="text:order()=='altitude'?'altitude':'leading'"></span> pilots
+					<!-- /ko -->
+					<!-- ko if: !checked && mode() != "leading" -->
+						Pilots
+					<!-- /ko -->
+				</th>
+	            <th class="airvis-country-flag" data-bind="visible:windowMode()=='short'"></th>
+				<th class="airvis-ptable-country" data-bind="visible:windowMode()=='full'">Country</th>
+				<th class="airvis-ptable-dist-to-goal">
+					<!-- ko if: raceType() == "opendistance" -->
+						Dist, km
+					<!-- /ko -->
+					<!-- ko if: raceType() != "opendistance" -->
+						Dist to<br>goal, km
+					<!-- /ko -->
+				</th>
+				<th class="airvis-ptable-alt">Alt,<br>m</th>
+				<th class="airvis-ptable-gspd">Speed,<br>km/h</th>
+				<th class="airvis-ptable-vspd" data-bind="visible:windowMode()=='full'">Vaio,<br>m/s</th>
+			</tr>
+		</thead>
+	<!-- /ko -->
 </table>	
 <div class="airvis-scrollbar" data-bind="style:{height:(checked?checkedTableHeight():tableHeight())+'px'},attr:{id:checked?'airvis-scrollbar-checked':'airvis-scrollbar-unchecked'}">
 	<div class="scrollbar"><div class="track"><div class="thumb"><div class="end"></div></div></div></div>
@@ -104,6 +106,7 @@
 							<td class="airvis-ptable-checkbox" data-bind="visible:$parent.windowMode()=='full'">Full<br>track</td>
 							<td class="airvis-ptable-number">#</td>
 							<td class="airvis-ptable-name">Pilots</td>
+				            <td class="airvis-country-flag" data-bind="visible:windowMode()=='short'"></td>
 							<td class="airvis-ptable-country" data-bind="visible:windowMode()=='full'">Country</td>
 							<td class="airvis-ptable-dist-to-goal">
 				<!-- ko if: raceType() == "opendistance" -->

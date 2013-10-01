@@ -166,7 +166,7 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 		this.allNonLeadingVisibleCheckbox = new Checkbox({checked:this.allNonLeadingVisible,color:config.windows.ufosTable.allCheckboxColor,css:"checkbox-white",mode:"half"});
 
 		this.tableHeight = ko.observable(config.windows.ufosTable.tableHeight);
-		this.checkedTableHeight = ko.observable(config.windows.ufosTable.checkedTableHeight);
+		this.checkedTableHeight = ko.observable(0);
 		this.checkedTableTotalHeight = ko.computed(function() {
 			return self.checkedLength() * config.windows.ufosTable.tableRowHeight + config.windows.ufosTable.firstTableRowOffset;
 		});
@@ -180,6 +180,7 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 			else {
 				var newHeight = Math.min(h,config.windows.ufosTable.checkedTableHeight);
 				if (newHeight != self.checkedTableHeight()) {
+					console.log(self.tableHeight(),self.checkedTableHeight(),newHeight);
 					self.tableHeight(Math.max(self.tableHeight()+self.checkedTableHeight()-newHeight,config.windows.ufosTable.tableMinHeight));
 					self.checkedTableHeight(newHeight);
 				}
