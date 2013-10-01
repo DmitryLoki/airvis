@@ -637,16 +637,16 @@ define([
 			if (!_currentKeyUpdatedAt || force) {
 				_currentKeyUpdatedAt = (new Date).getTime();
 				_currentKey = self.currentKey();
-				if (_runTimeout) utils.cancelRequestAnimFrame(_runTimeout);
-//				if (_runTimeout) clearTimeout(_runTimeout);
+//				if (_runTimeout) utils.cancelRequestAnimFrame(_runTimeout);
+				if (_runTimeout) clearTimeout(_runTimeout);
 				_runTimeout = null;
 			}
 			self.calculateFPS();
 			renderFrame(function() {
 				if (self.playerState() == "play") {
 
-					_runTimeout = utils.requestAnimFrame(function() {
-//					_runTimeout = setTimeout(function() {
+//					_runTimeout = utils.requestAnimFrame(function() {
+					_runTimeout = setTimeout(function() {
 						var _lastUpdated = _currentKeyUpdatedAt;
 						_currentKeyUpdatedAt = (new Date).getTime();
 						_currentKey += (_currentKeyUpdatedAt-_lastUpdated)*self.playerSpeed();
