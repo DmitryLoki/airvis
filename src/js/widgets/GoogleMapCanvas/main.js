@@ -236,7 +236,7 @@ define([
 		var self = this;
 		var overlayZ = 1;
 
-		// Треки будем рисовать на собственном канвасе
+		// Треки будем рисовать на собственном канвасе. Полные треки рисуются даже если tracksVisualMode==off
 		if (this.tracksVisualMode() == "off" && this.updateStaticTracksRequired) {
 			this.tracksOverlay.clear();
 			this.mapUfos.forEach(function(ufo) {
@@ -247,12 +247,18 @@ define([
 			});
 			this.updateStaticTracksRequired = false;
 		}
+
+		// Дальше работаем с обычными треками. При этом полные треки для нас не отличаются от обычных за исключением того, что от них не отрезаем начало в режиме 5min
 		if (this.tracksVisualMode() != "off") {
-			// Проверяем, нужно ли перерисовывать канвас из-за того, что удалились начала треков в режиме 5min
-			if (!this.updateStaticTracksRequired) {
-				if (this.tracksVisualMode() == "5min") {
+			// в режиме 5min проверяем, не пора ли удалить начала треков. удаляем раз в 10сек.
+			if (!this.updateStaticTracksRequired && this.tracksVisualMode()=="5min") {
+				var d = (new Date).getTime();
+				if (!this.updateStaticTracksRequiredLast || d-this.updateStaticTracksRequiredLast>10000) {
+					console.log("checking 5min update static track");
+					this.updateStaticTracksRequiredLast = d;
 					this.mapUfos.forEach(function(ufo) {
-						if (ufo.trackStartChanged()) {
+						if (!ufo.fullTrackEnabled() && ufo.trackStartChanged(self.currentKey()-300000)) {
+							ufo.cutTrackStart(self.currentKey()-300000);
 							self.updateStaticTracksRequired = true;
 						}
 					});

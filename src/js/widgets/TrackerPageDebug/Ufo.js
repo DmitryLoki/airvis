@@ -81,8 +81,9 @@ define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,
 		this.trackData.lastPrintedPoint = null;
 	}
 
-	// Добавляет точку в трек, если только последняя точка трека не совпадает с добавляемой (проверка по dt)
+	// Добавляет точку в трек, если только последняя точка трека не совпадает с добавляемой (проверка по dt), не работает для fullTrackEnabled
 	Ufo.prototype.appendTrack = function(dot) {
+		if (this.fullTrackEnabled()) return;
 		var  l = this.trackData.data.length;
 		if (l > 0) {
 			var lastDot = this.trackData.data[l-1];

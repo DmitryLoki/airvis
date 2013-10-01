@@ -32,9 +32,9 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		});
 
 		// проверка того, что начало трека удалилось из-за 5min треков
-		u.trackStartChanged = function() {
-			return u.trackData.data.length>0 && u.trackData.startDt>0 && u.trackData.startDt<u.trackData.data[0].dt;
-		}
+//		u.trackStartChanged = function() {
+//			return u.trackData.data.length>0 && u.trackData.startDt>0 && u.trackData.startDt<u.trackData.data[0].dt;
+//		}
 
 		u.visibleSubscribe = u.visible.subscribe(function() {
 			mapWidget.updateAndRedraw();
