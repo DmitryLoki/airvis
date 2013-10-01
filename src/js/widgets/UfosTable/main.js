@@ -180,7 +180,6 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 			else {
 				var newHeight = Math.min(h,config.windows.ufosTable.checkedTableHeight);
 				if (newHeight != self.checkedTableHeight()) {
-					console.log(self.tableHeight(),self.checkedTableHeight(),newHeight);
 					self.tableHeight(Math.max(self.tableHeight()+self.checkedTableHeight()-newHeight,config.windows.ufosTable.tableMinHeight));
 					self.checkedTableHeight(newHeight);
 				}

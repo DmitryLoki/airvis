@@ -254,7 +254,6 @@ define([
 			if (!this.updateStaticTracksRequired && this.tracksVisualMode()=="5min") {
 				var d = (new Date).getTime();
 				if (!this.updateStaticTracksRequiredLast || d-this.updateStaticTracksRequiredLast>10000) {
-					console.log("checking 5min update static track");
 					this.updateStaticTracksRequiredLast = d;
 					this.mapUfos.forEach(function(ufo) {
 						if (!ufo.fullTrackEnabled() && ufo.trackStartChanged(self.currentKey()-300000)) {
