@@ -38,13 +38,11 @@ define([
 		this.profVisualMode = options.profVisualMode;
 		this.mode = options.mode;
 		this.currentKey = options.currentKey;
-		this.raceKey = options.raceKey;
 		this.zoom = ko.observable(config.map.zoom);
 		this.mapOptions = options.mapOptions;
 		this.raceType = options.raceType;
 		this.raceTypeOptions = options.raceTypeOptions;
 		this.trackedUfoId = options.trackedUfoId;
-		this.optdistance = options.optdistance;
 		this.isDistanceMeasurerEnabled = options.isDistanceMeasurerEnabled;
 		this.cookiesEnabled = options.cookiesEnabled;
 

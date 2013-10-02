@@ -4,9 +4,7 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 
 		this.$ = $;
 		this.ufos = options.ufos;
-		this.raceKey = options.raceKey;
 		this.raceType = options.raceType;
-		this.optdistance = options.optdistance;
 		this.trackedUfoId = options.trackedUfoId;
 		this.cookiesEnabled = options.cookiesEnabled;
 
@@ -282,16 +280,8 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 		var undef1 = !a || a.noData();
 		var undef2 = !b || b.noData();
 		if (undef1 || undef2) return undef1 && undef2 ? alphabetical : (undef1 ? 1 : -1);
-		var d1 = type=="altitude"?-a.alt():a.dist();
-		var d2 = type=="altitude"?-b.alt():b.dist();
-//		if (!(d1>0)) d1 = null;
-//		if (!(d2>0)) d2 = null;
-
-//		if ((a.id() == 74 || b.id() == 74) && type=="altitude") {
-//			console.log(a.id(),a.noData(),a.state(),a.stateChangedAt(),d1);
-//			console.log(b.id(),b.noData(),b.state(),b.stateChangedAt(),d2);
-//		}
-
+		var d1 = type=="altitude"?-a.tData.alt:a.tData.dist;
+		var d2 = type=="altitude"?-b.tData.alt:b.tData.dist;
 		var s1 = a.state ? a.state() : null;
 		var s2 = b.state ? b.state() : null;
 		var c1 = a.stateChangedAt ? a.stateChangedAt() : null;

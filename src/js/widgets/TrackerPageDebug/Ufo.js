@@ -11,10 +11,10 @@ define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,
 		this.state = ko.observable(null);
 		this.stateChangedAt = ko.observable(null);
 		this.position = ko.observable({lat:null,lng:null,dt:null});
-		this.alt = ko.observable(null);
-		this.dist = ko.observable(null);
-		this.gSpd = ko.observable(null);
-		this.vSpd = ko.observable(null);
+//		this.alt = ko.observable(null);
+//		this.dist = ko.observable(null);
+//		this.gSpd = ko.observable(null);
+//		this.vSpd = ko.observable(null);
 		this.fullTrackEnabled = ko.observable(config.ufo.fullTrackEnabled);
 		this.noData = ko.observable(true);
 		this.noPosition = ko.observable(true);
@@ -31,13 +31,26 @@ define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,
 			lng: null,
 			dt: null
 		}
+*/
 		this.tData = {
 			dist: null,
 			alt: null,
 			gSpd: null,
-			vSpd: null
+			vSpd: null,
+			speed: null,
+			distFrom: null,
+			finishedTime: null
 		}
-*/
+
+		this.tableData = {
+			dist: ko.observable(null),
+			alt: ko.observable(null),
+			gSpd: ko.observable(null),
+			vSpd: ko.observable(null),
+			speed: ko.observable(null),
+			distFrom: ko.observable(null),
+			finishedTime: ko.observable(null)
+		}
 
 		// Значение по умолчанию - non-checked, поэтому в куках храним checkedUfos
 		var isChecked = mainWidget.cookiesEnabled() ? ($.cookie("checkedUfos")||"").split(/,/).indexOf(this.id())!==-1 : config.ufo.checked;
@@ -53,10 +66,10 @@ define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,
 			// при перемещении пилотов из одной таблицы в другую не срабатывает событие mouseout (поскольку от checked до этого перестраивается дом)
 			self.highlighted(false);
 		}
-		this.speed = ko.computed(function() {
-			if (!(self.gSpd()>=0)) return "";
-			return Math.floor(self.gSpd()*36)/10;
-		});
+//		this.speed = ko.computed(function() {
+//			if (!(self.gSpd()>=0)) return "";
+//			return Math.floor(self.gSpd()*36)/10;
+//		});
 		this.country3 = ko.computed(function() {
 			return self.country() && countryCodes[self.country()] ? countryCodes[self.country()] : self.country();
 		});
@@ -65,6 +78,14 @@ define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,
 		this.colored = ko.computed(function() {
 			return self.checked() || self.leading();
 		});
+	}
+
+	Ufo.prototype.updateTableData = function() {
+		for (var i in this.tData) {
+			if (this.tData.hasOwnProperty(i) && this.tableData.hasOwnProperty(i)) {
+				this.tableData[i](this.tData[i]);
+			}
+		}
 	}
 
 	Ufo.prototype.pushFullTrack = function(data) {

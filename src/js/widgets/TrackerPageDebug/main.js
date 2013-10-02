@@ -194,12 +194,10 @@ define([
 				profVisualMode: this.profVisualMode,
 				mode: this.mode,
 				currentKey: this.currentKey,
-				raceKey: this.raceKey,
 				mapOptions: this.mapOptions,
 				raceType: this.raceType,
 				raceTypeOptions: this.raceTypeOptions,
 				trackedUfoId: this.trackedUfoId,
-				optdistance: this.optdistance,
 				isDistanceMeasurerEnabled: this.isDistanceMeasurerEnabled,
 				cookiesEnabled: this.cookiesEnabled
 			}
@@ -247,8 +245,6 @@ define([
 				// Строим виджет ufosTable
 				this.ufosTable = new UfosTable({
 					ufos: this.ufos,
-					raceKey: this.raceKey,
-					optdistance: this.optdistance,
 					raceType: this.raceType,
 					trackedUfoId: this.trackedUfoId,
 					cookiesEnabled: this.cookiesEnabled
@@ -590,10 +586,24 @@ define([
 					self.ufos().forEach(function(ufo) {
 						if (data && data[ufo.id()]) {
 							rw = data[ufo.id()];
-							ufo.alt(rw.alt);
-							ufo.dist(rw.dist);
-							ufo.gSpd(rw.gspd);
-							ufo.vSpd(rw.vspd);
+							ufo.tData.dist = rw.dist;
+							ufo.tData.alt = rw.alt;
+							ufo.tData.gSpd = rw.gspd;
+							ufo.tData.vSpd = rw.vspd;
+							ufo.tData.speed = rw.gspd>=0 ? (rw.gspd*3.6).toFixed(1) : "";
+							ufo.tData.distFrom = (rw.dist>=0?self.optdistance()-rw.dist:self.optdistance()).toFixed(1);
+
+							if (rw.state && rw.state!=ufo.state())
+								ufo.state(rw.state);
+							if (rw.stateChangedAt && rw.stateChangedAt!=ufo.stateChangedAt())
+								ufo.stateChangedAt(rw.stateChangedAt);
+
+							ufo.tData.finishedTime = ufo.state()=="finished" && ufo.stateChangedAt() ? utils.getTimeStr(ufo.stateChangedAt()-self.raceKey()/1000) : "";
+
+//							ufo.alt(rw.alt);
+//							ufo.dist(rw.dist);
+//							ufo.gSpd(rw.gspd);
+//							ufo.vSpd(rw.vspd);
 							ufo.noData(false);
 							if (rw.position.lat && rw.position.lng) {
 								ufo.noPosition(false);
@@ -609,11 +619,6 @@ define([
 							else {
 								ufo.noPosition(true);
 							}
-							if (rw.state && rw.state != ufo.state()) {
-								ufo.state(rw.state);
-							}
-							if (rw.stateChangedAt)
-								ufo.stateChangedAt(rw.stateChangedAt);
 						}
 						else
 							ufo.noData(true);
@@ -707,7 +712,6 @@ define([
 			this.playerControl.emit("change",this.serverKey());
 		}
 	}
-
 
 // TODO: Дописать и переделать ретрив
 /*

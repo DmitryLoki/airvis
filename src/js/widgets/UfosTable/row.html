@@ -30,11 +30,11 @@
 	<!-- ko ifnot: noData -->
 		<!-- ko if: state() == "landed" -->
 			<td class="airvis-ptable-status">Landed</td>
-			<td colspan="3" data-bind="text:distFrom()"></td>
+			<td colspan="3" data-bind="text:tableData.distFrom()"></td>
 		<!-- /ko -->
 		<!-- ko if: state() == "finished" -->
 			<td class="airvis-ptable-status">GOAL</td>
-			<td colspan="3" data-bind="text:finishedTime"></td>
+			<td colspan="3" data-bind="text:tableData.finishedTime()"></td>
 		<!-- /ko -->
 		<!-- ko if: (state() != "landed" && state() != "finished") -->
 			<td class="airvis-ptable-dist-to-goal" data-bind="text:tableData.dist()"></td>

@@ -4,23 +4,8 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
  		for (var i in data)
 			u[i] = data[i];
 
-//		u.highlightedLevel = ko.observable(0);
 		u.preparedCoords = null;
 		u.prepareCoordsRequired = true;
-
-
-		u.distFrom = ko.computed(function() {
-			return u.dist() > 0 ? Math.floor((mapWidget.optdistance() - u.dist())*10)/10 : Math.floor(mapWidget.optdistance()*10)/10;
-		});
-
-		var getTimeStr = function(h,m,s) {
-			return (h<10?"0":"") + h + ":" + (m<10?"0":"") + m + ":" + (s<10?"0":"") + s;
-		}
-		u.finishedTime = ko.computed(function() {
-			if (u.state()!=="finished" || !u.stateChangedAt()) return null;
-			var d = Math.abs(u.stateChangedAt() - Math.floor(mapWidget.raceKey()/1000));
-			return getTimeStr(Math.floor(d/3600),Math.floor(d%3600/60),d%60);
-		});
 
 		u._overlay = mapWidget.mouseOverlay.createOverlay();
 		u._overlay.on("over",function() {
@@ -30,11 +15,6 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		}).on("click",function() {
 			mapWidget.switchPopup(u);
 		});
-
-		// проверка того, что начало трека удалилось из-за 5min треков
-//		u.trackStartChanged = function() {
-//			return u.trackData.data.length>0 && u.trackData.startDt>0 && u.trackData.startDt<u.trackData.data[0].dt;
-//		}
 
 		u.visibleSubscribe = u.visible.subscribe(function() {
 			mapWidget.updateAndRedraw();
@@ -69,12 +49,6 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		u.positionSubscribe = u.position.subscribe(function(p) {
 			u.prepareCoordsRequired = true;
 			mapWidget.update();
-		});
-		u.altSubscribe = u.alt.subscribe(function() {
-			if (mapWidget.heightsVisualMode() == "level+") {
-				u.updateIconRequired = true;
-				mapWidget.update();
-			}
 		});
 
 		var setProperties = function(context,properties) {
@@ -154,7 +128,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 //					ic.fillText(u.name()+"("+u.id()+")",u.iconCenter.x+config.canvas.ufos.titleOffsetX,u.iconCenter.y+config.canvas.ufos.titleOffsetY);
 					// Подпись высоты
 					if (mapWidget.heightsVisualMode() == "level+") {
-						var t = u.alt() + "m";
+						var t = u.tData.alt + "m";
 						setProperties(ic,$.extend({},config.canvas.ufos.basic,config.canvas.ufos.altTitles));
 						ic.strokeText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY);
 						ic.fillText(t,u.iconCenter.x+config.canvas.ufos.altTitleOffsetX,u.iconCenter.y+config.canvas.ufos.altTitleOffsetY);
@@ -266,6 +240,12 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 //			if (!canvas.inViewport(p,u.iconSize)) return u.hide();
 
 			// Готовим иконки
+			// Смотрим, нужно ли перерисовывать иконку из-за изменения alt
+			if (mapWidget.heightsVisualMode() == "level+" && !u._prevAlt || u._prevAlt != u.tData.alt) {
+				u.updateIconRequired = true;
+				u._prevAlt = u.tData.alt;
+			}
+
 			if (!u.iconNameCanvas || u.updateIconNameRequired) {
 				u._prepareNameIcon();
 				u.updateIconNameRequired = false;
@@ -276,8 +256,8 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			}
 			
 			u._height = 0;
-			if ((u.state() != "landed") && (u.alt() > 0) && (mapWidget.heightsVisualMode() == "level" || mapWidget.heightsVisualMode() == "level+"))
-				u._height = Math.floor(u.alt()/100);
+			if ((u.state() != "landed") && (u.tData.alt > 0) && (mapWidget.heightsVisualMode() == "level" || mapWidget.heightsVisualMode() == "level+"))
+				u._height = Math.floor(u.tData.alt/100);
 
 			// Подсветка
 			// Затухание подсветки
@@ -354,7 +334,6 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			u.stateSubscribe.dispose();
 			u.nameSubscribe.dispose();
 			u.idSubscribe.dispose();
-			u.altSubscribe.dispose();
 			u.positionSubscribe.dispose();
 			if (u._mouseDiv)
 				mapWidget.mouseOverlay.removeChild(u._mouseDiv);			

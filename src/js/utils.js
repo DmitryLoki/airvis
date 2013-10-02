@@ -30,6 +30,15 @@ define(["jquery","es5-shim","ie-fix"], function($) {
         };
 	})();
 
+	var hms2str = function(h,m,s) {
+		return (h<10?"0":"") + h + ":" + (m<10?"0":"") + m + ":" + (s<10?"0":"") + s;		
+	}
+
+	var getTimeStr = function(d) {
+		d = Math.abs(d);
+		return hms2str(Math.floor(d/3600),Math.floor(d%3600/60),d%60);
+	}
+
 	return {
 		isWidget: function(obj) {
 			return !!obj._widgetName;
@@ -67,6 +76,8 @@ define(["jquery","es5-shim","ie-fix"], function($) {
 			console.log("ERROR",message);
 		},
 		requestAnimFrame: requestAnimFrame.bind(window),
-		cancelRequestAnimFrame: cancelRequestAnimFrame.bind(window)
+		cancelRequestAnimFrame: cancelRequestAnimFrame.bind(window),
+		hms2str: hms2str,
+		getTimeStr: getTimeStr
 	}
 });
