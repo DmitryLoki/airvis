@@ -427,7 +427,8 @@ define([
 		var centered = false;
 		this.mapUfos.forEach(function(ufo) {
 			if (ufo.id() == id) {
-				self.centerMap(ufo.position());
+//				self.centerMap(ufo.position());
+				self.centerMap(ufo.position);
 				centered = true;
 			}
 		});

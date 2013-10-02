@@ -604,21 +604,32 @@ define([
 //							ufo.dist(rw.dist);
 //							ufo.gSpd(rw.gspd);
 //							ufo.vSpd(rw.vspd);
-							ufo.noData(false);
+//							if (rw.position.lat && rw.position.lng) {
+//								ufo.noPosition(false);
+//								if (!ufo.position() || 
+//									!ufo.position().lat || 
+//									!ufo.position().lng ||
+//									Math.abs(rw.position.lat-ufo.position().lat) > 0.0000001 ||
+//									Math.abs(rw.position.lng-ufo.position().lng) > 0.0000001) {
+//									ufo.position({lat:rw.position.lat,lng:rw.position.lng,dt:rw.position.dt});
+//								}
+//								ufo.appendTrack(rw.track);
+//							}
+//							else {
+//								ufo.noPosition(true);
+//							}
 							if (rw.position.lat && rw.position.lng) {
-								ufo.noPosition(false);
-								if (!ufo.position() || 
-									!ufo.position().lat || 
-									!ufo.position().lng ||
-									Math.abs(rw.position.lat-ufo.position().lat) > 0.0000001 ||
-									Math.abs(rw.position.lng-ufo.position().lng) > 0.0000001) {
-									ufo.position({lat:rw.position.lat,lng:rw.position.lng,dt:rw.position.dt});
-								}
+								ufo.position.lat = rw.position.lat;
+								ufo.position.lng = rw.position.lng;
+								ufo.position.dt = rw.position.dt;
 								ufo.appendTrack(rw.track);
+								ufo.noPosition(false);
 							}
 							else {
 								ufo.noPosition(true);
 							}
+
+							ufo.noData(false);
 						}
 						else
 							ufo.noData(true);

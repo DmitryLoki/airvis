@@ -29,8 +29,12 @@ define(["jquery","knockout","CountryCodes","config","widget!Checkbox"],function(
 		}
 		u.centerMap = function() {
 			tableWidget.trackedUfoId(null);
-			if (u.position() && u.position().lat && u.position().lng) {
-				tableWidget.emit("centerMap",u.position());
+//			if (u.position() && u.position().lat && u.position().lng) {
+//				tableWidget.emit("centerMap",u.position());
+//				tableWidget.emit("zoominMap",config.canvas.trackingZoom);
+//			}
+			if (!u.noPosition()) {
+				tableWidget.emit("centerMap",u.position);
 				tableWidget.emit("zoominMap",config.canvas.trackingZoom);
 			}
 		}

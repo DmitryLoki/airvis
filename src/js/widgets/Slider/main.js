@@ -53,8 +53,6 @@ define(["jquery","knockout"], function($,ko) {
 		var l = this.container.offset().left;
 		if (!l || !(l>=0)) return;
 
-		console.log("w=",w,"l=",l);
-
 		var getEventCoords = function(e,eventType) {
 			if (eventType == "touch") {
 				if (e.originalEvent) e = e.originalEvent;

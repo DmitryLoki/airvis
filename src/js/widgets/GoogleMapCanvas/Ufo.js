@@ -46,10 +46,10 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			u.updateIconNameRequired = true;
 			mapWidget.update();
 		});
-		u.positionSubscribe = u.position.subscribe(function(p) {
-			u.prepareCoordsRequired = true;
-			mapWidget.update();
-		});
+//		u.positionSubscribe = u.position.subscribe(function(p) {
+//			u.prepareCoordsRequired = true;
+//			mapWidget.update();
+//		});
 
 		var setProperties = function(context,properties) {
 			if (!context) return;
@@ -137,13 +137,21 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			}
 		}
 
-		u._prepareCoords = function(canvas) {
-			if (u.noData() || !u.position()) {
-				u.preparedCoords = null;
-				return;
-			}
-			u.preparedCoords = canvas.ll2p(u.position().lat,u.position().lng);
+//		u._prepareCoords = function(canvas) {
+//			if (u.noData() || !u.position()) {
+//				u.preparedCoords = null;
+//				return;
+//			}
+//			u.preparedCoords = canvas.ll2p(u.position().lat,u.position().lng);
 //			u.preparedCoords = mapWidget.prepareCoords(u.position().lat,u.position().lng);
+//		}
+	
+		u._prepareCoords = function(overlay) {
+			if (!u._prevPositionDt || u._prevPositionDt!=u.position.dt || !u.preparedCoords || u.prepareCoordsRequired) {
+				u.preparedCoords = overlay.ll2p(u.position.lat,u.position.lng);
+				u.prepareCoordsRequired = false;
+				u._prevPositionDt = u.position.dt;
+			}
 		}
 
 		var _drawEllipse = function(ctx, x, y, w, h) {
@@ -220,10 +228,8 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			if (u.noData() || u.noPosition()) return u.hide();
 
 			// Подготавливаем координаты если требуется (иконки пока не нужны)
-			if (!u.preparedCoords || u.prepareCoordsRequired) {
-				u._prepareCoords(canvas);
-				u.prepareCoordsRequired = false;
-			}
+			u._prepareCoords(canvas);
+
 			var p = canvas.abs2rel(u.preparedCoords);
 
 			// Кусочек трека до текущего положения пилота рисуем в любом случае, даже если пилот улетел за экран (только в случае fullTrack его рисовать не нужно)
@@ -236,7 +242,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			}
 
 			// Все остальное отрисовываем только если оно находится в области видимости			
-			if (!canvas.llInViewport(u.position())) return u.hide();
+			if (!canvas.llInViewport(u.position)) return u.hide();
 //			if (!canvas.inViewport(p,u.iconSize)) return u.hide();
 
 			// Готовим иконки
@@ -320,10 +326,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		}
 
 		u.getPopupPosition = function(overlay) {
-			if (!u.preparedCoords || u.prepareCoordsRequired) {
-				u._prepareCoords(overlay);
-				u.prepareCoordsRequired = false;
-			}
+			u._prepareCoords(overlay);
 			var p = overlay.abs2rel(u.preparedCoords);
 			return {x:p.x+u.iconSize/2,y:p.y-u._height-u.iconSize};
 		}
@@ -334,7 +337,6 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			u.stateSubscribe.dispose();
 			u.nameSubscribe.dispose();
 			u.idSubscribe.dispose();
-			u.positionSubscribe.dispose();
 			if (u._mouseDiv)
 				mapWidget.mouseOverlay.removeChild(u._mouseDiv);			
 		}

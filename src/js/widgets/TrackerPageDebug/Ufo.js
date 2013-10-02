@@ -10,7 +10,7 @@ define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,
 		this.color = ko.observable(options.color || config.ufo.color);
 		this.state = ko.observable(null);
 		this.stateChangedAt = ko.observable(null);
-		this.position = ko.observable({lat:null,lng:null,dt:null});
+//		this.position = ko.observable({lat:null,lng:null,dt:null});
 //		this.alt = ko.observable(null);
 //		this.dist = ko.observable(null);
 //		this.gSpd = ko.observable(null);
@@ -25,13 +25,13 @@ define(["jquery","knockout","CountryCodes","config"],function($,ko,countryCodes,
 			startDt: 0,
 			lastPrintedPoint: 0
 		}
-/*
+
 		this.position = {
 			lat: null,
 			lng: null,
 			dt: null
 		}
-*/
+
 		this.tData = {
 			dist: null,
 			alt: null,
