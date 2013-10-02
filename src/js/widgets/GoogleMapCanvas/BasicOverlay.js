@@ -36,16 +36,26 @@ define(["google.maps"],function(gmaps) {
 		}
 	}
 
-	BasicOverlay.prototype.ll2p = function(lat,lng) {
+	BasicOverlay.prototype.abs2rel = function(uniPx,zoom) {
+		if (!zoom) zoom = this._map.getZoom();
+		var scale = 1 << zoom;
+		return { x: ((uniPx.x - this._sqTlCorner.x) * scale) >> 0, y: ((uniPx.y - this._sqTlCorner.y) * scale) >> 0 };
+	}
+
+	BasicOverlay.prototype.ll2pLinear = function(lat,lng) {
 		return {
 			x: this._sqTlCorner.x+(lng-this._tlCorner.lng())/(this._brCorner.lng()-this._tlCorner.lng())*(this._sqBrCorner.x-this._sqTlCorner.x),
 			y: this._sqTlCorner.y+(lat-this._tlCorner.lat())/(this._brCorner.lat()-this._tlCorner.lat())*(this._sqBrCorner.y-this._sqTlCorner.y)
 		}
 	}
 
-	BasicOverlay.prototype.abs2rel = function(uniPx,zoom) {
-		var scale = 1 << zoom;
-		return { x: ((uniPx.x - this._sqTlCorner.x) * scale) >> 0, y: ((uniPx.y - this._sqTlCorner.y) * scale) >> 0 };
+	BasicOverlay.prototype.ll2xyLinear = function(coords,zoom) {
+		return this.abs2rel(this.ll2pLinear(coords.lat,coords.lng),zoom);
+	}
+
+	BasicOverlay.prototype.ll2p = function(lat,lng) {
+		if (!this._map) return null;
+		return this._map.getProjection().fromLatLngToPoint(new gmaps.LatLng(lat,lng));
 	}
 
 	BasicOverlay.prototype.ll2xy = function(coords,zoom) {

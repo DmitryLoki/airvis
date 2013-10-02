@@ -4,7 +4,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
  		for (var i in data)
 			u[i] = data[i];
 
-		u.highlightedLevel = ko.observable(0);
+//		u.highlightedLevel = ko.observable(0);
 		u.preparedCoords = null;
 		u.prepareCoordsRequired = true;
 
@@ -28,7 +28,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		}).on("out",function() {
 			u.highlighted(false);
 		}).on("click",function() {
-			mapWidget.openPopup(u);
+			mapWidget.switchPopup(u);
 		});
 
 		// проверка того, что начало трека удалилось из-за 5min треков
@@ -48,14 +48,14 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			mapWidget.updateAndRedraw();
 		});
 		u.highlightedSubscribe = u.highlighted.subscribe(function(v) {
-			if (v) {
-				u.highlightedLevel(config.canvas.ufos.highlightSize);
-			}
+//			if (v) {
+//				u.highlightedLevel(config.canvas.ufos.highlightSize);
+//			}
 			mapWidget.update();
 		});
-		u.highlightedLevel.subscribe(function() {
-			mapWidget.update();
-		});
+//		u.highlightedLevel.subscribe(function() {
+//			mapWidget.update();
+//		});
 		u.nameSubscribe = u.name.subscribe(function() {
 			u.updateIconRequired = true;
 			u.updateIconNameRequired = true;
@@ -193,7 +193,6 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 
 	    u.hide = function() {
 			u._overlay.hide();
-			if (mapWidget._popup && mapWidget._popup._ufo == u) mapWidget._popup.hide();
 	    }
 
 		u.render = function(canvas,type) {
@@ -212,15 +211,13 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 				var cntDrawed = 0, cntTotal = 0, cntLines = 0;
 				canvas.setProperties(u.colored() ? $.extend({},config.canvas.ufos.tracks,{strokeStyle:u.color()}) : config.canvas.ufos.tracks);
 				context.beginPath();
-//				var p = u.trackData.lastPrintedPoint ? u.trackData.lastPrintedPoint : canvas.abs2rel(u.trackData.data[u.trackData.endI],mapWidget.zoom());
-				var p = u.trackData.lastPrintedPoint ? u.trackData.lastPrintedPoint : canvas.ll2xy(u.trackData.data[u.trackData.endI],mapWidget.zoom());
+				var p = u.trackData.lastPrintedPoint ? u.trackData.lastPrintedPoint : canvas.ll2xy(u.trackData.data[u.trackData.endI]);
 				var startNewLine = false;
 				context.moveTo(p.x,p.y);
 				cntTotal++;
 				for (var i = u.trackData.endI+1, l = u.trackData.data.length; i < l; i++) {
 					cntTotal++;
-//					var p2 = canvas.abs2rel(u.trackData.data[i],mapWidget.zoom());
-					var p2 = canvas.ll2xy(u.trackData.data[i],mapWidget.zoom());
+					var p2 = canvas.ll2xy(u.trackData.data[i]);
 					if (!canvas.inViewport(p2,0)) {
 						var prevInViewport = i>0 ? canvas.llInViewport(u.trackData.data[i-1]) : true;
 						var nextInViewport = i+1<l ? canvas.llInViewport(u.trackData.data[i+1]) : true;
@@ -243,7 +240,6 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 				u.trackData.endI = u.trackData.data.length-1;
 				u.trackData.startDt = u.trackData.data[0].dt;
 				u.trackData.lastPrintedPoint = p;
-//				console.log("trackUpdate cntTotal",cntTotal,"cntDrawed",cntDrawed,"cntLines",cntLines);
 			}
 
 			// Если нет данных на текущий момент, дальше не рисуем
@@ -254,7 +250,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 				u._prepareCoords(canvas);
 				u.prepareCoordsRequired = false;
 			}
-			var p = canvas.abs2rel(u.preparedCoords,mapWidget.zoom());
+			var p = canvas.abs2rel(u.preparedCoords);
 
 			// Кусочек трека до текущего положения пилота рисуем в любом случае, даже если пилот улетел за экран (только в случае fullTrack его рисовать не нужно)
 			if (type == "trackEnd" && u.trackData.lastPrintedPoint && p && !u.fullTrackEnabled() && mapWidget.tracksVisualMode() != "off") {
@@ -285,6 +281,7 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 
 			// Подсветка
 			// Затухание подсветки
+			/*
 			if (type == "highlight" && (u.highlighted() || u.highlightedLevel()>0)) {
 				if (u.highlighted()) {
 					u._highlightedDt = (new Date).getTime();
@@ -294,9 +291,11 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 					u.highlightedLevel(h>0?h:0);
 				}
 			}
+			*/
 			// TODO: укоротить копипастный код
-			if (type == "highlight" && u.highlightedLevel() > 0) {
-				var h = u.highlightedLevel();
+//			if (type == "highlight" && u.highlightedLevel() > 0) {
+			if (type == "highlight" && u.highlighted()) {
+				var h = config.canvas.ufos.highlightSize;
 				canvas.setProperties(config.canvas.ufos.highlight);
 				// Подсветка иконки
 				context.beginPath();
@@ -334,30 +333,19 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 				context.strokeRect(p.x-1.5,p.y-u._height-4.5,3,u._height+5);
 			}
 
-/*
-			if (type == "track" && mapWidget.tracksVisualMode() != "off" && u.trackData.length > 0) {
-				canvas.setProperties(config.canvas.ufos.basic);
-				if (u.colored()) canvas.setProperties({strokeStyle:u.color()});
-				context.beginPath();
-				for (var i = 0; i < u.trackData.length; i++) {
-					if (u.trackData[i].dt == null) continue;
-					var pp = canvas.abs2rel(u.trackData[i],mapWidget.zoom());
-					if (i > 0) context.lineTo(pp.x,pp.y);
-					else context.moveTo(pp.x,pp.y);
-				}
-				context.lineTo(p.x,p.y);
-				context.stroke();
-			}
-*/
-
 			if (type == "overlay") {
 				u._overlay.show();
 				u._overlay.setPosition(p.x-u.iconCenter.x/2,p.y-u.iconSize-u._height,u._overlayZ);
-				if (mapWidget._popup && mapWidget._popup._ufo == u) {
-					mapWidget._popup.show();
-					mapWidget.updatePopup();
-				}
 			}
+		}
+
+		u.getPopupPosition = function(overlay) {
+			if (!u.preparedCoords || u.prepareCoordsRequired) {
+				u._prepareCoords(overlay);
+				u.prepareCoordsRequired = false;
+			}
+			var p = overlay.abs2rel(u.preparedCoords);
+			return {x:p.x+u.iconSize/2,y:p.y-u._height-u.iconSize};
 		}
 
 		u.destroy = function() {

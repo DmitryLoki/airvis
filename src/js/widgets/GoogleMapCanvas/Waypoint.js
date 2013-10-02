@@ -35,14 +35,13 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 		w.render = function(co,type) {
 			if (!mapWidget.isReady() || mapWidget.cylindersVisualMode() == "off") return;
 			if (w.prepareCoordsRequired) {
-				w.preparedCoords = mapWidget.prepareCoords(w.center().lat,w.center().lng);
+				w.preparedCoords = co.ll2p(w.center().lat,w.center().lng);
 				w.preparedSpCoords = mapWidget.map.getProjection().fromLatLngToPoint(gmaps.geometry.spherical.computeOffset(new gmaps.LatLng(w.center().lat,w.center().lng),w.radius(),90));
 				w.prepareCoordsRequired = false;
 			}
-			var p = co.abs2rel(w.preparedCoords,mapWidget.zoom());
-			var sp = co.abs2rel(w.preparedSpCoords,mapWidget.zoom());
+			var p = co.abs2rel(w.preparedCoords);
+			var sp = co.abs2rel(w.preparedSpCoords);
 			var r = Math.sqrt(Math.pow(p.x-sp.x,2)+Math.pow(p.y-sp.y,2));
-//			console.log(w.preparedCoords,p,mapWidget.zoom());
 			if (!co.inViewport(p,r)) return;
 			var context = co.getContext();
 

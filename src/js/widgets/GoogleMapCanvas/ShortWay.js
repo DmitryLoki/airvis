@@ -4,9 +4,9 @@ define(["jquery","config"],function($,config) {
 
 		w.data = data;
 
-		var _prepareCoords = function(rw) {
+		var _prepareCoords = function(co,rw) {
 			if (rw.preparedCoordsExist && !rw.prepareCoordsRequired) return rw;
-			var p = mapWidget.prepareCoords(rw.lat,rw.lng);
+			var p = co.ll2p(rw.lat,rw.lng);
 			rw.x = p.x;
 			rw.y = p.y;
 			rw.preparedCoordsExist = true;
@@ -15,15 +15,15 @@ define(["jquery","config"],function($,config) {
 		}
 
 		w.render = function(co,type) {
-			if (!mapWidget.isReady() || !w.data || w.data.length == 0) return;
+			if (!w.data || w.data.length == 0) return;
 			co.setProperties(config.canvas.shortWay.basic);
 			var context = co.getContext();
 
 			if (type == "line") {
 				context.beginPath();
 				for (var i = 0; i < w.data.length; i++) {
-					w.data[i] = _prepareCoords(w.data[i]);
-					var p = co.abs2rel(w.data[i],mapWidget.zoom());
+					w.data[i] = _prepareCoords(co,w.data[i]);
+					var p = co.abs2rel(w.data[i]);
 					if (i > 0) context.lineTo(p.x,p.y);
 					else context.moveTo(p.x,p.y);
 				}
@@ -33,7 +33,7 @@ define(["jquery","config"],function($,config) {
 			if (type == "arrows") {
 				var prevP = null;
 				for (var i = 0; i < w.data.length; i++) {
-					var p = co.abs2rel(w.data[i],mapWidget.zoom());
+					var p = co.abs2rel(w.data[i]);
 					if (i > 0) {
 						var l = Math.sqrt(Math.pow(p.x-prevP.x,2)+Math.pow(p.y-prevP.y,2));
 						var s = config.canvas.shortWay.arrowSize/2;
@@ -55,7 +55,7 @@ define(["jquery","config"],function($,config) {
 			}
 
 			if (type == "bearing" && mapWidget.raceType() == "opendistance" && mapWidget.raceTypeOptions()) {
-				var lp = co.abs2rel(_prepareCoords(w.data[w.data.length-1]),mapWidget.zoom());
+				var lp = co.abs2rel(_prepareCoords(co,w.data[w.data.length-1]));
 
 				var a = (mapWidget.raceTypeOptions().bearing || 0)/180*Math.PI;
 				var d = Math.max(co.getWidth(),co.getHeight());
@@ -86,8 +86,8 @@ define(["jquery","config"],function($,config) {
 			
 			if (type == "labels") {
 				for (var i = 0; i < w.data.length; i++) {
-					var t = _prepareCoords(w.data[i]);
-					var p = co.abs2rel(t,mapWidget.zoom());
+					var t = _prepareCoords(co,w.data[i]);
+					var p = co.abs2rel(t);
 					if (t.type == "ordinal") {
 						co.setProperties(config.canvas.shortWay.basic);
 						context.beginPath();

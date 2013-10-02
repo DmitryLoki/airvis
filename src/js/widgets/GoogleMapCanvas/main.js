@@ -121,42 +121,31 @@ define([
 			this.map.setZoom(zoom);
 	}
 
-	GoogleMap.prototype.prepareCoords = function(lat,lng) {
-		return this.map.getProjection().fromLatLngToPoint(new gmaps.LatLng(lat,lng));
-	}
-
-	GoogleMap.prototype.openPopup = function(ufo) {
-		this.closePopup();
-		this._popup = this.popupOverlay.createPopup();
-		this._popup._ufo = ufo;
-		this._popup.setHTML(this.templates.popup);
-		ko.applyBindings(ufo,this._popup.getContainer());
-		this.updatePopup();
-		// обновляем карту чтобы пропало имя и подпись высоты у пилота, у которого открыт попап
-		ufo.updateIconRequired = true;
-		this.update();
-	}
-
-	GoogleMap.prototype.updatePopup = function() {
-		if (!this._popup) return;
-		var u = this._popup._ufo;
-		if (!u.preparedCoords || u.prepareCoordsRequired) {
-			u._prepareCoords();
-			u.prepareCoordsRequired = false;
-		}
-		var p = this.popupOverlay.abs2rel(u.preparedCoords,this.zoom());
-		this._popup.setPosition(p.x+u.iconSize/2,p.y-u._height-u.iconSize);
-	}
-
-	GoogleMap.prototype.closePopup = function() {
+	GoogleMap.prototype.switchPopup = function(ufo) {
 		if (this._popup) {
 			var u = this._popup._ufo;
 			u.updateIconRequired = true;
 			this._popup.destroy();
 			delete this._popup;
-			// обновляем карту, чтобы имя пилота и подпись высоты появились обратно
-			this.update();
-		}		
+		}
+		if (ufo) {
+			this._popup = this.popupOverlay.createPopup();
+			this._popup._ufo = ufo;
+			this.updatePopup();
+			this._popup.setHTML(this.templates.popup);
+			ko.applyBindings(ufo,this._popup.getContainer());
+			// обновляем карту чтобы пропало имя и подпись высоты у пилота, у которого открыт попап
+			ufo.updateIconRequired = true;
+		}
+		this.update();
+	}
+
+	GoogleMap.prototype.updatePopup = function() {
+		if (!this._popup || !this._popup._ufo) return;
+		if (!this._popup._ufo.visible() || this._popup._ufo.noData() || this._popup._ufo.noPosition()) 
+			return this.switchPopup();
+		var p = this._popup._ufo.getPopupPosition(this.popupOverlay);
+		this._popup.setPosition(p.x,p.y);
 	}
 
 	GoogleMap.prototype.findUfoById = function($id) {
@@ -167,8 +156,7 @@ define([
 	}
 
 	GoogleMap.prototype.openPopupById = function(id) {
-		var ufo = this.findUfoById(id);
-		ufo ? this.openPopup(ufo) : this.closePopup();
+		this.switchPopup(this.findUfoById(id));
 	}
 
 	GoogleMap.prototype.hasPopup = function(ufo) {
@@ -286,7 +274,8 @@ define([
 		var highlightedUfos = [];
 		var checkedUfos = [];
 		this.mapUfos.forEach(function(ufo) {
-			if (ufo.highlighted() || ufo.highlightedLevel()>0)
+//			if (ufo.highlighted() || ufo.highlightedLevel()>0)
+			if (ufo.highlighted())
 				highlightedUfos.push(ufo);
 			else if (ufo.checked())
 				checkedUfos.push(ufo);
@@ -329,6 +318,8 @@ define([
 				ufo.render(self.canvasOverlay,"overlay");
 			});
 		}
+		// все отрисовали, все координаты готовы. Если открыт попап, передвинем его
+		this.updatePopup();
 	}
 
 	GoogleMap.prototype._updateStaticCanvas = function() {
@@ -383,7 +374,7 @@ define([
 		else this._updateDynamicCanvas();
 		this["_updatingTimeout"+s] = setTimeout(function() {
 			self["_updating"+s] = false;
-			if (self["_updateRequired"])
+			if (self["_updateRequired"+s])
 				self.update(type);
 		},100);
 	}
@@ -403,7 +394,6 @@ define([
 	GoogleMap.prototype.updateAll = function() {
         this.update("static",true);
         this.updateAndRedraw("dynamic",true);
-        this.updatePopup();
 	}
 
 	GoogleMap.prototype.relayoutOverlays = function(debug) {
@@ -531,7 +521,7 @@ define([
 
 		// скрыть попап при клике на карту
 		gmaps.event.addListener(this.map,"click",function() {
-			self.closePopup();
+			self.switchPopup();
 		});
 
         //Отключить зум контрол для тач-устройств
