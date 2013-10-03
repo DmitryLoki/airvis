@@ -14,9 +14,10 @@ define(["google.maps"],function(gmaps) {
 	BasicOverlay.prototype.relayout = function() {
 		if (!this._mapDiv || !this._map) return;
 		if (this._width != this._mapDiv.offsetWidth || this._height != this._mapDiv.offsetHeight) {
-			this._width = this._mapDiv.offsetWidth;
-			this._height = this._mapDiv.offsetHeight;
-			this.setContainerSize(this._width,this._height);
+			if (this.setContainerSize(this._mapDiv.offsetWidth,this._mapDiv.offsetHeight)) {
+				this._width = this._mapDiv.offsetWidth;
+				this._height = this._mapDiv.offsetHeight;	
+			}
 		}
 		this._bounds = this._map.getBounds();
 

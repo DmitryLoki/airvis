@@ -233,10 +233,12 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			var p = canvas.abs2rel(u.preparedCoords);
 
 			// Кусочек трека до текущего положения пилота рисуем в любом случае, даже если пилот улетел за экран (только в случае fullTrack его рисовать не нужно)
+			// Изменили логику lastPrintedPoint! (из px в прямоугольные координаты)
 			if (type == "trackEnd" && u.trackData.lastPrintedPoint && p && !u.fullTrackEnabled() && mapWidget.tracksVisualMode() != "off") {
+				var p2 = canvas.abs2rel(u.trackData.lastPrintedPoint);
 				canvas.setProperties(u.colored() ? $.extend({},config.canvas.ufos.tracks,{strokeStyle:u.color()}) : config.canvas.ufos.tracks);
 				context.beginPath();
-				context.moveTo(u.trackData.lastPrintedPoint.x,u.trackData.lastPrintedPoint.y);
+				context.moveTo(p2.x,p2.y);
 				context.lineTo(p.x,p.y);
 				context.stroke();
 			}
@@ -329,6 +331,22 @@ define(["jquery","knockout","google.maps","config"],function($,ko,gmaps,config) 
 			u._prepareCoords(overlay);
 			var p = overlay.abs2rel(u.preparedCoords);
 			return {x:p.x+u.iconSize/2,y:p.y-u._height-u.iconSize};
+		}
+
+		u.getStaticTrackLines = function(overlay) {
+			var data = [];
+			if (u.trackData.endI+1<u.trackData.data.length && (mapWidget.tracksVisualMode() != "off" || u.fullTrackEnabled())) {
+//				for (var i = u.trackData.endI>0?u.trackData.endI+1:0, l = u.trackData.data.length; i<l; i++) {
+				for (var i = u.trackData.endI+1, l = u.trackData.data.length; i<l; i++) {
+					var p = overlay.ll2p(u.trackData.data[i].lat,u.trackData.data[i].lng);
+					data.push(p);
+				}
+				u.trackData.endI = u.trackData.data.length-1;
+				u.trackData.startDt = u.trackData.data[0].dt;
+				u.trackData.lastPrintedPoint = p;
+//				console.log("getStaticTrackLines",u.id(),data,u.trackData);
+			}
+			return data;
 		}
 
 		u.destroy = function() {

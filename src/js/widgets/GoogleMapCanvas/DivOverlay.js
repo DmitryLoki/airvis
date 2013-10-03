@@ -12,9 +12,10 @@ define(["jquery","google.maps","EventEmitter","./BasicOverlay"],function($,gmaps
 	DivOverlay.prototype = new BasicOverlay();
 
 	DivOverlay.prototype.setContainerSize = function(w,h) {
-		if (!this._container) return;
+		if (!this._container) return false;
 		this._container.style.width = 0;
 		this._container.style.height = 0;
+		return true;
 	}
 
 	DivOverlay.prototype.setContainerOffset = function(l,t) {

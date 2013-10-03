@@ -12,7 +12,7 @@
 	RealServer.prototype.get = function(query) {
 		var self = this;
 		var mult = 1000;
-		var testPilotCut = 7; //260
+		var testPilotCut = 759; //260
 		var testPilotOn = false;
 		if (query.type == "race") {
 			$.ajax({

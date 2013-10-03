@@ -12,9 +12,10 @@ define(["google.maps","./BasicOverlay"],function(gmaps,BasicOverlay) {
 	CanvasOverlay.prototype = new BasicOverlay();
 
 	CanvasOverlay.prototype.setContainerSize = function(w,h) {
-		if (!this._canvas) return;
+		if (!this._canvas) return false;
 		this._canvas.width = w;
 		this._canvas.height = h;
+		return true;
 	}
 
 	CanvasOverlay.prototype.setContainerOffset = function(l,t) {

@@ -8,6 +8,8 @@ define([
 	"./ShortWay",
 	"./Waypoint",
 	"./Ufo",
+	"./CanvasTileMapType",
+	"./CanvasTileTrackBuffer",
 	"config",
 	"walk"
 ],function(
@@ -20,6 +22,8 @@ define([
 	ShortWay,
 	Waypoint,
 	Ufo,
+	CanvasTileMapType,
+	CanvasTileTrackBuffer,
 	config,
 	walk
 ){
@@ -56,9 +60,11 @@ define([
 			source: this.waypoints,
 			target: this.mapWaypoints,
 			onAdd: function(w) {
-				self.update("static");
-				self.update("static");
 				return new Waypoint(w,self);
+			},
+			afterAdd: function() {
+				self.update("static");
+				self.update("static");				
 			}
 		});
 
@@ -218,44 +224,50 @@ define([
 			this.map.setZoom(this.map.getZoom()+1);
 	}
 
-	GoogleMap.prototype._updateDynamicCanvas = function() {
+	GoogleMap.prototype._updateDynamicCanvas = function(relayout) {
 		var self = this;
 		var overlayZ = 1;
 
-		// Треки будем рисовать на собственном канвасе. Полные треки рисуются даже если tracksVisualMode==off
+		if (relayout) {
+	        this.canvasOverlay.relayout();
+	        this.mouseOverlay.relayout();
+	        this.popupOverlay.relayout();
+		}
+
+		// Полные треки рисуются даже если tracksVisualMode==off
 		if (this.tracksVisualMode() == "off" && this.updateStaticTracksRequired) {
 			this.tracksOverlay.clear();
 			this.mapUfos.forEach(function(ufo) {
-				if (ufo.fullTrackEnabled()) {
+				if (ufo.fullTrackEnabled() && ufo.visible()) {
 					ufo.resetTrack();
-					ufo.render(self.tracksOverlay,"staticTrackUpdate");
+					self.trackBuffer.appendLine(ufo.id(),ufo.getStaticTrackLines(self.canvasOverlay),ufo.colored()?ufo.color():config.canvas.ufos.tracks.strokeStyle);
 				}
 			});
 			this.updateStaticTracksRequired = false;
 		}
 
-		// Дальше работаем с обычными треками. При этом полные треки для нас не отличаются от обычных за исключением того, что от них не отрезаем начало в режиме 5min
-		if (this.tracksVisualMode() != "off") {
+		if (this.tracksVisualMode() !== "off") {
 			// в режиме 5min проверяем, не пора ли удалить начала треков. удаляем раз в 10сек.
 			if (!this.updateStaticTracksRequired && this.tracksVisualMode()=="5min") {
 				var d = (new Date).getTime();
 				if (!this.updateStaticTracksRequiredLast || d-this.updateStaticTracksRequiredLast>10000) {
 					this.updateStaticTracksRequiredLast = d;
 					this.mapUfos.forEach(function(ufo) {
-						if (!ufo.fullTrackEnabled() && ufo.trackStartChanged(self.currentKey()-300000)) {
+						if (ufo.visible() && !ufo.fullTrackEnabled() && ufo.trackStartChanged(self.currentKey()-300000)) {
 							ufo.cutTrackStart(self.currentKey()-300000);
 							self.updateStaticTracksRequired = true;
 						}
 					});
 				}
 			}
-			if (this.updateStaticTracksRequired) {
-				this.tracksOverlay.clear();
-			}
+			if (this.updateStaticTracksRequired)
+				this.trackBuffer.reset();
 			this.mapUfos.forEach(function(ufo) {
-				if (self.updateStaticTracksRequired)
-					ufo.resetTrack();
-				ufo.render(self.tracksOverlay,"staticTrackUpdate");
+				if (ufo.visible()) {
+					if (self.updateStaticTracksRequired)
+						ufo.resetTrack();
+					self.trackBuffer.appendLine(ufo.id(),ufo.getStaticTrackLines(self.canvasOverlay),ufo.colored()?ufo.color():config.canvas.ufos.tracks.strokeStyle);
+				}
 			});
 			this.updateStaticTracksRequired = false;
 		}
@@ -320,8 +332,11 @@ define([
 		this.updatePopup();
 	}
 
-	GoogleMap.prototype._updateStaticCanvas = function() {
+	GoogleMap.prototype._updateStaticCanvas = function(relayout) {
 		var drawOrder = {}, drawOrderKeys = [];
+
+		if (relayout)
+	        this.staticCanvasOverlay.relayout();
 
 		this.staticCanvasOverlay.clear();
 
@@ -358,18 +373,20 @@ define([
 	}
 
 
-	GoogleMap.prototype.update = function(type,force) {
+	GoogleMap.prototype.update = function(type,relayout,force) {
 		var self = this;
 		var s = type ? type + "Canvas" : "usualCanvas";
 		if (this["_updating"+s] && !force) {
 			this["_updateRequired"+s] = true;
+			if (relayout) this["_updateRelayoutRequired"+s] = true;
 			return;
 		}
 		this["_updating"+s] = true;
 		this["_updateRequired"+s] = false;
 		clearTimeout(this["_updatingTimeout"+s]);
-		if (type == "static") this._updateStaticCanvas();
-		else this._updateDynamicCanvas();
+		if (type == "static") this._updateStaticCanvas(relayout || this["_updateRelayoutRequired"+s]);
+		else this._updateDynamicCanvas(relayout || this["_updateRelayoutRequired"+s]);
+		this["_updateRelayoutRequired"+s] = false;
 		this["_updatingTimeout"+s] = setTimeout(function() {
 			self["_updating"+s] = false;
 			if (self["_updateRequired"+s])
@@ -377,9 +394,9 @@ define([
 		},100);
 	}
 
-	GoogleMap.prototype.updateAndRedraw = function(type,force) {
+	GoogleMap.prototype.updateAndRedraw = function(type,relayout) {
 		this.updateStaticTracksRequired = true;
-		this.update(type,force);
+		this.update(type,relayout);
 	}
 
 	GoogleMap.prototype.destroyTracks = function() {
@@ -388,29 +405,6 @@ define([
 		});
 		this.updateStaticTracksRequired = true;
 	}
-
-	GoogleMap.prototype.updateAll = function() {
-        this.update("static",true);
-        this.updateAndRedraw("dynamic",true);
-	}
-
-	GoogleMap.prototype.relayoutOverlays = function(debug) {
-		if (!this.isReady()) return;
-        this.staticCanvasOverlay.relayout();
-        this.canvasOverlay.relayout();
-        this.tracksOverlay.relayout();
-        this.mouseOverlay.relayout();
-        this.popupOverlay.relayout();
-	}
-
-/*
-	GoogleMap.prototype.domInit = function(elem,params) {
-		var self = this;
-		setTimeout(function() {
-			self._domInit.call(self,elem,params);
-		},1000);
-	}
-*/
 
 	GoogleMap.prototype.addCustomMapType = function() {
 		var terrainMapType = this.map.mapTypes.get("terrain");
@@ -427,7 +421,6 @@ define([
 		var centered = false;
 		this.mapUfos.forEach(function(ufo) {
 			if (ufo.id() == id) {
-//				self.centerMap(ufo.position());
 				self.centerMap(ufo.position);
 				centered = true;
 			}
@@ -466,11 +459,23 @@ define([
 		});
 
 	   	var w = walk();
+
+	   	w.step(function(step) {
+	   		self.canvasTileMapType = new CanvasTileMapType;
+	   		self.trackBuffer = new CanvasTileTrackBuffer({
+	   			map: self.map,
+	   			ct: self.canvasTileMapType,
+	   			onReady: function() {
+	   				step.next();
+	   			}
+	   		});		
+	   		self.map.overlayMapTypes.push(self.canvasTileMapType);
+	   	});
+
 		w.step(function(step){self.staticCanvasOverlay = new CanvasOverlay({map:self.map,z:1,onAdd:function(){step.next();}});});
-		w.step(function(step){self.tracksOverlay = new CanvasOverlay({map:self.map,z:2,onAdd:function(){step.next();}});});
-		w.step(function(step){self.canvasOverlay = new CanvasOverlay({map:self.map,z:3,onAdd:function(){step.next();}});});
-		w.step(function(step){self.mouseOverlay = new DivOverlay({map:self.map,z:4,onAdd:function(){step.next();}});});
-		w.step(function(step){self.popupOverlay = new DivOverlay({map:self.map,z:5,onAdd:function(){step.next();}});});
+		w.step(function(step){self.canvasOverlay = new CanvasOverlay({map:self.map,z:2,onAdd:function(){step.next();}});});
+		w.step(function(step){self.mouseOverlay = new DivOverlay({map:self.map,z:3,onAdd:function(){step.next();}});});
+		w.step(function(step){self.popupOverlay = new DivOverlay({map:self.map,z:4,onAdd:function(){step.next();}});});
 		w.step(function(step) {
 	        gmaps.event.addListenerOnce(self.map,"idle",function() {
 	        	step.next();
@@ -479,15 +484,15 @@ define([
 		w.wait(function() {
 			self.addCustomMapType();
 			self.isReady(true);
-			self.relayoutOverlays();
 			self.updateIcons();
-			self.updateAll();
+	        self.update("static",true);
+	        self.update("dynamic",true);
 			self.emit("ready",self);
 		});
 
 		gmaps.event.addListener(this.map,"bounds_changed",function() {
-			self.relayoutOverlays();
-			self.updateAll();
+	        self.update("static",true);
+	        self.update("dynamic",true);
 			self.savePosition();
 		});
 
@@ -497,6 +502,9 @@ define([
 		gmaps.event.addListener(this.map,"zoom_changed",function() {
 			self.zoom(self.map.getZoom());
             self.updateIcons();
+            // Здесь надо сразу обновить все размеры чтобы цилиндры не прыгали при анимации в изменении зума
+	        self.update("static",true,true);
+	        self.update("dynamic",true,true);
             var maxZoomTerrain = self.map.mapTypes.get("terrainPlus") ? self.map.mapTypes.get("terrainPlus").maxZoom : 0;
             var maxZoomHybrid = self.map.mapTypes.get("hybridPlus") ? self.map.mapTypes.get("hybridPlus").maxZoom : 0;
             if (self.map.getMapTypeId() == "terrainPlus" && self.zoom() == maxZoomTerrain && maxZoomTerrain < maxZoomHybrid)
