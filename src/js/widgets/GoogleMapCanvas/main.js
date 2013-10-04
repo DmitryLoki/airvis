@@ -391,7 +391,7 @@ define([
 			self["_updating"+s] = false;
 			if (self["_updateRequired"+s])
 				self.update(type);
-		},100);
+		},config.mapUpdateDelay);
 	}
 
 	GoogleMap.prototype.updateAndRedraw = function(type,relayout) {

@@ -569,7 +569,6 @@ define([
 		var self = this;
 
 		var renderFrame = function(callback) {
-			self.loading(true);
 			self.currentDataSourceGetKey = self.currentKey();
 			self.dataSource.get({
 				type: "timeline",
@@ -579,10 +578,15 @@ define([
 				isOnline: self.isOnline(),
 				mode: self.isCurrentlyOnline() ? "simple" : "linear",
 //				mode: self.isCurrentlyOnline() ? "simple" : "simple",
+				onLoadStart: function() {
+					self.loading(true);
+				},
+				onLoadFinish: function() {
+					self.loading(false);
+				},
 				callback: function(data,query) {
 					if (query.dt != self.currentDataSourceGetKey) return;
 					// в data ожидается массив с ключами - id-шниками пилотов и данными - {lat и lng} - текущее положение
-					self.loading(false);
 					self.ufos().forEach(function(ufo) {
 						if (data && data[ufo.id()]) {
 							rw = data[ufo.id()];
@@ -653,16 +657,18 @@ define([
 			if (!_currentKeyUpdatedAt || force) {
 				_currentKeyUpdatedAt = (new Date).getTime();
 				_currentKey = self.currentKey();
-//				if (_runTimeout) utils.cancelRequestAnimFrame(_runTimeout);
-				if (_runTimeout) clearTimeout(_runTimeout);
+
+				if (_runTimeout && config.useRequestAnimFrameInMainCycle) utils.cancelRequestAnimFrame(_runTimeout);
+				else if (_runTimeout) clearTimeout(_runTimeout);
+
+				if (_runTimeout) utils.cancelRequestAnimFrame(_runTimeout);
+//				if (_runTimeout) clearTimeout(_runTimeout);
 				_runTimeout = null;
 			}
 			self.calculateFPS();
 			renderFrame(function() {
 				if (self.playerState() == "play") {
-
-//					_runTimeout = utils.requestAnimFrame(function() {
-					_runTimeout = setTimeout(function() {
+					_runTimeout = (config.useRequestAnimFrameInMainCycle ? utils.requestAnimFrame : setTimeout)(function() {
 						var _lastUpdated = _currentKeyUpdatedAt;
 						_currentKeyUpdatedAt = (new Date).getTime();
 						_currentKey += (_currentKeyUpdatedAt-_lastUpdated)*self.playerSpeed();
@@ -673,7 +679,7 @@ define([
 						self.currentKey(_currentKey);
 						_inRunCycle = false;
 						run();
-					},50);
+					},config.mainCycleDelay);
 				}
 				else {
 					_inRunCycle = false;

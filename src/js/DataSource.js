@@ -257,6 +257,9 @@ define(["jquery"],function($) {
 							query.callback(getDataFromFrame(data,query.dt,query.mode),query);
 						}
 					}
+					if (typeof query.onLoadStart === "function") {
+						query.onLoadStart();
+					}
 					this.options.server.get({
 						type: "timeline",
 						first: first,
@@ -264,6 +267,9 @@ define(["jquery"],function($) {
 						isOnline: query.isOnline,
 						loadStartData: !query.finishDataFromPrevFrame,
 						callback: function(data) {
+							if (typeof query.onLoadFinish === "function") {
+								query.onLoadFinish();
+							}
 //							console.log("DataSource, loadedFrame data before processing",$.extend(true,{},data));
 							if (query.finishDataFromPrevFrame) {
 								data.start = query.finishDataFromPrevFrame;

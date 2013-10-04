@@ -337,6 +337,11 @@ define({
     },
     // берем расстояние от пред. точки до текущей у трека. если он меньше чем pxTrackPrecision, точку не рисуем (допускаем смещение до 20px)
     pxTrackPrecision: 20,
+    // ограничение частоты обновления карты
+    mapUpdateDelay: 40,
+    // использовать requestAnimFrame или timeout
+	useRequestAnimFrameInMainCycle: false,
+	mainCycleDelay: 40,
 
 	// Говно какое-то
 
