@@ -514,9 +514,22 @@ define(["jquery","knockout","widget!Checkbox","./Ufo","config","jquery.tinyscrol
 		});
 	}
 
+    UfosTable.prototype.keepWindowOnDefaultPosition = function(){
+        if(this.modalWindow) {
+            this.modalWindow.visible.subscribe(function(visible){
+                if(visible) {
+                    self.modalWindow.left(config.windows.ufosTable.left);
+                    self.modalWindow.top(config.windows.ufosTable.top);
+                }
+            })
+        }
+    }
+
 	UfosTable.prototype.domInit = function(element, params) {
 		var self = this;
 		this.modalWindow = params.modalWindow;
+        //При открытии окна ставим его нa координаты по умолчанию
+        this.keepWindowOnDefaultPosition();
 		var div = ko.virtualElements.firstChild(element);
 		while (div && div.nodeType != 1)
 			div = ko.virtualElements.nextSibling(div);

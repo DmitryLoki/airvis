@@ -10,5 +10,5 @@
 		<div class="airvis-title-date" data-bind="text:titles().dateTitle"></div>
 		<div class="airvis-title-task" data-bind="text:titles().taskTitle"></div>
 	</div>
-	<a class="airvis-window-close" href="#" data-bind="click:windowClose"></a>
+	<a class="airvis-window-close" href="#" data-bind="event:{click:windowClose,touchstart:windowClose}"></a>
 </div>
